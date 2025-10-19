@@ -1,55 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- 
+    This sitemap contains one URL because this is a single-page website.
+    URL fragments (#about, #projects, etc.) are ignored by search engines
+    and should not be included in a sitemap.
+  -->
+  <url>
+  
+    <!-- The canonical URL of your homepage. This is the only page to be indexed. -->
+    <loc>https://avinashanalytics.github.io/</loc>
     
-    <!-- Homepage -->
-    <url>
-        <loc>https://avinashanalytics.github.io/</loc>
-        <lastmod>2025-01-09</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>1.0</priority>
-    </url>
+    <!-- 
+      IMPORTANT: Update this to the date you last made significant changes.
+      Format: YYYY-MM-DD
+    -->
+    <lastmod>2025-01-09</lastmod>
     
-    <!-- About Section -->
-    <url>
-        <loc>https://avinashanalytics.github.io/#about</loc>
-        <lastmod>2025-01-09</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
+    <!-- 
+      A hint to crawlers about how often the page is likely to change.
+      "weekly" is appropriate for an actively maintained portfolio.
+      Change to "monthly" after the site stabilizes (6+ months).
+    -->
+    <changefreq>weekly</changefreq>
     
-    <!-- Expertise Section -->
-    <url>
-        <loc>https://avinashanalytics.github.io/#expertise</loc>
-        <lastmod>2025-01-09</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.9</priority>
-    </url>
+    <!-- 
+      A hint about the priority of this page relative to other pages on your site.
+      As this is the only page, it gets the highest priority: 1.0.
+    -->
+    <priority>1.0</priority>
     
-    <!-- Projects Section -->
-    <url>
-        <loc>https://avinashanalytics.github.io/#projects</loc>
-        <lastmod>2025-01-09</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.9</priority>
-    </url>
-    
-    <!-- Tech Stack Section -->
-    <url>
-        <loc>https://avinashanalytics.github.io/#tech-stack</loc>
-        <lastmod>2025-01-09</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    
-    <!-- Contact Section -->
-    <url>
-        <loc>https://avinashanalytics.github.io/#contact</loc>
-        <lastmod>2025-01-09</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    
+  </url>
+
 </urlset>
