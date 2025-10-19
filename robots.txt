@@ -1,17 +1,7 @@
-# Avinash Rai - Data Engineer Portfolio
+# robots.txt for Avinash Rai's Data Engineer Portfolio
 # https://avinashanalytics.github.io/
 
 User-agent: *
-Allow: /
-
-# Sitemap location
-Sitemap: https://avinashanalytics.github.io/sitemap.xml
-
-# Crawl delay (optional - be nice to crawlers)
-Crawl-delay: 1
-
-# Disallow nothing - we want everything indexed
 Disallow:
 
-# Additional sitemaps (if you add blog/projects pages later)
-# Sitemap: https://avinashanalytics.github.io/projects-sitemap.xml
+Sitemap: https://avinashanalytics.github.io/sitemap.xml
