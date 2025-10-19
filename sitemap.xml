@@ -1,35 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- 
-    This sitemap contains one URL because this is a single-page website.
-    URL fragments (#about, #projects, etc.) are ignored by search engines
-    and should not be included in a sitemap.
-  -->
+  <!-- Sitemap for Avinash Rai's portfolio site -->
   <url>
-  
-    <!-- The canonical URL of your homepage. This is the only page to be indexed. -->
     <loc>https://avinashanalytics.github.io/</loc>
-    
-    <!-- 
-      IMPORTANT: Update this to the date you last made significant changes.
-      Format: YYYY-MM-DD
-    -->
-    <lastmod>2025-01-09</lastmod>
-    
-    <!-- 
-      A hint to crawlers about how often the page is likely to change.
-      "weekly" is appropriate for an actively maintained portfolio.
-      Change to "monthly" after the site stabilizes (6+ months).
-    -->
+    <lastmod>2025-10-19</lastmod> <!-- Updated to match Bing submission date -->
     <changefreq>weekly</changefreq>
-    
-    <!-- 
-      A hint about the priority of this page relative to other pages on your site.
-      As this is the only page, it gets the highest priority: 1.0.
-    -->
     <priority>1.0</priority>
-    
   </url>
 
 </urlset>
