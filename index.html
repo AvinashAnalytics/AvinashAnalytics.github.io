@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <head>
-    <!-- Google Analytics 4 -->
+    <!-- Google Analytics 4 - ADD YOUR TRACKING ID -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX');
+      gtag('config', 'G-XXXXXXXXXX'); // Replace with your actual GA4 ID
     </script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
     <!-- Primary SEO Meta Tags -->
     <title>Avinash Rai - Senior Data Engineer | Snowflake, dbt, Matillion, Azure, AI/ML Expert</title>
@@ -19,6 +20,14 @@
     <meta name="keywords" content="Avinash Rai, AvinashAnalytics, Data Engineer, Snowflake Expert, dbt Developer, Matillion, Azure Data Factory, ETL, Data Analytics, Machine Learning, Python, SQL, Power BI, Alteryx, Modern Data Stack">
     <meta name="author" content="Avinash Rai">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    
+    <!-- Google Search Console Verification - ADD AFTER VERIFICATION -->
+    <!-- <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" /> -->
+    
     <link rel="canonical" href="https://avinashanalytics.github.io/">
     
     <!-- Open Graph / Facebook -->
@@ -27,7 +36,10 @@
     <meta property="og:title" content="Avinash Rai - Senior Data Engineer | Snowflake, dbt, Matillion Expert">
     <meta property="og:description" content="Senior Data Engineer with expertise in Snowflake, dbt, Matillion, Azure, and AI/ML. Building enterprise-grade data solutions and analytics pipelines.">
     <meta property="og:image" content="https://github.com/AvinashAnalytics.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="Avinash Rai Portfolio">
+    <meta property="og:locale" content="en_US">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
@@ -40,6 +52,12 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     
+    <!-- DNS Prefetch & Preconnect -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="//www.google-analytics.com">
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,9 +67,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- Stylesheet -->
+    <link rel="preload" href="styles.css" as="style">
     <link rel="stylesheet" href="styles.css">
     
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Structured Data (JSON-LD) - Person Schema -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org/",
@@ -114,6 +133,55 @@
         "name": "Avinash Rai"
       },
       "keywords": "data engineering, snowflake, dbt, matillion, azure, machine learning, etl"
+    }
+    </script>
+    
+    <!-- WebPage Schema with Breadcrumbs -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Avinash Rai - Senior Data Engineer Portfolio",
+      "description": "Professional portfolio showcasing data engineering projects, Snowflake expertise, dbt implementations, and AI/ML solutions by Avinash Rai",
+      "url": "https://avinashanalytics.github.io/",
+      "author": {
+        "@type": "Person",
+        "name": "Avinash Rai",
+        "url": "https://avinashanalytics.github.io/"
+      },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://avinashanalytics.github.io/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "About",
+            "item": "https://avinashanalytics.github.io/#about"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Projects",
+            "item": "https://avinashanalytics.github.io/#projects"
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "Contact",
+            "item": "https://avinashanalytics.github.io/#contact"
+          }
+        ]
+      },
+      "inLanguage": "en-US",
+      "keywords": "Avinash Rai, Data Engineer, Snowflake, dbt, Matillion, Azure, AI ML",
+      "datePublished": "2025-01-09",
+      "dateModified": "2025-01-09"
     }
     </script>
 </head>
