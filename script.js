@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const subtitleElement = document.querySelector('.hero-subtitle');
     if (subtitleElement) {
         const texts = [
-            'Senior Data Engineer & Analytics Architect',
+            'Data Engineer & Analytics Architect',
             'Snowflake & dbt Specialist',
             'AI/ML Pipeline Expert',
             'Modern Data Stack Architect'
