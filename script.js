@@ -632,40 +632,117 @@ if ('serviceWorker' in navigator) {
 }
 /* =====================================================
    🤖 AVINASH AI DIGITAL TWIN — CHAT WIDGET
-   Safe Integration With Existing Portfolio JS
+   Fixed Version with DOM Ready Check
 ===================================================== */
 
-// =============== DOM ELEMENTS ===============
-const aiChatButton = document.getElementById("ai-chat-button");
-const aiChatWindow = document.getElementById("ai-chat-window");
-const aiChatClose = document.getElementById("ai-chat-close");
-const aiChatMessages = document.getElementById("ai-chat-messages");
-const aiChatInput = document.getElementById("ai-chat-input");
-const aiChatSend = document.getElementById("ai-chat-send");
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // =============== DOM ELEMENTS ===============
+    const aiChatButton = document.getElementById("ai-chat-button");
+    const aiChatWindow = document.getElementById("ai-chat-window");
+    const aiChatClose = document.getElementById("ai-chat-close");
+    const aiChatMessages = document.getElementById("ai-chat-messages");
+    const aiChatInput = document.getElementById("ai-chat-input");
+    const aiChatSend = document.getElementById("ai-chat-send");
 
-// Skip initialization if widget not present
-if (aiChatButton && aiChatWindow) {
+    // Debug: Check if elements exist
+    console.log("🤖 Chatbot Debug:");
+    console.log("- Button found:", !!aiChatButton);
+    console.log("- Window found:", !!aiChatWindow);
+    console.log("- Close found:", !!aiChatClose);
+    console.log("- Messages found:", !!aiChatMessages);
+    console.log("- Input found:", !!aiChatInput);
+    console.log("- Send found:", !!aiChatSend);
+
+    // Skip if elements not present
+    if (!aiChatButton || !aiChatWindow) {
+        console.error("❌ Chatbot elements not found!");
+        return;
+    }
+
+    console.log("✅ Chatbot initialized successfully");
 
     // =====================
     // TOGGLE CHAT WINDOW
     // =====================
-    aiChatButton.onclick = () => {
-        aiChatWindow.style.display = "flex";
-        aiChatButton.style.transform = "scale(0.9)";
-        setTimeout(() => aiChatButton.style.transform = "scale(1)", 150);
-    };
+    aiChatButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("🖱️ Chat button clicked!");
+        
+        if (aiChatWindow.style.display === "flex") {
+            aiChatWindow.style.display = "none";
+        } else {
+            aiChatWindow.style.display = "flex";
+        }
+    });
 
-    aiChatClose.onclick = () => {
-        aiChatWindow.style.display = "none";
-    };
+    // Close button
+    if (aiChatClose) {
+        aiChatClose.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("❌ Close button clicked");
+            aiChatWindow.style.display = "none";
+        });
+    }
 
     // =====================
     // SEND MESSAGE
     // =====================
-    aiChatSend.onclick = () => sendAIMessage();
-    aiChatInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") sendAIMessage();
-    });
+    function sendAIMessage() {
+        const msg = aiChatInput.value.trim();
+        if (!msg) return;
+
+        console.log("📤 Sending message:", msg);
+
+        // Show user bubble
+        addMessage(msg, "user-msg");
+        aiChatInput.value = "";
+
+        // Show loading indicator
+        showTyping();
+
+        // Call API
+        fetch("https://avinashanalytics-avinash-chatbot.hf.space/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                text: msg,
+                conversation_history: []
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("📥 Response received:", data);
+            removeTyping();
+            addMessage(data.reply || "Sorry, I couldn't process that.", "ai-msg");
+        })
+        .catch(error => {
+            console.error("❌ AI Chat Error:", error);
+            removeTyping();
+            addMessage("⚠️ Unable to reach AI server. Please try again later.", "ai-msg");
+        });
+    }
+
+    // Send button click
+    if (aiChatSend) {
+        aiChatSend.addEventListener('click', sendAIMessage);
+    }
+
+    // Enter key to send
+    if (aiChatInput) {
+        aiChatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendAIMessage();
+            }
+        });
+    }
 
     // =====================
     // ADD MESSAGE TO UI
@@ -674,20 +751,18 @@ if (aiChatButton && aiChatWindow) {
         const bubble = document.createElement("div");
         bubble.className = type;
         bubble.innerHTML = text.replace(/\n/g, "<br>");
-
         aiChatMessages.appendChild(bubble);
         aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
     }
 
     // =====================
-    // LOADING DOTS
+    // TYPING INDICATOR
     // =====================
     function showTyping() {
         const bubble = document.createElement("div");
         bubble.className = "ai-msg";
         bubble.id = "typing-indicator";
         bubble.innerHTML = "Thinking<span class='dots'>...</span>";
-
         aiChatMessages.appendChild(bubble);
         aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
     }
@@ -698,42 +773,8 @@ if (aiChatButton && aiChatWindow) {
     }
 
     // =====================
-    // CALL HUGGINGFACE API
+    // WELCOME MESSAGE
     // =====================
-    async function sendAIMessage() {
-        const msg = aiChatInput.value.trim();
-        if (!msg) return;
+    addMessage("👋 Hi! I'm Avinash's AI assistant. Ask me anything about his skills, projects, or experience!", "ai-msg");
 
-        // Show user bubble
-        addMessage(msg, "user-msg");
-        aiChatInput.value = "";
-
-        // Show loading indicator
-        showTyping();
-
-        try {
-            const response = await fetch(
-                "https://avinashanalystics-avinash-chatbot.hf.space/chat",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        text: msg,
-                        conversation_history: []
-                    })
-                }
-            );
-
-            const data = await response.json();
-
-            removeTyping();
-            addMessage(data.reply, "ai-msg");
-
-        } catch (error) {
-            removeTyping();
-            addMessage("⚠️ Error: Unable to reach server.", "ai-msg");
-            console.error("AI Chat Error:", error);
-        }
-    }
-}
-
+});
