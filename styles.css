@@ -1502,23 +1502,34 @@ h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
 
 /* Chat Window Container */
 #ai-chat-window {
-    position: fixed;
-    bottom: 180px; /* Adjusted for new button position */
-    right: 30px;
-    width: 380px;
-    max-width: calc(100vw - 60px);
-    height: 500px;
-    max-height: calc(100vh - 220px);
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    border: 1px solid rgba(56, 182, 255, 0.25);
-    box-shadow: var(--shadow-xl);
-    display: none; /* Hidden by default, shown via JS */
-    flex-direction: column;
-    overflow: hidden;
-    z-index: 9999;
-    animation: fadeInUp 0.35s ease;
+  position: fixed;
+  bottom: 110px;
+  right: 30px;
+  width: 370px;
+  height: 500px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(56, 182, 255, 0.25);
+  box-shadow: var(--shadow-xl);
+  display: flex;              /* keep flex always */
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
+
+  /* hidden state */
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
+
+#ai-chat-window.active {
+  /* visible state */
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
 
 /* Chat Header */
 #ai-chat-header {
