@@ -1484,3 +1484,345 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 })();
+/* ============================================================
+   🌐 WEB3 HOLOGRAM JS ENGINE — PART 21
+   REFRACTION • SHINE TRACKING • HOLOGRAM TILT • DYNAMIC GLOW
+============================================================ */
+
+(function () {
+    'use strict';
+
+    function ready(cb) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', cb);
+        } else {
+            cb();
+        }
+    }
+
+    ready(function () {
+
+        /* ============================================================
+           1️⃣ HOLOGRAM REFRACTION (Glass-like distortion on hover)
+           Activates on elements with: .web3-hologram
+        ============================================================ */
+
+        const holograms = document.querySelectorAll(".web3-hologram");
+
+        holograms.forEach(holo => {
+            holo.addEventListener("mousemove", e => {
+                const rect = holo.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const moveX = (x - centerX) / 20;
+                const moveY = (y - centerY) / 20;
+
+                holo.style.transform =
+                    `translateY(-6px) rotateX(${ -moveY }deg) rotateY(${ moveX }deg) scale(1.03)`;
+
+                holo.style.setProperty("--holo-x", x + "px");
+                holo.style.setProperty("--holo-y", y + "px");
+            });
+
+            holo.addEventListener("mouseleave", () => {
+                holo.style.transform = "translateY(0) rotateX(0) rotateY(0)";
+            });
+        });
+
+
+        /* ============================================================
+           2️⃣ SHINE TRACKING BEAM (White holographic streak)
+           Works automatically on elements with: .web3-shine
+        ============================================================ */
+
+        const shineEls = document.querySelectorAll(".web3-shine");
+
+        shineEls.forEach(el => {
+            el.addEventListener("mousemove", e => {
+                const rect = el.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+
+                el.style.setProperty("--shine-pos", x + "px");
+            });
+        });
+
+
+        /* ============================================================
+           3️⃣ HOLOGRAM GRID PANEL INTERACTIVE DEPTH
+           Class: .web3-grid-panel
+        ============================================================ */
+
+        const gridPanels = document.querySelectorAll(".web3-grid-panel");
+
+        gridPanels.forEach(panel => {
+            panel.addEventListener("mousemove", e => {
+                const rect = panel.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+                const rotateX = -y * 6;
+                const rotateY = x * 6;
+
+                panel.style.transform =
+                    `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            panel.addEventListener("mouseleave", () => {
+                panel.style.transform = "perspective(900px) rotateX(0) rotateY(0)";
+            });
+        });
+
+
+        /* ============================================================
+           4️⃣ FLOATING HOLOGRAM LABELS (Class: .web3-float)
+           Subtle continuous hover lift
+        ============================================================ */
+
+        const floaters = document.querySelectorAll(".web3-float");
+
+        floaters.forEach(el => {
+            el.addEventListener("mouseenter", () => {
+                el.style.transform = "translateY(-8px)";
+            });
+            el.addEventListener("mouseleave", () => {
+                el.style.transform = "translateY(0)";
+            });
+        });
+
+
+        /* ============================================================
+           5️⃣ HOLOGRAM GLOW INTENSITY ON SCROLL
+           Class auto-applies to: .web3-hologram, .web3-grid-panel
+        ============================================================ */
+
+        const glowTargets = document.querySelectorAll(
+            ".web3-hologram, .web3-grid-panel, .web3-neon-frame"
+        );
+
+        if ("IntersectionObserver" in window) {
+            const glowObs = new IntersectionObserver(
+                entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("web3-glow-boost");
+                        }
+                    });
+                },
+                { threshold: 0.4 }
+            );
+
+            glowTargets.forEach(t => glowObs.observe(t));
+        }
+
+
+        /* ============================================================
+           6️⃣ HOLOGRAM PULSE EFFECT
+           Adds heartbeat glow when hovered
+        ============================================================ */
+
+        holograms.forEach(holo => {
+            holo.addEventListener("mouseenter", () => {
+                holo.classList.add("holo-pulse");
+            });
+            holo.addEventListener("mouseleave", () => {
+                holo.classList.remove("holo-pulse");
+            });
+        });
+
+        console.log("🌐 Web3 Hologram Engine (Part 21) Loaded");
+    });
+
+})();
+/* ============================================================
+   🌐 PART 22 — AI WARP DISTORTION ENGINE
+   CURSOR WAVE • HEAT-WARP • SHOCKWAVE • TRAIL FLOWS
+============================================================ */
+
+(function() {
+    "use strict";
+
+    function ready(cb) {
+        if (document.readyState !== "loading") cb();
+        else document.addEventListener("DOMContentLoaded", cb);
+    }
+
+    ready(function() {
+
+        /* ============================================================
+           1️⃣ CURSOR HEAT-WARP DISTORTION LAYER
+        ============================================================ */
+
+        const heatWarpLayer = document.createElement("div");
+        heatWarpLayer.id = "ai-heat-warp";
+        heatWarpLayer.style.position = "fixed";
+        heatWarpLayer.style.top = 0;
+        heatWarpLayer.style.left = 0;
+        heatWarpLayer.style.width = "100vw";
+        heatWarpLayer.style.height = "100vh";
+        heatWarpLayer.style.pointerEvents = "none";
+        heatWarpLayer.style.zIndex = 9990;
+        heatWarpLayer.style.mixBlendMode = "soft-light";
+        heatWarpLayer.style.opacity = 0.25;
+
+        document.body.appendChild(heatWarpLayer);
+
+        document.addEventListener("mousemove", (e) => {
+            heatWarpLayer.style.background = `
+                radial-gradient(
+                    350px circle at ${e.clientX}px ${e.clientY}px,
+                    rgba(56,182,255,0.25),
+                    transparent 70%
+                )
+            `;
+        });
+
+
+        /* ============================================================
+           2️⃣ CURSOR SHOCKWAVE RIPPLE
+        ============================================================ */
+
+        document.addEventListener("click", (e) => {
+            const ripple = document.createElement("div");
+            ripple.className = "ai-shockwave";
+
+            ripple.style.left = e.clientX - 30 + "px";
+            ripple.style.top = e.clientY - 30 + "px";
+
+            document.body.appendChild(ripple);
+
+            setTimeout(() => ripple.remove(), 700);
+        });
+
+        /* CSS injection for ripple */
+        const rippleCSS = document.createElement("style");
+        rippleCSS.textContent = `
+            .ai-shockwave {
+                position: fixed;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                border: 2px solid rgba(56,182,255,0.7);
+                transform: scale(0);
+                opacity: 1;
+                pointer-events: none;
+                animation: shockwaveExpand 0.7s ease-out forwards;
+                z-index: 9995;
+            }
+
+            @keyframes shockwaveExpand {
+                0% { transform: scale(0); opacity: 1; }
+                100% { transform: scale(8); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(rippleCSS);
+
+
+        /* ============================================================
+           3️⃣ ADVANCED CURSOR TRAIL FLOW (Smooth, Multi-Particle)
+        ============================================================ */
+
+        const trailCount = 10;
+        const trails = [];
+
+        for (let i = 0; i < trailCount; i++) {
+            const node = document.createElement("div");
+            node.className = "ai-trail-node";
+            node.style.position = "fixed";
+            node.style.width = "10px";
+            node.style.height = "10px";
+            node.style.borderRadius = "50%";
+            node.style.pointerEvents = "none";
+            node.style.zIndex = 9994;
+            node.style.mixBlendMode = "screen";
+            node.style.background = "rgba(56,182,255,0.45)";
+            node.style.filter = "blur(6px)";
+            node.style.opacity = (0.15 + i * 0.05).toString();
+            trails.push(node);
+            document.body.appendChild(node);
+        }
+
+        let cursorX = window.innerWidth / 2;
+        let cursorY = window.innerHeight / 2;
+
+        document.addEventListener("mousemove", (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+        });
+
+        function animateTrail() {
+            let x = cursorX;
+            let y = cursorY;
+
+            trails.forEach((node, i) => {
+                node.style.transform = `translate(${x}px, ${y}px)`;
+
+                // Smooth follow
+                x += (cursorX - x) * (0.15 - i * 0.008);
+                y += (cursorY - y) * (0.15 - i * 0.008);
+            });
+
+            requestAnimationFrame(animateTrail);
+        }
+
+        animateTrail();
+
+
+        /* ============================================================
+           4️⃣ AI WATER/WAVE DISTORTION EFFECT (Hover Elements)
+           Use class: .ai-warp
+        ============================================================ */
+
+        const warpTargets = document.querySelectorAll(".ai-warp");
+
+        warpTargets.forEach(el => {
+            el.style.position = "relative";
+            el.style.overflow = "hidden";
+
+            const wave = document.createElement("div");
+            wave.className = "ai-warp-wave";
+            el.appendChild(wave);
+
+            el.addEventListener("mousemove", (e) => {
+                const rect = el.getBoundingClientRect();
+                wave.style.left = (e.clientX - rect.left - 50) + "px";
+                wave.style.top = (e.clientY - rect.top - 50) + "px";
+                wave.classList.add("active");
+            });
+
+            el.addEventListener("mouseleave", () => {
+                wave.classList.remove("active");
+            });
+        });
+
+        const warpCSS = document.createElement("style");
+        warpCSS.textContent = `
+            .ai-warp-wave {
+                position: absolute;
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                background: radial-gradient(
+                    circle,
+                    rgba(56,182,255,0.35),
+                    transparent 70%
+                );
+                filter: blur(20px);
+                opacity: 0;
+                transition: opacity .2s ease;
+                pointer-events: none;
+            }
+            .ai-warp-wave.active {
+                opacity: 1;
+            }
+        `;
+        document.head.appendChild(warpCSS);
+
+
+        console.log("⚡ Web3 AI Warp Engine (Part 22) Loaded");
+    });
+
+})();
