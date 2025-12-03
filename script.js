@@ -1011,3 +1011,476 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 </script>
+/* ============================================================
+   🌐 AVINASH WEB3 JS ENGINE — PART 18
+   SCROLL REVEAL • PARALLAX • MAGNETIC • RIPPLE • 3D TILT • CURSOR GLOW
+============================================================ */
+
+(function () {
+    'use strict';
+
+    // Guard: only run after DOM is ready
+    function onReady(cb) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', cb);
+        } else {
+            cb();
+        }
+    }
+
+    onReady(function () {
+
+        /* ============================================================
+           1️⃣ SCROLL REVEAL ENGINE
+           Targets:
+             - .web3-reveal
+             - .web3-fade-up
+             - .web3-rise
+             - .web3-blur-in
+             - .web3-stagger
+             - .web3-scroll-light
+        ============================================================ */
+
+        var revealSelector = `
+            .web3-reveal,
+            .web3-fade-up,
+            .web3-rise,
+            .web3-blur-in,
+            .web3-stagger,
+            .web3-scroll-light
+        `;
+
+        var revealElements = Array.prototype.slice.call(
+            document.querySelectorAll(revealSelector)
+        );
+
+        if ('IntersectionObserver' in window && revealElements.length > 0) {
+            var revealObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        var el = entry.target;
+
+                        // Generic reveal
+                        if (el.classList.contains('web3-reveal')) {
+                            el.classList.add('web3-reveal-visible');
+                        }
+
+                        // Specific animations
+                        if (
+                            el.classList.contains('web3-fade-up') ||
+                            el.classList.contains('web3-rise') ||
+                            el.classList.contains('web3-blur-in') ||
+                            el.classList.contains('web3-stagger')
+                        ) {
+                            el.classList.add('web3-show');
+                        }
+
+                        // Lighting activation
+                        if (el.classList.contains('web3-scroll-light')) {
+                            el.classList.add('web3-scroll-light-active');
+                        }
+
+                        revealObserver.unobserve(el);
+                    }
+                });
+            }, {
+                threshold: 0.15,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            revealElements.forEach(function (el) {
+                revealObserver.observe(el);
+            });
+        }
+
+
+        /* ============================================================
+           2️⃣ PARALLAX ENGINE
+           - Elements with [data-parallax-speed]
+           - Elements with .web3-parallax-layer[data-depth]
+        ============================================================ */
+
+        var parallaxNodes = Array.prototype.slice.call(
+            document.querySelectorAll('[data-parallax-speed], .web3-parallax-layer[data-depth]')
+        );
+
+        if (parallaxNodes.length > 0) {
+            var ticking = false;
+
+            function onScroll() {
+                if (!ticking) {
+                    window.requestAnimationFrame(function () {
+                        var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+
+                        parallaxNodes.forEach(function (el) {
+                            var speed = parseFloat(el.getAttribute('data-parallax-speed')) || 0;
+                            var depth = parseFloat(el.getAttribute('data-depth')) || 0;
+
+                            // Speed based parallax (vertical)
+                            if (speed !== 0) {
+                                var offsetY = scrollY * speed;
+                                el.style.transform = 'translateY(' + (-offsetY) + 'px)';
+                            }
+
+                            // Depth-based (for .web3-parallax-layer)
+                            if (el.classList.contains('web3-parallax-layer') && depth !== 0) {
+                                var depthOffset = scrollY * depth;
+                                el.style.transform = 'translate3d(0,' + (-depthOffset) + 'px,0)';
+                            }
+                        });
+
+                        ticking = false;
+                    });
+
+                    ticking = true;
+                }
+            }
+
+            window.addEventListener('scroll', onScroll);
+            onScroll();
+        }
+
+
+        /* ============================================================
+           3️⃣ MAGNETIC BUTTON ENGINE
+           - Elements with .web3-magnetic
+           Slight cursor attraction effect
+        ============================================================ */
+
+        var magneticElements = Array.prototype.slice.call(
+            document.querySelectorAll('.web3-magnetic')
+        );
+
+        magneticElements.forEach(function (el) {
+            var strength = parseFloat(el.getAttribute('data-magnetic-strength')) || 0.35;
+
+            el.addEventListener('mousemove', function (e) {
+                var rect = el.getBoundingClientRect();
+                var relX = e.clientX - rect.left;
+                var relY = e.clientY - rect.top;
+
+                var moveX = (relX - rect.width / 2) * strength / 10;
+                var moveY = (relY - rect.height / 2) * strength / 10;
+
+                el.style.transform =
+                    'translate(' + moveX + 'px,' + moveY + 'px) scale(1.03)';
+            });
+
+            el.addEventListener('mouseleave', function () {
+                el.style.transform = 'translate(0,0) scale(1)';
+            });
+        });
+
+
+        /* ============================================================
+           4️⃣ PRESS RIPPLE ENGINE
+           - Elements with .web3-press
+           Uses CSS variables --x and --y for ripple origin
+        ============================================================ */
+
+        var pressElements = Array.prototype.slice.call(
+            document.querySelectorAll('.web3-press')
+        );
+
+        pressElements.forEach(function (el) {
+            el.addEventListener('pointerdown', function (e) {
+                var rect = el.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+
+                el.style.setProperty('--x', x + 'px');
+                el.style.setProperty('--y', y + 'px');
+            });
+        });
+
+
+        /* ============================================================
+           5️⃣ 3D TILT CARDS
+           - Elements with .web3-tilt
+           - Elements with .web3-hover-parallax
+        ============================================================ */
+
+        var tiltElements = Array.prototype.slice.call(
+            document.querySelectorAll('.web3-tilt, .web3-hover-parallax')
+        );
+
+        tiltElements.forEach(function (card) {
+            var maxTilt = parseFloat(card.getAttribute('data-tilt-max')) || 10;
+            var perspective = parseFloat(card.getAttribute('data-tilt-perspective')) || 800;
+
+            function handleMove(e) {
+                var rect = card.getBoundingClientRect();
+                var relX = e.clientX - rect.left;
+                var relY = e.clientY - rect.top;
+
+                var percentX = (relX / rect.width) - 0.5;
+                var percentY = (relY / rect.height) - 0.5;
+
+                var rotateY = percentX * maxTilt;
+                var rotateX = -percentY * maxTilt;
+
+                card.style.transform =
+                    'perspective(' + perspective + 'px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateZ(0)';
+            }
+
+            function resetTilt() {
+                card.style.transform = 'perspective(' + perspective + 'px) rotateX(0deg) rotateY(0deg) translateZ(0)';
+            }
+
+            card.addEventListener('mousemove', handleMove);
+            card.addEventListener('mouseleave', resetTilt);
+        });
+
+
+        /* ============================================================
+           6️⃣ CURSOR NEON GLOW + TRAIL
+           - Creates: .web3-cursor-glow & .web3-cursor-glow-trail
+        ============================================================ */
+
+        var enableCursorGlow = true; // set false if you ever want to disable
+
+        if (enableCursorGlow && window.matchMedia('(pointer:fine)').matches) {
+            var glow = document.createElement('div');
+            glow.className = 'web3-cursor-glow';
+
+            var trail = document.createElement('div');
+            trail.className = 'web3-cursor-glow-trail';
+
+            document.body.appendChild(glow);
+            document.body.appendChild(trail);
+
+            var lastX = window.innerWidth / 2;
+            var lastY = window.innerHeight / 2;
+
+            document.addEventListener('pointermove', function (e) {
+                var x = e.clientX;
+                var y = e.clientY;
+
+                glow.style.transform = 'translate(' + (x - 7) + 'px,' + (y - 7) + 'px)';
+                trail.style.transform = 'translate(' + (lastX - 3) + 'px,' + (lastY - 3) + 'px)';
+
+                lastX = x;
+                lastY = y;
+            });
+
+            document.addEventListener('pointerdown', function () {
+                glow.style.transform += ' scale(0.8)';
+                setTimeout(function () {
+                    glow.style.transform = glow.style.transform.replace(' scale(0.8)', '');
+                }, 120);
+            });
+        }
+
+        console.log('✅ Web3 JS Engine (Part 18) initialized');
+    });
+
+})();
+/* ============================================================
+   🌐 AVINASH WEB3 BACKGROUND ENGINE — PART 19
+   MATRIX RAIN • PARTICLE FIELDS • SECTION LIGHT SCROLL
+============================================================ */
+
+(function () {
+    'use strict';
+
+    // Run after DOM is ready
+    function ready(cb) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', cb);
+        } else {
+            cb();
+        }
+    }
+
+    ready(function () {
+
+        /* ============================================================
+           1️⃣ MATRIX RAIN BACKGROUND (AI Code Stream)
+           Creates: <canvas id="web3-matrix"> auto-injected
+        ============================================================ */
+
+        const enableMatrix = true;
+
+        if (enableMatrix) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.id = 'web3-matrix';
+            canvas.style.position = 'fixed';
+            canvas.style.top = 0;
+            canvas.style.left = 0;
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.zIndex = 0;
+            canvas.style.opacity = 0.12;
+
+            document.body.appendChild(canvas);
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            resize();
+            window.addEventListener('resize', resize);
+
+            const letters = "アカサタナハマヤラワ0123456789ABCDEFGHIJK";
+            const fontSize = 16;
+            const columns = Math.floor(canvas.width / fontSize);
+            const drops = new Array(columns).fill(1);
+
+            function drawMatrix() {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = "#38B6FF";
+                ctx.font = fontSize + "px monospace";
+
+                drops.forEach((y, i) => {
+                    const char = letters[Math.floor(Math.random() * letters.length)];
+                    ctx.fillText(char, i * fontSize, y * fontSize);
+
+                    if (y * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                });
+
+                requestAnimationFrame(drawMatrix);
+            }
+
+            drawMatrix();
+        }
+
+
+        /* ============================================================
+           2️⃣ AI FLOATING PARTICLE FIELD (3D Depth Bubbles)
+        ============================================================ */
+
+        const enableParticles = true;
+
+        if (enableParticles) {
+            const particleLayer = document.createElement("div");
+            particleLayer.className = "web3-particles-layer";
+            particleLayer.style.position = "fixed";
+            particleLayer.style.top = 0;
+            particleLayer.style.left = 0;
+            particleLayer.style.width = "100%";
+            particleLayer.style.height = "100%";
+            particleLayer.style.pointerEvents = "none";
+            particleLayer.style.zIndex = 1;
+            particleLayer.style.overflow = "hidden";
+            document.body.appendChild(particleLayer);
+
+            const particleCount = 60;
+
+            for (let i = 0; i < particleCount; i++) {
+                const p = document.createElement("div");
+                p.className = "web3-float-particle";
+
+                const size = Math.random() * 6 + 2;
+
+                p.style.position = "absolute";
+                p.style.width = size + "px";
+                p.style.height = size + "px";
+                p.style.borderRadius = "50%";
+                p.style.background = "rgba(56,182,255,0.45)";
+                p.style.filter = "blur(2px)";
+                p.style.left = Math.random() * 100 + "%";
+                p.style.top = Math.random() * 100 + "%";
+                p.style.animation = `floatUp ${10 + Math.random() * 20}s linear infinite`;
+                p.style.opacity = 0.4 + Math.random() * 0.4;
+
+                particleLayer.appendChild(p);
+            }
+        }
+
+
+        /* ============================================================
+           3️⃣ SECTION LIGHT SCROLL ENGINE
+           Activates hologram panels as user scrolls through sections
+        ============================================================ */
+
+        const sectionLights = true;
+
+        if (sectionLights) {
+            const sections = document.querySelectorAll("section");
+
+            const sectionObserver = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("section-light-active");
+                        }
+                    });
+                },
+                { threshold: 0.25 }
+            );
+
+            sections.forEach((sec) => sectionObserver.observe(sec));
+        }
+
+
+        /* ============================================================
+           4️⃣ HOLOGRAM PANELS (auto-activate on scroll)
+           Triggers .web3-hologram elements
+        ============================================================ */
+
+        const hologramNodes = document.querySelectorAll(".web3-hologram");
+
+        if (hologramNodes.length > 0 && "IntersectionObserver" in window) {
+            const holoObs = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("web3-hologram-active");
+                        }
+                    });
+                },
+                { threshold: 0.3 }
+            );
+
+            hologramNodes.forEach((node) => holoObs.observe(node));
+        }
+
+
+        /* ============================================================
+           5️⃣ GRID BACKGROUND PARALLAX (Cyber Web3 Grid)
+           Activates .web3-grid-bg
+        ============================================================ */
+
+        const gridLayers = document.querySelectorAll(".web3-grid-bg");
+
+        if (gridLayers.length > 0) {
+            window.addEventListener("scroll", () => {
+                const y = window.scrollY * 0.15;
+
+                gridLayers.forEach((layer) => {
+                    layer.style.transform = `translateY(${y}px)`;
+                });
+            });
+        }
+
+
+        /* ============================================================
+           6️⃣ REDUCED MOTION HANDLING
+           Auto-disable animations for accessibility
+        ============================================================ */
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            document.documentElement.classList.add("reduced-motion");
+
+            // Stop matrix
+            const matrix = document.getElementById("web3-matrix");
+            if (matrix) matrix.style.display = "none";
+
+            // Stop particles
+            const particleLayer = document.querySelector(".web3-particles-layer");
+            if (particleLayer) particleLayer.style.display = "none";
+        }
+
+        console.log("🌐 Web3 Background Engine (Part 19) Loaded");
+    });
+
+})();
