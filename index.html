@@ -1193,22 +1193,28 @@
     <!-- Scripts -->
     
 <script src="script.js"></script>
-    <!-- 💬 Avinash AI Digital Twin Chatbot -->
-<div id="ai-chat-button">🤖 Chat</div>
+ <body>
+  <!-- 💬 Avinash AI Digital Twin Chatbot -->
+  <div id="ai-chat-button">🤖 Chat</div>
 
-<div id="ai-chat-window">
-    <div id="ai-chat-header">
-        <span>Avinash Rai • AI Twin</span>
-        <button id="ai-chat-close">✖</button>
-    </div>
+  <div id="ai-chat-window">
+      <div id="ai-chat-header">
+          <span>Avinash Rai • AI Twin</span>
+          <button id="ai-chat-close">✖</button>
+      </div>
 
-    <div id="ai-chat-messages"></div>
+      <div id="ai-chat-messages"></div>
 
-    <div id="ai-chat-input-box">
-        <input id="ai-chat-input" type="text" placeholder="Ask me anything..." />
-        <button id="ai-chat-send">➤</button>
-    </div>
-</div>
+      <div id="ai-chat-input-box">
+          <input id="ai-chat-input" type="text" placeholder="Ask me anything..." />
+          <button id="ai-chat-send">➤</button>
+      </div>
+  </div>
+
+  <!-- Load JS after all elements exist -->
+  <script src="script.js"></script>
+</body>
+ 
 
 </body>
 </html>
