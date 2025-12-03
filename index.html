@@ -1191,27 +1191,36 @@
     </button>
 
     <!-- Scripts -->
-    
-<script src="script.js"></script>
-  <!-- 💬 Avinash AI Digital Twin Chatbot -->
-  <div id="ai-chat-button">🤖 Chat</div>
+    <script src="script.js"></script>
+<!-- 💬 Avinash AI Digital Twin Chatbot -->
+<!-- AI Chat Widget -->
+<button id="ai-chat-button" aria-label="Chat with AI">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+</button>
 
-  <div id="ai-chat-window">
-      <div id="ai-chat-header">
-          <span>Avinash Rai • AI Twin</span>
-          <button id="ai-chat-close">✖</button>
-      </div>
-
-      <div id="ai-chat-messages"></div>
-
-      <div id="ai-chat-input-box">
-          <input id="ai-chat-input" type="text" placeholder="Ask me anything..." />
-          <button id="ai-chat-send">➤</button>
-      </div>
-  </div>
-
-  <!-- Load JS after all elements exist -->
-  <script src="script.js"></script>
+<div id="ai-chat-window">
+    <div id="ai-chat-header">
+        <div class="chat-header-info">
+            <div class="chat-avatar">🤖</div>
+            <div class="chat-title">
+                <span class="chat-name">Avinash AI</span>
+                <span class="chat-status">Online</span>
+            </div>
+        </div>
+        <button id="ai-chat-close" aria-label="Close chat">✕</button>
+    </div>
+    <div id="ai-chat-messages"></div>
+    <div id="ai-chat-input-area">
+        <input type="text" id="ai-chat-input" placeholder="Ask me anything..." autocomplete="off">
+        <button id="ai-chat-send" aria-label="Send message">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+            </svg>
+        </button>
+    </div>
+</div>
 
 </body>
 </html>
