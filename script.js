@@ -630,3 +630,110 @@ if ('serviceWorker' in navigator) {
         */
     });
 }
+/* =====================================================
+   🤖 AVINASH AI DIGITAL TWIN — CHAT WIDGET
+   Safe Integration With Existing Portfolio JS
+===================================================== */
+
+// =============== DOM ELEMENTS ===============
+const aiChatButton = document.getElementById("ai-chat-button");
+const aiChatWindow = document.getElementById("ai-chat-window");
+const aiChatClose = document.getElementById("ai-chat-close");
+const aiChatMessages = document.getElementById("ai-chat-messages");
+const aiChatInput = document.getElementById("ai-chat-input");
+const aiChatSend = document.getElementById("ai-chat-send");
+
+// Skip initialization if widget not present
+if (aiChatButton && aiChatWindow) {
+
+    // =====================
+    // TOGGLE CHAT WINDOW
+    // =====================
+    aiChatButton.onclick = () => {
+        aiChatWindow.style.display = "flex";
+        aiChatButton.style.transform = "scale(0.9)";
+        setTimeout(() => aiChatButton.style.transform = "scale(1)", 150);
+    };
+
+    aiChatClose.onclick = () => {
+        aiChatWindow.style.display = "none";
+    };
+
+    // =====================
+    // SEND MESSAGE
+    // =====================
+    aiChatSend.onclick = () => sendAIMessage();
+    aiChatInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendAIMessage();
+    });
+
+    // =====================
+    // ADD MESSAGE TO UI
+    // =====================
+    function addMessage(text, type) {
+        const bubble = document.createElement("div");
+        bubble.className = type;
+        bubble.innerHTML = text.replace(/\n/g, "<br>");
+
+        aiChatMessages.appendChild(bubble);
+        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+    }
+
+    // =====================
+    // LOADING DOTS
+    // =====================
+    function showTyping() {
+        const bubble = document.createElement("div");
+        bubble.className = "ai-msg";
+        bubble.id = "typing-indicator";
+        bubble.innerHTML = "Thinking<span class='dots'>...</span>";
+
+        aiChatMessages.appendChild(bubble);
+        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+    }
+
+    function removeTyping() {
+        const el = document.getElementById("typing-indicator");
+        if (el) el.remove();
+    }
+
+    // =====================
+    // CALL HUGGINGFACE API
+    // =====================
+    async function sendAIMessage() {
+        const msg = aiChatInput.value.trim();
+        if (!msg) return;
+
+        // Show user bubble
+        addMessage(msg, "user-msg");
+        aiChatInput.value = "";
+
+        // Show loading indicator
+        showTyping();
+
+        try {
+            const response = await fetch(
+                "https://avinashanalystics-avinash-chatbot.hf.space/chat",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        text: msg,
+                        conversation_history: []
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            removeTyping();
+            addMessage(data.reply, "ai-msg");
+
+        } catch (error) {
+            removeTyping();
+            addMessage("⚠️ Error: Unable to reach server.", "ai-msg");
+            console.error("AI Chat Error:", error);
+        }
+    }
+}
+
