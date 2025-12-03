@@ -4399,3 +4399,185 @@ section {
 .web3-float:hover {
     transform: translateY(-6px);
 }
+/* ============================================================
+   🌌 PART 23 — AURORA + PLASMA BACKGROUND PACK (CSS ONLY)
+   AI PLASMA • AURORA WAVES • GRADIENT ENERGY
+=========================================================== */
+
+/* Base wrapper to hold aurora + plasma layers */
+.web3-aurora-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Make sure section using aurora has position context */
+.web3-aurora-section {
+    position: relative;
+    z-index: 1;
+}
+
+/* ------------------------------
+   1️⃣ AURORA WAVE LAYER
+------------------------------ */
+.web3-aurora {
+    position: absolute;
+    inset: -40%;
+    background:
+        radial-gradient(circle at 10% 0%, rgba(56,182,255,0.35), transparent 60%),
+        radial-gradient(circle at 90% 20%, rgba(139,92,246,0.3), transparent 65%);
+    filter: blur(35px);
+    opacity: 0.75;
+    animation: auroraWave 22s ease-in-out infinite alternate;
+}
+
+@keyframes auroraWave {
+    0% {
+        transform: translate3d(-8%, 4%, 0) scale(1);
+        opacity: 0.65;
+    }
+    50% {
+        transform: translate3d(4%, -4%, 0) scale(1.08);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate3d(10%, 6%, 0) scale(1.02);
+        opacity: 0.7;
+    }
+}
+
+/* ------------------------------
+   2️⃣ PLASMA GLOW BLOBS
+------------------------------ */
+.web3-plasma {
+    position: absolute;
+    inset: -25%;
+    mix-blend-mode: screen;
+    opacity: 0.6;
+}
+
+.web3-plasma::before,
+.web3-plasma::after {
+    content: "";
+    position: absolute;
+    width: 55%;
+    height: 55%;
+    border-radius: 50%;
+    filter: blur(55px);
+}
+
+/* Left plasma */
+.web3-plasma::before {
+    top: 10%;
+    left: -10%;
+    background: radial-gradient(circle, rgba(0,217,163,0.5), transparent 65%);
+    animation: plasmaFloatLeft 26s linear infinite alternate;
+}
+
+/* Right plasma */
+.web3-plasma::after {
+    bottom: -5%;
+    right: -15%;
+    background: radial-gradient(circle, rgba(56,182,255,0.55), transparent 65%);
+    animation: plasmaFloatRight 30s linear infinite alternate;
+}
+
+@keyframes plasmaFloatLeft {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translate3d(6%, -5%, 0) scale(1.1);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate3d(2%, 5%, 0) scale(1.05);
+        opacity: 0.7;
+    }
+}
+
+@keyframes plasmaFloatRight {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.55;
+    }
+    50% {
+        transform: translate3d(-8%, -4%, 0) scale(1.12);
+        opacity: 0.95;
+    }
+    100% {
+        transform: translate3d(-3%, 5%, 0) scale(1.04);
+        opacity: 0.7;
+    }
+}
+
+/* ------------------------------
+   3️⃣ ENERGY FIBER LINES
+------------------------------ */
+.web3-energy-lines {
+    position: absolute;
+    inset: 0;
+    opacity: 0.4;
+    mix-blend-mode: screen;
+    background-image:
+        linear-gradient(
+            120deg,
+            transparent 0%,
+            rgba(56,182,255,0.2) 20%,
+            transparent 40%,
+            transparent 60%,
+            rgba(139,92,246,0.25) 80%,
+            transparent 100%
+        );
+    background-size: 200% 100%;
+    animation: energySweep 16s linear infinite;
+}
+
+@keyframes energySweep {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* ------------------------------
+   4️⃣ READY-TO-USE AURORA PRESET
+------------------------------ */
+
+/* Use this on hero for full effect */
+.hero.web3-aurora-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero.web3-aurora-section .web3-aurora-wrap {
+    z-index: 0;
+}
+
+.hero.web3-aurora-section .container,
+.hero.web3-aurora-section .hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Optional: dim base background slightly for clarity */
+.hero.web3-aurora-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(0,0,0,0.0), rgba(0,0,0,0.55));
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ------------------------------
+   5️⃣ REDUCED MOTION SAFETY
+------------------------------ */
+.reduced-motion .web3-aurora,
+.reduced-motion .web3-plasma,
+.reduced-motion .web3-energy-lines {
+    animation: none !important;
+    opacity: 0.4;
+}
+
