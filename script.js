@@ -632,7 +632,7 @@ if ('serviceWorker' in navigator) {
 }
 /* =====================================================
    🤖 AVINASH AI DIGITAL TWIN — CHAT WIDGET
-   Fixed Version with DOM Ready Check
+   FIXED VERSION WITH CONVERSATION HISTORY
 ===================================================== */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -645,6 +645,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const aiChatInput = document.getElementById("ai-chat-input");
     const aiChatSend = document.getElementById("ai-chat-send");
 
+    // =============== CONVERSATION HISTORY ===============
+    // This is the KEY FIX - maintains context between messages
+    let conversationHistory = [];
+
     // Debug: Check if elements exist
     console.log("🤖 Chatbot Debug:");
     console.log("- Button found:", !!aiChatButton);
@@ -656,7 +660,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Skip if elements not present
     if (!aiChatButton || !aiChatWindow) {
-        console.error("❌ Chatbot elements not found!");
+        console.error("❌ Chatbot elements not found in DOM!");
         return;
     }
 
@@ -674,6 +678,10 @@ document.addEventListener('DOMContentLoaded', function() {
             aiChatWindow.style.display = "none";
         } else {
             aiChatWindow.style.display = "flex";
+            // Focus input when opening
+            if (aiChatInput) {
+                setTimeout(() => aiChatInput.focus(), 100);
+            }
         }
     });
 
@@ -681,13 +689,24 @@ document.addEventListener('DOMContentLoaded', function() {
     if (aiChatClose) {
         aiChatClose.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             console.log("❌ Close button clicked");
             aiChatWindow.style.display = "none";
         });
     }
 
+    // Close when clicking outside (optional)
+    document.addEventListener('click', function(e) {
+        if (aiChatWindow.style.display === "flex" && 
+            !aiChatWindow.contains(e.target) && 
+            !aiChatButton.contains(e.target)) {
+            // Uncomment below to enable click-outside-to-close
+            // aiChatWindow.style.display = "none";
+        }
+    });
+
     // =====================
-    // SEND MESSAGE
+    // SEND MESSAGE - FIXED WITH HISTORY
     // =====================
     function sendAIMessage() {
         const msg = aiChatInput.value.trim();
@@ -699,19 +718,29 @@ document.addEventListener('DOMContentLoaded', function() {
         addMessage(msg, "user-msg");
         aiChatInput.value = "";
 
+        // Add user message to conversation history
+        conversationHistory.push({ 
+            role: "user", 
+            content: msg 
+        });
+
         // Show loading indicator
         showTyping();
 
-        // Call API
+        // Call API with conversation history
         fetch("https://avinashanalytics-avinash-chatbot.hf.space/chat", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
             body: JSON.stringify({
                 text: msg,
-                conversation_history: []
+                conversation_history: conversationHistory
             })
         })
         .then(response => {
+            console.log("📡 Response status:", response.status);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -720,24 +749,54 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log("📥 Response received:", data);
             removeTyping();
-            addMessage(data.reply || "Sorry, I couldn't process that.", "ai-msg");
+            
+            const reply = data.reply || "Sorry, I couldn't process that request.";
+            addMessage(reply, "ai-msg");
+
+            // Add AI reply to conversation history
+            conversationHistory.push({ 
+                role: "assistant", 
+                content: reply 
+            });
+
+            // Keep history manageable (last 20 messages)
+            if (conversationHistory.length > 20) {
+                conversationHistory = conversationHistory.slice(-20);
+            }
+
+            console.log("📜 History length:", conversationHistory.length);
         })
         .catch(error => {
             console.error("❌ AI Chat Error:", error);
             removeTyping();
-            addMessage("⚠️ Unable to reach AI server. Please try again later.", "ai-msg");
+            
+            let errorMsg = "⚠️ Unable to reach AI server. Please try again later.";
+            
+            // More specific error messages
+            if (error.message.includes("422")) {
+                errorMsg = "⚠️ Request format error. Please try again.";
+            } else if (error.message.includes("503") || error.message.includes("500")) {
+                errorMsg = "⚠️ AI server is warming up. Please wait a moment and try again.";
+            } else if (error.message.includes("Failed to fetch")) {
+                errorMsg = "⚠️ Network error. Please check your connection.";
+            }
+            
+            addMessage(errorMsg, "ai-msg");
         });
     }
 
     // Send button click
     if (aiChatSend) {
-        aiChatSend.addEventListener('click', sendAIMessage);
+        aiChatSend.addEventListener('click', function(e) {
+            e.preventDefault();
+            sendAIMessage();
+        });
     }
 
     // Enter key to send
     if (aiChatInput) {
         aiChatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendAIMessage();
             }
@@ -750,9 +809,21 @@ document.addEventListener('DOMContentLoaded', function() {
     function addMessage(text, type) {
         const bubble = document.createElement("div");
         bubble.className = type;
-        bubble.innerHTML = text.replace(/\n/g, "<br>");
+        
+        // Handle markdown-like formatting
+        let formattedText = text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Bold
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')              // Italic
+            .replace(/\n/g, "<br>");                            // Line breaks
+        
+        bubble.innerHTML = formattedText;
         aiChatMessages.appendChild(bubble);
-        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        
+        // Smooth scroll to bottom
+        aiChatMessages.scrollTo({
+            top: aiChatMessages.scrollHeight,
+            behavior: 'smooth'
+        });
     }
 
     // =====================
@@ -760,9 +831,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // =====================
     function showTyping() {
         const bubble = document.createElement("div");
-        bubble.className = "ai-msg";
+        bubble.className = "ai-msg typing-indicator";
         bubble.id = "typing-indicator";
-        bubble.innerHTML = "Thinking<span class='dots'>...</span>";
+        bubble.innerHTML = `
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        `;
         aiChatMessages.appendChild(bubble);
         aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
     }
@@ -773,8 +848,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // =====================
+    // QUICK ACTION BUTTONS (Optional)
+    // =====================
+    function addQuickActions() {
+        const quickActions = document.createElement("div");
+        quickActions.className = "quick-actions";
+        quickActions.innerHTML = `
+            <button class="quick-btn" data-msg="What are your skills?">🛠️ Skills</button>
+            <button class="quick-btn" data-msg="Tell me about your projects">📁 Projects</button>
+            <button class="quick-btn" data-msg="How can I contact you?">📧 Contact</button>
+        `;
+        
+        quickActions.querySelectorAll('.quick-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                aiChatInput.value = this.getAttribute('data-msg');
+                sendAIMessage();
+            });
+        });
+        
+        // Insert after welcome message
+        aiChatMessages.appendChild(quickActions);
+    }
+
+    // =====================
     // WELCOME MESSAGE
     // =====================
     addMessage("👋 Hi! I'm Avinash's AI assistant. Ask me anything about his skills, projects, or experience!", "ai-msg");
+    
+    // Uncomment to add quick action buttons
+    // addQuickActions();
+
+    // =====================
+    // CLEAR CHAT FUNCTION (Optional)
+    // =====================
+    window.clearAIChat = function() {
+        conversationHistory = [];
+        aiChatMessages.innerHTML = '';
+        addMessage("👋 Chat cleared! How can I help you?", "ai-msg");
+    };
 
 });
