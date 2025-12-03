@@ -4187,3 +4187,215 @@ section {
     pointer-events: none;
     border-radius: inherit;
 }
+/* ============================================================
+   🌐 WEB3 HOLOGRAM COMPONENT PACK — PART 20
+   HOLOGRAM CARDS • GLITCH LABELS • CYBER GRID • NEON EDGES
+=========================================================== */
+
+/* ------------------------------------------------------------
+   1️⃣ HOLOGRAM CARD (Main Component)
+------------------------------------------------------------ */
+.web3-hologram {
+    position: relative;
+    background: rgba(20, 26, 50, 0.6);
+    border: 1px solid rgba(56, 182, 255, 0.25);
+    padding: 2rem;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform .35s ease, border-color .35s ease;
+    backdrop-filter: blur(12px);
+}
+
+.web3-hologram:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--primary);
+}
+
+/* Glow layer */
+.web3-hologram::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(56,182,255,0.25), transparent 60%);
+    opacity: 0;
+    transition: opacity .35s ease;
+}
+
+.web3-hologram-active::before {
+    opacity: 1;
+}
+
+/* Top neon edge */
+.web3-hologram::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--gradient-primary);
+    transition: width .6s ease;
+}
+
+.web3-hologram-active::after {
+    width: 100%;
+}
+
+
+/* ------------------------------------------------------------
+   2️⃣ HOLOGRAM GRID PANEL (Animated Cyber Grid)
+------------------------------------------------------------ */
+.web3-grid-panel {
+    position: relative;
+    border: 1px solid rgba(56,182,255,0.2);
+    padding: 2rem;
+    border-radius: 18px;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+}
+
+/* Animated grid lines */
+.web3-grid-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(56,182,255,0.12) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(56,182,255,0.12) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.4;
+    animation: gridMove 16s linear infinite;
+}
+
+@keyframes gridMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 80px 80px; }
+}
+
+
+/* ------------------------------------------------------------
+   3️⃣ CYBER NEON EDGE WRAP (Glowing Cyberframe)
+------------------------------------------------------------ */
+.web3-neon-frame {
+    position: relative;
+    padding: 2rem;
+    border-radius: 18px;
+    background: rgba(15, 20, 40, 0.55);
+    border: 1px solid rgba(56,182,255,0.25);
+    backdrop-filter: blur(10px);
+}
+
+.web3-neon-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: var(--gradient-primary);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.web3-neon-frame:hover::after {
+    opacity: 1;
+}
+
+
+/* ------------------------------------------------------------
+   4️⃣ GLITCH TEXT LABEL (Cyberpunk UI Element)
+------------------------------------------------------------ */
+.web3-glitch-label {
+    position: relative;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: inline-block;
+}
+
+.web3-glitch-label::before,
+.web3-glitch-label::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.web3-glitch-label::before {
+    color: #ff0099;
+    transform: translate(2px, -2px);
+    opacity: 0.5;
+}
+
+.web3-glitch-label::after {
+    color: #00ffe5;
+    transform: translate(-2px, 2px);
+    opacity: 0.5;
+}
+
+.web3-glitch-label:hover::before {
+    animation: glitch1 0.25s infinite;
+}
+
+.web3-glitch-label:hover::after {
+    animation: glitch2 0.25s infinite;
+}
+
+@keyframes glitch1 {
+    0% { transform: translate(2px, -2px); }
+    50% { transform: translate(-1px, 1px); }
+    100% { transform: translate(2px, -2px); }
+}
+
+@keyframes glitch2 {
+    0% { transform: translate(-2px, 2px); }
+    50% { transform: translate(1px, -1px); }
+    100% { transform: translate(-2px, 2px); }
+}
+
+
+/* ------------------------------------------------------------
+   5️⃣ HOLOGRAM SHINE SWEEP
+------------------------------------------------------------ */
+.web3-shine {
+    position: relative;
+    overflow: hidden;
+}
+
+.web3-shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 80%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255,255,255,0.2) 0%,
+        rgba(255,255,255,0.05) 40%,
+        transparent 100%
+    );
+    transform: skewX(-15deg);
+    transition: 0.7s ease;
+}
+
+.web3-shine:hover::after {
+    left: 120%;
+}
+
+
+/* ------------------------------------------------------------
+   6️⃣ FLOATING HOLOGRAM LABEL (Subtle Hover Float)
+------------------------------------------------------------ */
+.web3-float {
+    transition: transform .4s ease;
+}
+
+.web3-float:hover {
+    transform: translateY(-6px);
+}
