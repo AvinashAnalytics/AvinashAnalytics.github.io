@@ -988,3 +988,26 @@
         initChatbot();
     }
 })();
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const layer = document.getElementById("dustLayer");
+
+    for (let i = 0; i < 160; i++) {
+        const d = document.createElement("div");
+        d.className = "web3-dust";
+
+        const size = Math.random() * 3 + 1;
+        d.style.width = size + "px";
+        d.style.height = size + "px";
+
+        d.style.left = Math.random() * 100 + "%";
+        d.style.top = Math.random() * 120 + "%";
+
+        d.style.animationDuration = (14 + Math.random() * 18) + "s";
+
+        d.style.setProperty("--dust-drift", (Math.random() * 140 - 70) + "px");
+
+        layer.appendChild(d);
+    }
+});
+</script>
