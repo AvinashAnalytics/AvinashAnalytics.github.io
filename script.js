@@ -973,58 +973,58 @@
    HOLOGRAM • SHINE • 3D TILT • MAGNETIC • PRESS RIPPLE • CHATBOT
 ============================================================ */
 
-(function () {
-    'use strict';
+        (function () {
+            'use strict';
 
-    const $ = (sel, parent = document) => parent.querySelector(sel);
-    const $$ = (sel, parent = document) => Array.from(parent.querySelectorAll(sel));
+            const $ = (sel, parent = document) => parent.querySelector(sel);
+            const $$ = (sel, parent = document) => Array.from(parent.querySelectorAll(sel));
 
-    /* ============================================================
-       1️⃣ HOLOGRAM REFRACTION + GLOW
-       Classes:
-         - .web3-hologram
-         - .web3-neon-frame
-    ============================================================ */
+            /* ============================================================
+               1️⃣ HOLOGRAM REFRACTION + GLOW
+               Classes:
+                 - .web3-hologram
+                 - .web3-neon-frame
+            ============================================================ */
 
-    function initHologramRefraction() {
-        const holograms = $$('.web3-hologram');
+            function initHologramRefraction() {
+                const holograms = $$('.web3-hologram');
 
-        holograms.forEach(holo => {
-            holo.style.transformStyle = 'preserve-3d';
-            holo.style.willChange = 'transform';
+                holograms.forEach(holo => {
+                    holo.style.transformStyle = 'preserve-3d';
+                    holo.style.willChange = 'transform';
 
-            holo.addEventListener('mousemove', e => {
-                const rect = holo.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
+                    holo.addEventListener('mousemove', e => {
+                        const rect = holo.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
 
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
 
-                const moveX = (x - centerX) / 20;
-                const moveY = (y - centerY) / 20;
+                        const moveX = (x - centerX) / 20;
+                        const moveY = (y - centerY) / 20;
 
-                holo.style.transform =
-                    `translateY(-6px) rotateX(${ -moveY }deg) rotateY(${ moveX }deg) scale(1.03)`;
+                        holo.style.transform =
+                            `translateY(-6px) rotateX(${-moveY}deg) rotateY(${moveX}deg) scale(1.03)`;
 
-                holo.style.setProperty('--holo-x', x + 'px');
-                holo.style.setProperty('--holo-y', y + 'px');
-            });
+                        holo.style.setProperty('--holo-x', x + 'px');
+                        holo.style.setProperty('--holo-y', y + 'px');
+                    });
 
-            holo.addEventListener('mouseleave', () => {
-                holo.style.transform = 'translateY(0) rotateX(0) rotateY(0) scale(1)';
-            });
+                    holo.addEventListener('mouseleave', () => {
+                        holo.style.transform = 'translateY(0) rotateX(0) rotateY(0) scale(1)';
+                    });
 
-            holo.addEventListener('mouseenter', () => {
-                holo.classList.add('holo-pulse');
-            });
-            holo.addEventListener('mouseleave', () => {
-                holo.classList.remove('holo-pulse');
-            });
-        });
+                    holo.addEventListener('mouseenter', () => {
+                        holo.classList.add('holo-pulse');
+                    });
+                    holo.addEventListener('mouseleave', () => {
+                        holo.classList.remove('holo-pulse');
+                    });
+                });
 
-        const style = document.createElement('style');
-        style.textContent = `
+                const style = document.createElement('style');
+                style.textContent = `
             .web3-hologram {
                 position: relative;
                 overflow: hidden;
@@ -1080,35 +1080,35 @@
                     0 0 30px rgba(56,182,255,0.35);
             }
         `;
-        document.head.appendChild(style);
+                document.head.appendChild(style);
 
-        const glowTargets = $$('.web3-hologram, .web3-neon-frame');
-        if ('IntersectionObserver' in window && glowTargets.length) {
-            const obs = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('web3-glow-boost');
-                    }
-                });
-            }, { threshold: 0.4 });
+                const glowTargets = $$('.web3-hologram, .web3-neon-frame');
+                if ('IntersectionObserver' in window && glowTargets.length) {
+                    const obs = new IntersectionObserver(entries => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('web3-glow-boost');
+                            }
+                        });
+                    }, { threshold: 0.4 });
 
-            glowTargets.forEach(t => obs.observe(t));
-        }
+                    glowTargets.forEach(t => obs.observe(t));
+                }
 
-        console.log('🌐 Hologram refraction initialized');
-    }
+                console.log('🌐 Hologram refraction initialized');
+            }
 
-    /* ============================================================
-       2️⃣ SHINE TRACKING BEAM
-       Class: .web3-shine
-    ============================================================ */
+            /* ============================================================
+               2️⃣ SHINE TRACKING BEAM
+               Class: .web3-shine
+            ============================================================ */
 
-    function initShineTracking() {
-        const shineEls = $$('.web3-shine');
-        if (!shineEls.length) return;
+            function initShineTracking() {
+                const shineEls = $$('.web3-shine');
+                if (!shineEls.length) return;
 
-        const style = document.createElement('style');
-        style.textContent = `
+                const style = document.createElement('style');
+                style.textContent = `
             .web3-shine {
                 position: relative;
                 overflow: hidden;
@@ -1136,61 +1136,61 @@
                 opacity: 1;
             }
         `;
-        document.head.appendChild(style);
+                document.head.appendChild(style);
 
-        shineEls.forEach(el => {
-            el.addEventListener('mousemove', e => {
-                const rect = el.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                el.style.setProperty('--shine-pos', x + 'px');
-            });
-        });
-    }
+                shineEls.forEach(el => {
+                    el.addEventListener('mousemove', e => {
+                        const rect = el.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        el.style.setProperty('--shine-pos', x + 'px');
+                    });
+                });
+            }
 
-    /* ============================================================
-       3️⃣ 3D GRID PANELS
-       Class: .web3-grid-panel
-    ============================================================ */
+            /* ============================================================
+               3️⃣ 3D GRID PANELS
+               Class: .web3-grid-panel
+            ============================================================ */
 
-    function initGridPanels() {
-        const panels = $$('.web3-grid-panel');
-        if (!panels.length) return;
+            function initGridPanels() {
+                const panels = $$('.web3-grid-panel');
+                if (!panels.length) return;
 
-        panels.forEach(panel => {
-            const perspective = parseFloat(panel.getAttribute('data-grid-perspective')) || 900;
+                panels.forEach(panel => {
+                    const perspective = parseFloat(panel.getAttribute('data-grid-perspective')) || 900;
 
-            panel.style.transformStyle = 'preserve-3d';
-            panel.style.willChange = 'transform';
+                    panel.style.transformStyle = 'preserve-3d';
+                    panel.style.willChange = 'transform';
 
-            panel.addEventListener('mousemove', e => {
-                const rect = panel.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width - 0.5;
-                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                    panel.addEventListener('mousemove', e => {
+                        const rect = panel.getBoundingClientRect();
+                        const x = (e.clientX - rect.left) / rect.width - 0.5;
+                        const y = (e.clientY - rect.top) / rect.height - 0.5;
 
-                const rotateX = -y * 6;
-                const rotateY = x * 6;
+                        const rotateX = -y * 6;
+                        const rotateY = x * 6;
 
-                panel.style.transform =
-                    `perspective(${perspective}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            });
+                        panel.style.transform =
+                            `perspective(${perspective}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                    });
 
-            panel.addEventListener('mouseleave', () => {
-                panel.style.transform = `perspective(${perspective}px) rotateX(0deg) rotateY(0deg)`;
-            });
-        });
-    }
+                    panel.addEventListener('mouseleave', () => {
+                        panel.style.transform = `perspective(${perspective}px) rotateX(0deg) rotateY(0deg)`;
+                    });
+                });
+            }
 
-    /* ============================================================
-       4️⃣ FLOATING LABELS
-       Class: .web3-float
-    ============================================================ */
+            /* ============================================================
+               4️⃣ FLOATING LABELS
+               Class: .web3-float
+            ============================================================ */
 
-    function initFloatLabels() {
-        const floaters = $$('.web3-float');
-        if (!floaters.length) return;
+            function initFloatLabels() {
+                const floaters = $$('.web3-float');
+                if (!floaters.length) return;
 
-        const style = document.createElement('style');
-        style.textContent = `
+                const style = document.createElement('style');
+                style.textContent = `
             .web3-float {
                 transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
             }
@@ -1199,49 +1199,49 @@
                 box-shadow: 0 12px 30px rgba(0,0,0,0.35);
             }
         `;
-        document.head.appendChild(style);
-    }
+                document.head.appendChild(style);
+            }
 
-    /* ============================================================
-       5️⃣ MAGNETIC BUTTONS + PRESS RIPPLE + 3D TILT
-       Classes:
-         - .web3-magnetic [data-magnetic-strength]
-         - .web3-press
-         - .web3-tilt / .web3-hover-parallax
-    ============================================================ */
+            /* ============================================================
+               5️⃣ MAGNETIC BUTTONS + PRESS RIPPLE + 3D TILT
+               Classes:
+                 - .web3-magnetic [data-magnetic-strength]
+                 - .web3-press
+                 - .web3-tilt / .web3-hover-parallax
+            ============================================================ */
 
-    function initMagneticButtons() {
-        const magneticElements = $$('.web3-magnetic');
-        if (!magneticElements.length) return;
+            function initMagneticButtons() {
+                const magneticElements = $$('.web3-magnetic');
+                if (!magneticElements.length) return;
 
-        magneticElements.forEach(el => {
-            const strength = parseFloat(el.getAttribute('data-magnetic-strength')) || 0.35;
+                magneticElements.forEach(el => {
+                    const strength = parseFloat(el.getAttribute('data-magnetic-strength')) || 0.35;
 
-            el.style.willChange = 'transform';
+                    el.style.willChange = 'transform';
 
-            el.addEventListener('mousemove', e => {
-                const rect = el.getBoundingClientRect();
-                const relX = e.clientX - rect.left;
-                const relY = e.clientY - rect.top;
+                    el.addEventListener('mousemove', e => {
+                        const rect = el.getBoundingClientRect();
+                        const relX = e.clientX - rect.left;
+                        const relY = e.clientY - rect.top;
 
-                const moveX = (relX - rect.width / 2) * strength / 10;
-                const moveY = (relY - rect.height / 2) * strength / 10;
+                        const moveX = (relX - rect.width / 2) * strength / 10;
+                        const moveY = (relY - rect.height / 2) * strength / 10;
 
-                el.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.03)`;
-            });
+                        el.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.03)`;
+                    });
 
-            el.addEventListener('mouseleave', () => {
-                el.style.transform = 'translate(0,0) scale(1)';
-            });
-        });
-    }
+                    el.addEventListener('mouseleave', () => {
+                        el.style.transform = 'translate(0,0) scale(1)';
+                    });
+                });
+            }
 
-    function initPressRipple() {
-        const pressElements = $$('.web3-press');
-        if (!pressElements.length) return;
+            function initPressRipple() {
+                const pressElements = $$('.web3-press');
+                if (!pressElements.length) return;
 
-        const style = document.createElement('style');
-        style.textContent = `
+                const style = document.createElement('style');
+                style.textContent = `
             .web3-press {
                 position: relative;
                 overflow: hidden;
@@ -1274,338 +1274,340 @@
                 }
             }
         `;
-        document.head.appendChild(style);
+                document.head.appendChild(style);
 
-        pressElements.forEach(el => {
-            el.addEventListener('pointerdown', e => {
-                const rect = el.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                el.style.setProperty('--x', x + 'px');
-                el.style.setProperty('--y', y + 'px');
+                pressElements.forEach(el => {
+                    el.addEventListener('pointerdown', e => {
+                        const rect = el.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        el.style.setProperty('--x', x + 'px');
+                        el.style.setProperty('--y', y + 'px');
 
-                const after = window.getComputedStyle(el, '::after');
-                // Force position through CSS vars
-                el.style.setProperty('--ripple-x', x + 'px');
-                el.style.setProperty('--ripple-y', y + 'px');
+                        const after = window.getComputedStyle(el, '::after');
+                        // Force position through CSS vars
+                        el.style.setProperty('--ripple-x', x + 'px');
+                        el.style.setProperty('--ripple-y', y + 'px');
 
-                el.style.setProperty('--ripple-x', x + 'px');
+                        el.style.setProperty('--ripple-x', x + 'px');
 
-                el.style.setProperty('--ripple-x', x + 'px');
-                el.style.setProperty('--ripple-y', y + 'px');
+                        el.style.setProperty('--ripple-x', x + 'px');
+                        el.style.setProperty('--ripple-y', y + 'px');
 
-                el.style.setProperty('--x', x + 'px');
-                el.style.setProperty('--y', y + 'px');
+                        el.style.setProperty('--x', x + 'px');
+                        el.style.setProperty('--y', y + 'px');
 
-                el.style.setProperty('--x', x + 'px');
-                el.style.setProperty('--y', y + 'px');
+                        el.style.setProperty('--x', x + 'px');
+                        el.style.setProperty('--y', y + 'px');
 
-                el.style.setProperty('--x', x + 'px');
-                el.style.setProperty('--y', y + 'px');
+                        el.style.setProperty('--x', x + 'px');
+                        el.style.setProperty('--y', y + 'px');
 
-                el.classList.remove('ripple-active');
-                // Force reflow
-                void el.offsetWidth;
-                el.classList.add('ripple-active');
-            });
-        });
-    }
-
-    function initTiltCards() {
-        const tiltElements = $$('.web3-tilt, .web3-hover-parallax');
-        if (!tiltElements.length) return;
-
-        tiltElements.forEach(card => {
-            const maxTilt = parseFloat(card.getAttribute('data-tilt-max')) || 10;
-            const perspective = parseFloat(card.getAttribute('data-tilt-perspective')) || 800;
-
-            card.style.transformStyle = 'preserve-3d';
-            card.style.willChange = 'transform';
-
-            function handleMove(e) {
-                const rect = card.getBoundingClientRect();
-                const relX = e.clientX - rect.left;
-                const relY = e.clientY - rect.top;
-
-                const percentX = (relX / rect.width) - 0.5;
-                const percentY = (relY / rect.height) - 0.5;
-
-                const rotateY = percentX * maxTilt;
-                const rotateX = -percentY * maxTilt;
-
-                card.style.transform =
-                    `perspective(${perspective}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`;
+                        el.classList.remove('ripple-active');
+                        // Force reflow
+                        void el.offsetWidth;
+                        el.classList.add('ripple-active');
+                    });
+                });
             }
 
-            function resetTilt() {
-                card.style.transform =
-                    `perspective(${perspective}px) rotateX(0deg) rotateY(0deg) translateZ(0)`;
+            function initTiltCards() {
+                const tiltElements = $$('.web3-tilt, .web3-hover-parallax');
+                if (!tiltElements.length) return;
+
+                tiltElements.forEach(card => {
+                    const maxTilt = parseFloat(card.getAttribute('data-tilt-max')) || 10;
+                    const perspective = parseFloat(card.getAttribute('data-tilt-perspective')) || 800;
+
+                    card.style.transformStyle = 'preserve-3d';
+                    card.style.willChange = 'transform';
+
+                    function handleMove(e) {
+                        const rect = card.getBoundingClientRect();
+                        const relX = e.clientX - rect.left;
+                        const relY = e.clientY - rect.top;
+
+                        const percentX = (relX / rect.width) - 0.5;
+                        const percentY = (relY / rect.height) - 0.5;
+
+                        const rotateY = percentX * maxTilt;
+                        const rotateX = -percentY * maxTilt;
+
+                        card.style.transform =
+                            `perspective(${perspective}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`;
+                    }
+
+                    function resetTilt() {
+                        card.style.transform =
+                            `perspective(${perspective}px) rotateX(0deg) rotateY(0deg) translateZ(0)`;
+                    }
+
+                    card.addEventListener('mousemove', handleMove);
+                    card.addEventListener('mouseleave', resetTilt);
+                });
             }
 
-            card.addEventListener('mousemove', handleMove);
-            card.addEventListener('mouseleave', resetTilt);
-        });
-    }
+            /* ============================================================
+               6️⃣ AVINASH AI DIGITAL TWIN — CHATBOT
+               HTML IDs:
+                 - #ai-chat-button
+                 - #ai-chat-window
+                 - #ai-chat-close
+                 - #ai-chat-messages
+                 - #ai-chat-input
+                 - #ai-chat-send
+            ============================================================ */
 
-    /* ============================================================
-       6️⃣ AVINASH AI DIGITAL TWIN — CHATBOT
-       HTML IDs:
-         - #ai-chat-button
-         - #ai-chat-window
-         - #ai-chat-close
-         - #ai-chat-messages
-         - #ai-chat-input
-         - #ai-chat-send
-    ============================================================ */
+            function sanitizeText(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
 
-    function sanitizeText(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+            function formatMessage(text) {
+                let safe = sanitizeText(text);
+                safe = safe
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\n/g, '<br>');
+                return safe;
+            }
 
-    function formatMessage(text) {
-        let safe = sanitizeText(text);
-        safe = safe
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/\n/g, '<br>');
-        return safe;
-    }
+            function initChatbot() {
+                const aiChatButton = $('#ai-chat-button');
+                const aiChatWindow = $('#ai-chat-window');
+                const aiChatClose = $('#ai-chat-close');
+                const aiChatMessages = $('#ai-chat-messages');
+                const aiChatInput = $('#ai-chat-input');
+                const aiChatSend = $('#ai-chat-send');
 
-    function initChatbot() {
-        const aiChatButton = $('#ai-chat-button');
-        const aiChatWindow = $('#ai-chat-window');
-        const aiChatClose = $('#ai-chat-close');
-        const aiChatMessages = $('#ai-chat-messages');
-        const aiChatInput = $('#ai-chat-input');
-        const aiChatSend = $('#ai-chat-send');
+                const API_URL = 'https://avinashanalytics-avinash-chatbot.hf.space/chat';
 
-        const API_URL = 'https://avinashanalytics-avinash-chatbot.hf.space/chat';
+                let conversationHistory = [];
+                let isLoading = false;
 
-        let conversationHistory = [];
-        let isLoading = false;
+                if (!aiChatButton || !aiChatWindow || !aiChatMessages || !aiChatInput || !aiChatSend) {
+                    console.warn('⚠️ Chatbot elements missing in DOM – please check IDs');
+                    return;
+                }
 
-        if (!aiChatButton || !aiChatWindow || !aiChatMessages || !aiChatInput || !aiChatSend) {
-            console.warn('⚠️ Chatbot elements missing in DOM – please check IDs');
-            return;
-        }
+                function scrollMessagesToBottom(smooth = true) {
+                    aiChatMessages.scrollTo({
+                        top: aiChatMessages.scrollHeight,
+                        behavior: smooth ? 'smooth' : 'auto'
+                    });
+                }
 
-        function scrollMessagesToBottom(smooth = true) {
-            aiChatMessages.scrollTo({
-                top: aiChatMessages.scrollHeight,
-                behavior: smooth ? 'smooth' : 'auto'
-            });
-        }
+                function addMessage(text, className) {
+                    const bubble = document.createElement('div');
+                    bubble.className = `chat-message ${className}`;
+                    bubble.innerHTML = formatMessage(text);
+                    aiChatMessages.appendChild(bubble);
+                    requestAnimationFrame(() => scrollMessagesToBottom(true));
+                }
 
-        function addMessage(text, className) {
-            const bubble = document.createElement('div');
-            bubble.className = className;
-            bubble.innerHTML = formatMessage(text);
-            aiChatMessages.appendChild(bubble);
-            requestAnimationFrame(() => scrollMessagesToBottom(true));
-        }
-
-        function showTyping() {
-            if ($('#typing-indicator')) return;
-            const indicator = document.createElement('div');
-            indicator.className = 'ai-msg typing-indicator';
-            indicator.id = 'typing-indicator';
-            indicator.innerHTML = `
+                function showTyping() {
+                    if ($('#typing-indicator')) return;
+                    const indicator = document.createElement('div');
+                    indicator.className = 'chat-message ai-msg typing-indicator';
+                    indicator.id = 'typing-indicator';
+                    indicator.innerHTML = `
                 <span class="typing-dot"></span>
                 <span class="typing-dot"></span>
                 <span class="typing-dot"></span>
             `;
-            aiChatMessages.appendChild(indicator);
-            scrollMessagesToBottom(false);
-        }
+                    aiChatMessages.appendChild(indicator);
+                    scrollMessagesToBottom(false);
+                }
 
-        function removeTyping() {
-            const indicator = $('#typing-indicator');
-            if (indicator) indicator.remove();
-        }
+                function removeTyping() {
+                    const indicator = $('#typing-indicator');
+                    if (indicator) indicator.remove();
+                }
 
-        function setChatVisible(visible) {
-            aiChatWindow.style.display = visible ? 'flex' : 'none';
-            if (visible) {
-                setTimeout(() => aiChatInput.focus(), 100);
-            }
-        }
+                function setChatVisible(visible) {
+                    if (visible) {
+                        aiChatWindow.classList.add('open');
+                        setTimeout(() => aiChatInput.focus(), 100);
+                    } else {
+                        aiChatWindow.classList.remove('open');
+                    }
+                }
 
-        async function sendAIMessage() {
-            const rawMsg = aiChatInput.value.trim();
-            if (!rawMsg || isLoading) return;
+                async function sendAIMessage() {
+                    const rawMsg = aiChatInput.value.trim();
+                    if (!rawMsg || isLoading) return;
 
-            if (!navigator.onLine) {
-                addMessage('⚠️ You appear to be offline. Please check your internet connection and try again.', 'ai-msg');
-                return;
-            }
+                    if (!navigator.onLine) {
+                        addMessage('⚠️ You appear to be offline. Please check your internet connection and try again.', 'ai-msg');
+                        return;
+                    }
 
-            aiChatInput.value = '';
-            addMessage(rawMsg, 'user-msg');
+                    aiChatInput.value = '';
+                    addMessage(rawMsg, 'user-msg');
 
-            conversationHistory.push({ role: 'user', content: rawMsg });
+                    conversationHistory.push({ role: 'user', content: rawMsg });
 
-            isLoading = true;
-            showTyping();
+                    isLoading = true;
+                    showTyping();
 
-            try {
-                await new Promise(r => setTimeout(r, 400 + Math.random() * 600));
+                    try {
+                        await new Promise(r => setTimeout(r, 400 + Math.random() * 600));
 
-                const payload = {
-                    text: rawMsg,
-                    conversation_history: conversationHistory.slice(-10)
+                        const payload = {
+                            text: rawMsg,
+                            conversation_history: conversationHistory.slice(-10)
+                        };
+
+                        const response = await fetch(API_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`HTTP ${response.status}: ${errorText}`);
+                        }
+
+                        const data = await response.json();
+                        removeTyping();
+
+                        const reply = data.reply || 'Sorry, I could not process that request.';
+                        addMessage(reply, 'ai-msg');
+
+                        conversationHistory.push({ role: 'assistant', content: reply });
+                        if (conversationHistory.length > 20) {
+                            conversationHistory = conversationHistory.slice(-20);
+                        }
+
+                    } catch (error) {
+                        console.error('❌ Chat error:', error);
+                        removeTyping();
+
+                        let errorMessage = '⚠️ Oops! Something went wrong. ';
+                        const msg = String(error.message || '');
+
+                        if (msg.includes('422')) {
+                            errorMessage += 'The request format seems off. Please try again.';
+                        } else if (msg.includes('500')) {
+                            errorMessage += 'Server error. Please try again in a moment.';
+                        } else if (msg.includes('503')) {
+                            errorMessage += 'The model might be waking up. Please wait a bit and retry.';
+                        } else if (msg.includes('Failed to fetch')) {
+                            errorMessage += 'Network error. Check your internet connection.';
+                        } else {
+                            errorMessage += 'Please try again shortly.';
+                        }
+
+                        addMessage(errorMessage, 'ai-msg');
+                    } finally {
+                        isLoading = false;
+                    }
+                }
+
+                // Button toggle
+                aiChatButton.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const isOpen = aiChatWindow.classList.contains('open');
+                    setChatVisible(!isOpen);
+
+                    aiChatButton.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        aiChatButton.style.transform = 'scale(1)';
+                    }, 150);
+                });
+
+                // Close button
+                if (aiChatClose) {
+                    aiChatClose.addEventListener('click', e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setChatVisible(false);
+                    });
+                }
+
+                // Send button
+                aiChatSend.addEventListener('click', e => {
+                    e.preventDefault();
+                    sendAIMessage();
+                });
+
+                // Enter key
+                aiChatInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendAIMessage();
+                    }
+                });
+
+                // Click outside to close
+                document.addEventListener('click', e => {
+                    if (!aiChatWindow.classList.contains('open')) return;
+                    const clickInside = aiChatWindow.contains(e.target) || aiChatButton.contains(e.target);
+                    if (!clickInside) {
+                        setChatVisible(false);
+                    }
+                });
+
+                // Initial welcome
+                addMessage('👋 Hey there! I\'m Avinash\'s AI assistant. Ask me anything about his skills, projects, or experience!', 'ai-msg');
+
+                // Debug helpers
+                window.clearAvinashChat = function () {
+                    conversationHistory = [];
+                    aiChatMessages.innerHTML = '';
+                    addMessage('🔄 Chat cleared! How can I help you?', 'ai-msg');
                 };
 
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
+                window.testAvinashAPI = async function () {
+                    try {
+                        const res = await fetch(API_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                text: 'Hello, who are you?',
+                                conversation_history: []
+                            })
+                        });
+                        const data = await res.json();
+                        console.log('✅ API Test:', data);
+                        return data;
+                    } catch (err) {
+                        console.error('❌ API Test Failed:', err);
+                        return null;
+                    }
+                };
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP ${response.status}: ${errorText}`);
-                }
-
-                const data = await response.json();
-                removeTyping();
-
-                const reply = data.reply || 'Sorry, I could not process that request.';
-                addMessage(reply, 'ai-msg');
-
-                conversationHistory.push({ role: 'assistant', content: reply });
-                if (conversationHistory.length > 20) {
-                    conversationHistory = conversationHistory.slice(-20);
-                }
-
-            } catch (error) {
-                console.error('❌ Chat error:', error);
-                removeTyping();
-
-                let errorMessage = '⚠️ Oops! Something went wrong. ';
-                const msg = String(error.message || '');
-
-                if (msg.includes('422')) {
-                    errorMessage += 'The request format seems off. Please try again.';
-                } else if (msg.includes('500')) {
-                    errorMessage += 'Server error. Please try again in a moment.';
-                } else if (msg.includes('503')) {
-                    errorMessage += 'The model might be waking up. Please wait a bit and retry.';
-                } else if (msg.includes('Failed to fetch')) {
-                    errorMessage += 'Network error. Check your internet connection.';
-                } else {
-                    errorMessage += 'Please try again shortly.';
-                }
-
-                addMessage(errorMessage, 'ai-msg');
-            } finally {
-                isLoading = false;
+                console.log('✅ Avinash AI Digital Twin chatbot initialized');
             }
-        }
 
-        // Button toggle
-        aiChatButton.addEventListener('click', e => {
-            e.preventDefault();
-            e.stopPropagation();
-            const isOpen = aiChatWindow.style.display === 'flex';
-            setChatVisible(!isOpen);
+            /* ============================================================
+               🔁 BOOTSTRAP
+            ============================================================ */
 
-            aiChatButton.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                aiChatButton.style.transform = 'scale(1)';
-            }, 150);
-        });
-
-        // Close button
-        if (aiChatClose) {
-            aiChatClose.addEventListener('click', e => {
-                e.preventDefault();
-                e.stopPropagation();
-                setChatVisible(false);
-            });
-        }
-
-        // Send button
-        aiChatSend.addEventListener('click', e => {
-            e.preventDefault();
-            sendAIMessage();
-        });
-
-        // Enter key
-        aiChatInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendAIMessage();
+            function bootPart3() {
+                initHologramRefraction();
+                initShineTracking();
+                initGridPanels();
+                initFloatLabels();
+                initMagneticButtons();
+                initPressRipple();
+                initTiltCards();
+                initChatbot();
+                console.log('✅ WEB3 MAX ENGINE — PART 3 INITIALIZED');
             }
-        });
 
-        // Click outside to close
-        document.addEventListener('click', e => {
-            if (aiChatWindow.style.display !== 'flex') return;
-            const clickInside = aiChatWindow.contains(e.target) || aiChatButton.contains(e.target);
-            if (!clickInside) {
-                setChatVisible(false);
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', bootPart3);
+            } else {
+                bootPart3();
             }
-        });
-
-        // Initial welcome
-        addMessage('👋 Hey there! I\'m Avinash\'s AI assistant. Ask me anything about his skills, projects, or experience!', 'ai-msg');
-
-        // Debug helpers
-        window.clearAvinashChat = function () {
-            conversationHistory = [];
-            aiChatMessages.innerHTML = '';
-            addMessage('🔄 Chat cleared! How can I help you?', 'ai-msg');
-        };
-
-        window.testAvinashAPI = async function () {
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        text: 'Hello, who are you?',
-                        conversation_history: []
-                    })
-                });
-                const data = await res.json();
-                console.log('✅ API Test:', data);
-                return data;
-            } catch (err) {
-                console.error('❌ API Test Failed:', err);
-                return null;
-            }
-        };
-
-        console.log('✅ Avinash AI Digital Twin chatbot initialized');
-    }
-
-    /* ============================================================
-       🔁 BOOTSTRAP
-    ============================================================ */
-
-    function bootPart3() {
-        initHologramRefraction();
-        initShineTracking();
-        initGridPanels();
-        initFloatLabels();
-        initMagneticButtons();
-        initPressRipple();
-        initTiltCards();
-        initChatbot();
-        console.log('✅ WEB3 MAX ENGINE — PART 3 INITIALIZED');
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', bootPart3);
-    } else {
-        bootPart3();
-    }
-})();
+        })();
 
         initCursorGlow();
         initWarpEngine();
