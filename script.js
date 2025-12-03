@@ -1,840 +1,931 @@
 /* =====================================================
    AVINASH RAI - DATA ENGINEER PORTFOLIO
-   Interactive Features & Animations
+   PART 1: CORE UTILITIES, NAV, SCROLL, FILTERS, ANALYTICS
 ===================================================== */
 
-// =====================
-// GLOBAL VARIABLES
-// =====================
-const navbar = document.getElementById('navbar');
-const navToggle = document.getElementById('navToggle');
-const navMenu = document.getElementById('navMenu');
-const navLinks = document.querySelectorAll('.nav-link');
-const backToTopButton = document.getElementById('backToTop');
-const sections = document.querySelectorAll('section[id]');
-const filterButtons = document.querySelectorAll('.filter-btn');
-const projectCards = document.querySelectorAll('.project-card');
+(function () {
+    'use strict';
 
-// =====================
-// STICKY NAVBAR
-// =====================
-let lastScroll = 0;
+    /* ============================
+       SMALL UTILITY HELPERS
+    ============================ */
+    const $ = (selector, parent = document) => parent.querySelector(selector);
+    const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
 
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-    
-    // Add shadow when scrolled
-    if (currentScroll > 50) {
-        navbar.classList.add('scrolled');
-    } else {
-        navbar.classList.remove('scrolled');
-    }
-    
-    lastScroll = currentScroll;
-});
+    // Throttle helper for scroll handlers
+    const throttle = (fn, wait = 100) => {
+        let last = 0;
+        let timeout;
+        return function (...args) {
+            const now = Date.now();
+            const remaining = wait - (now - last);
 
-// =====================
-// MOBILE MENU TOGGLE
-// =====================
-if (navToggle) {
-    navToggle.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        
-        // Animate hamburger
-        const spans = navToggle.querySelectorAll('span');
-        if (navMenu.classList.contains('active')) {
-            spans[0].style.transform = 'rotate(45deg) translateY(8px)';
-            spans[1].style.opacity = '0';
-            spans[2].style.transform = 'rotate(-45deg) translateY(-8px)';
-        } else {
-            spans[0].style.transform = 'none';
-            spans[1].style.opacity = '1';
-            spans[2].style.transform = 'none';
-        }
-    });
-}
+            if (remaining <= 0) {
+                if (timeout) {
+                    clearTimeout(timeout);
+                    timeout = null;
+                }
+                last = now;
+                fn.apply(this, args);
+            } else if (!timeout) {
+                timeout = setTimeout(() => {
+                    last = Date.now();
+                    timeout = null;
+                    fn.apply(this, args);
+                }, remaining);
+            }
+        };
+    };
 
-// Close mobile menu when clicking a link
-navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        navMenu.classList.remove('active');
-        
-        // Reset hamburger
-        const spans = navToggle?.querySelectorAll('span');
-        if (spans) {
-            spans[0].style.transform = 'none';
-            spans[1].style.opacity = '1';
-            spans[2].style.transform = 'none';
-        }
-    });
-});
+    /* =====================================================
+       MAIN INITIALIZATION
+    ====================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('✅ Portfolio DOM loaded — initializing core features');
 
-// Close mobile menu when clicking outside
-document.addEventListener('click', (e) => {
-    if (!navMenu.contains(e.target) && !navToggle.contains(e.target)) {
-        navMenu.classList.remove('active');
-        
-        const spans = navToggle?.querySelectorAll('span');
-        if (spans) {
-            spans[0].style.transform = 'none';
-            spans[1].style.opacity = '1';
-            spans[2].style.transform = 'none';
-        }
-    }
-});
+        // Core DOM references
+        const navbar = $('#navbar');
+        const navToggle = $('#navToggle');
+        const navMenu = $('#navMenu');
+        const navLinks = $$('.nav-link');
+        const backToTopButton = $('#backToTop');
+        const sections = $$('section[id]');
+        const filterButtons = $$('.filter-btn');
+        const projectCards = $$('.project-card');
+        const statBlocks = $$('.stat');
+        const yearElements = $$('.current-year');
 
-// =====================
-// ACTIVE NAVIGATION LINK ON SCROLL
-// =====================
-function highlightNav() {
-    let current = '';
-    const scrollY = window.pageYOffset;
-    
-    sections.forEach(section => {
-        const sectionHeight = section.offsetHeight;
-        const sectionTop = section.offsetTop - 100;
-        const sectionId = section.getAttribute('id');
-        
-        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
-            current = sectionId;
-        }
-    });
-    
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${current}`) {
-            link.classList.add('active');
-        }
-    });
-}
-
-window.addEventListener('scroll', highlightNav);
-
-// =====================
-// SMOOTH SCROLL FOR ANCHOR LINKS
-// =====================
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        
-        if (target) {
-            const offsetTop = target.offsetTop - 80;
-            window.scrollTo({
-                top: offsetTop,
-                behavior: 'smooth'
+        /* ============================
+           FOOTER CURRENT YEAR
+        ============================ */
+        if (yearElements.length) {
+            const currentYear = new Date().getFullYear();
+            yearElements.forEach(el => {
+                el.textContent = currentYear;
             });
         }
-    });
-});
 
-// =====================
-// BACK TO TOP BUTTON
-// =====================
-window.addEventListener('scroll', () => {
-    if (window.pageYOffset > 400) {
-        backToTopButton.classList.add('visible');
-    } else {
-        backToTopButton.classList.remove('visible');
-    }
-});
+        /* ============================
+           MOBILE MENU TOGGLE
+        ============================ */
+        if (navToggle && navMenu) {
+            navToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navMenu.classList.toggle('active');
 
-if (backToTopButton) {
-    backToTopButton.addEventListener('click', () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
-}
+                const spans = navToggle.querySelectorAll('span');
+                if (spans.length === 3) {
+                    if (navMenu.classList.contains('active')) {
+                        spans[0].style.transform = 'rotate(45deg) translateY(8px)';
+                        spans[1].style.opacity = '0';
+                        spans[2].style.transform = 'rotate(-45deg) translateY(-8px)';
+                    } else {
+                        spans[0].style.transform = 'none';
+                        spans[1].style.opacity = '1';
+                        spans[2].style.transform = 'none';
+                    }
+                }
+            });
 
-// =====================
-// PROJECT FILTER FUNCTIONALITY
-// =====================
-if (filterButtons.length > 0) {
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Remove active class from all buttons
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
-            button.classList.add('active');
-            
-            // Get filter value
-            const filterValue = button.getAttribute('data-filter');
-            
-            // Filter projects
-            projectCards.forEach(card => {
-                const categories = card.getAttribute('data-category');
-                
-                if (filterValue === 'all' || categories.includes(filterValue)) {
-                    card.style.display = 'flex';
-                    card.style.animation = 'fadeIn 0.5s ease-in';
+            // Close mobile menu when clicking a nav link
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    navMenu.classList.remove('active');
+                    const spans = navToggle.querySelectorAll('span');
+                    if (spans.length === 3) {
+                        spans[0].style.transform = 'none';
+                        spans[1].style.opacity = '1';
+                        spans[2].style.transform = 'none';
+                    }
+                });
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navMenu) return;
+                if (navToggle && (navToggle === e.target || navToggle.contains(e.target))) return;
+                if (navMenu === e.target || navMenu.contains(e.target)) return;
+
+                if (navMenu.classList.contains('active')) {
+                    navMenu.classList.remove('active');
+                    const spans = navToggle.querySelectorAll('span');
+                    if (spans.length === 3) {
+                        spans[0].style.transform = 'none';
+                        spans[1].style.opacity = '1';
+                        spans[2].style.transform = 'none';
+                    }
+                }
+            });
+        }
+
+        /* ============================
+           SMOOTH SCROLL FOR ANCHORS
+        ============================ */
+        $$('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                const href = anchor.getAttribute('href');
+                if (!href || href === '#') return;
+                const target = document.querySelector(href);
+                if (!target) return;
+
+                e.preventDefault();
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                const offsetTop = target.offsetTop - 80;
+
+                if (prefersReducedMotion) {
+                    window.scrollTo(0, offsetTop);
                 } else {
-                    card.style.display = 'none';
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
                 }
             });
         });
-    });
-}
 
-// =====================
-// ANIMATED PARTICLES BACKGROUND
-// =====================
-function createParticles() {
-    const particlesContainer = document.getElementById('particles');
-    if (!particlesContainer) return;
-    
-    const particleCount = 50;
-    
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        
-        // Random position
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.top = Math.random() * 100 + '%';
-        
-        // Random size
-        const size = Math.random() * 4 + 1;
-        particle.style.width = size + 'px';
-        particle.style.height = size + 'px';
-        
-        // Random animation duration
-        const duration = Math.random() * 20 + 10;
-        particle.style.animationDuration = duration + 's';
-        
-        // Random delay
-        const delay = Math.random() * 5;
-        particle.style.animationDelay = delay + 's';
-        
-        particlesContainer.appendChild(particle);
-    }
-}
+        /* ============================
+           STICKY NAVBAR & ACTIVE LINK
+        ============================ */
+        const highlightNav = () => {
+            if (!sections.length || !navLinks.length) return;
+            const scrollY = window.pageYOffset;
+            let currentId = '';
 
-// Add particle styles dynamically
-const style = document.createElement('style');
-style.textContent = `
-    .particle {
-        position: absolute;
-        background: radial-gradient(circle, rgba(56, 182, 255, 0.8) 0%, transparent 70%);
-        border-radius: 50%;
-        pointer-events: none;
-        animation: float-particle linear infinite;
-    }
-    
-    @keyframes float-particle {
-        0% {
-            transform: translateY(0) translateX(0) scale(1);
-            opacity: 0;
+            sections.forEach(section => {
+                const sectionHeight = section.offsetHeight;
+                const sectionTop = section.offsetTop - 120; // adjust for navbar
+                const id = section.getAttribute('id');
+
+                if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+                    currentId = id;
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href === `#${currentId}`) {
+                    link.classList.add('active');
+                }
+            });
+        };
+
+        const handleNavbarScroll = () => {
+            if (!navbar) return;
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        };
+
+        /* ============================
+           BACK TO TOP BUTTON
+        ============================ */
+        const handleBackToTopScroll = () => {
+            if (!backToTopButton) return;
+            if (window.pageYOffset > 400) {
+                backToTopButton.classList.add('visible');
+            } else {
+                backToTopButton.classList.remove('visible');
+            }
+        };
+
+        if (backToTopButton) {
+            backToTopButton.addEventListener('click', () => {
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (prefersReducedMotion) {
+                    window.scrollTo(0, 0);
+                } else {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+            });
         }
-        10% {
-            opacity: 1;
+
+        /* ============================
+           PROJECT FILTERS
+        ============================ */
+        if (filterButtons.length && projectCards.length) {
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    const filterValue = button.getAttribute('data-filter') || 'all';
+
+                    projectCards.forEach(card => {
+                        const categories = card.getAttribute('data-category') || '';
+                        if (filterValue === 'all' || categories.includes(filterValue)) {
+                            card.style.display = 'flex';
+                            card.style.animation = 'fadeIn 0.5s ease-in';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
         }
-        90% {
-            opacity: 1;
-        }
-        100% {
-            transform: translateY(-100vh) translateX(${Math.random() * 100 - 50}px) scale(0);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
 
-// Initialize particles
-document.addEventListener('DOMContentLoaded', createParticles);
+        /* ============================
+           FADE-IN OBSERVER
+        ============================ */
+        const fadeInObserverOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
 
-// =====================
-// INTERSECTION OBSERVER FOR FADE-IN ANIMATIONS
-// =====================
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
+        const fadeInObserver = 'IntersectionObserver' in window
+            ? new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        el.classList.add('fade-in-visible');
+                        observer.unobserve(el);
+                    }
+                });
+            }, fadeInObserverOptions)
+            : null;
 
-const fadeInObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-            fadeInObserver.unobserve(entry.target);
-        }
-    });
-}, observerOptions);
-
-// Observe elements for fade-in effect
-document.addEventListener('DOMContentLoaded', () => {
-    const animatedElements = document.querySelectorAll(`
-        .project-card,
-        .expertise-card,
-        .highlight-card,
-        .tech-category,
-        .contact-card
-    `);
-    
-    animatedElements.forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        fadeInObserver.observe(el);
-    });
-});
-
-// =====================
-// TYPING EFFECT FOR HERO SUBTITLE (Optional)
-// =====================
-function typeWriter(element, texts, speed = 100) {
-    if (!element) return;
-    
-    let textIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-    let currentText = '';
-    
-    function type() {
-        const fullText = texts[textIndex];
-        
-        if (isDeleting) {
-            currentText = fullText.substring(0, charIndex - 1);
-            charIndex--;
-        } else {
-            currentText = fullText.substring(0, charIndex + 1);
-            charIndex++;
-        }
-        
-        element.textContent = currentText;
-        
-        let typeSpeed = isDeleting ? speed / 2 : speed;
-        
-        if (!isDeleting && charIndex === fullText.length) {
-            typeSpeed = 2000; // Pause at end
-            isDeleting = true;
-        } else if (isDeleting && charIndex === 0) {
-            isDeleting = false;
-            textIndex = (textIndex + 1) % texts.length;
-            typeSpeed = 500; // Pause before next text
-        }
-        
-        setTimeout(type, typeSpeed);
-    }
-    
-    type();
-}
-
-// Initialize typing effect (optional - remove if not needed)
-// Uncomment if you want animated typing in hero subtitle
-/*
-document.addEventListener('DOMContentLoaded', () => {
-    const subtitleElement = document.querySelector('.hero-subtitle');
-    if (subtitleElement) {
-        const texts = [
-            'Data Engineer & Analytics Architect',
-            'Snowflake & dbt Specialist',
-            'AI/ML Pipeline Expert',
-            'Modern Data Stack Architect'
-        ];
-        typeWriter(subtitleElement, texts, 80);
-    }
-});
-*/
-
-// =====================
-// DYNAMIC YEAR IN FOOTER
-// =====================
-document.addEventListener('DOMContentLoaded', () => {
-    const yearElements = document.querySelectorAll('.current-year');
-    const currentYear = new Date().getFullYear();
-    yearElements.forEach(el => {
-        el.textContent = currentYear;
-    });
-});
-
-// =====================
-// PARALLAX SCROLL EFFECT (Optional)
-// =====================
-function parallaxScroll() {
-    const scrolled = window.pageYOffset;
-    const parallaxElements = document.querySelectorAll('[data-parallax]');
-    
-    parallaxElements.forEach(el => {
-        const speed = el.getAttribute('data-parallax') || 0.5;
-        const yPos = -(scrolled * speed);
-        el.style.transform = `translateY(${yPos}px)`;
-    });
-}
-
-// Uncomment to enable parallax
-// window.addEventListener('scroll', parallaxScroll);
-
-// =====================
-// LAZY LOADING IMAGES
-// =====================
-if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                img.classList.add('loaded');
-                observer.unobserve(img);
+        const animatedElements = $$('.project-card, .expertise-card, .highlight-card, .tech-category, .contact-card');
+        animatedElements.forEach(el => {
+            // Initial state via class; actual styles in CSS (recommended)
+            el.classList.add('fade-in-init');
+            if (fadeInObserver) {
+                fadeInObserver.observe(el);
+            } else {
+                // Fallback if IntersectionObserver not supported
+                el.classList.add('fade-in-visible');
             }
         });
-    });
-    
-    document.querySelectorAll('img[data-src]').forEach(img => {
-        imageObserver.observe(img);
-    });
-}
 
-// =====================
-// COPY EMAIL TO CLIPBOARD
-// =====================
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        // Show success message
-        const notification = document.createElement('div');
-        notification.textContent = 'Email copied to clipboard!';
-        notification.style.cssText = `
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #38B6FF 0%, #8B5CF6 100%);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-            z-index: 10000;
-            animation: slideUp 0.3s ease;
-        `;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideDown 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }, 2000);
-    });
-}
+        /* ============================
+           LAZY LOADING IMAGES
+        ============================ */
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        const dataSrc = img.getAttribute('data-src');
+                        if (dataSrc) {
+                            img.src = dataSrc;
+                            img.onload = () => img.classList.add('loaded');
+                            img.removeAttribute('data-src');
+                        }
+                        observer.unobserve(img);
+                    }
+                });
+            }, { rootMargin: '100px 0px' });
 
-// Add click event to email links
-document.querySelectorAll('a[href^="mailto:"]').forEach(link => {
-    link.addEventListener('click', (e) => {
-        if (e.ctrlKey || e.metaKey) {
-            e.preventDefault();
-            const email = link.getAttribute('href').replace('mailto:', '');
-            copyToClipboard(email);
+            $$('img[data-src]').forEach(img => imageObserver.observe(img));
         }
-    });
-});
 
-// =====================
-// STATS COUNTER ANIMATION
-// =====================
-function animateCounter(element, target, duration = 2000) {
-    const start = 0;
-    const increment = target / (duration / 16);
-    let current = start;
-    
-    const timer = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-            element.textContent = target + '+';
-            clearInterval(timer);
-        } else {
-            element.textContent = Math.floor(current) + '+';
+        /* ============================
+           COPY EMAIL TO CLIPBOARD (Ctrl+Click mailto)
+        ============================ */
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #38B6FF 0%, #8B5CF6 100%);
+                color: white;
+                padding: 0.9rem 1.8rem;
+                border-radius: 999px;
+                font-weight: 600;
+                font-size: 0.9rem;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+                z-index: 10000;
+                animation: slideUp 0.25s ease-out;
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideDown 0.25s ease-in';
+                setTimeout(() => notification.remove(), 230);
+            }, 2000);
         }
-    }, 16);
-}
 
-// Animate stats when visible
-const statsObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const statNumber = entry.target.querySelector('.stat-number');
-            if (statNumber && !statNumber.classList.contains('animated')) {
-                const target = parseInt(statNumber.textContent);
-                animateCounter(statNumber, target);
-                statNumber.classList.add('animated');
-                statsObserver.unobserve(entry.target);
+        function copyToClipboard(text) {
+            if (!navigator.clipboard) {
+                console.warn('Clipboard API not available');
+                return;
             }
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Email copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
         }
-    });
-}, { threshold: 0.5 });
 
-document.querySelectorAll('.stat').forEach(stat => {
-    statsObserver.observe(stat);
-});
-
-// =====================
-// CONSOLE EASTER EGG
-// =====================
-console.log('%c👋 Hello, Fellow Developer!', 'font-size: 24px; font-weight: bold; color: #38B6FF;');
-console.log('%c🚀 Thanks for checking out my portfolio!', 'font-size: 16px; color: #FF6B9D;');
-console.log('%c📧 Let\'s connect: masteravinashrai@gmail.com', 'font-size: 14px; color: #00D9A3;');
-console.log('%c💼 LinkedIn: linkedin.com/in/avinashanalytics', 'font-size: 14px; color: #8892a6;');
-console.log('%c⭐ GitHub: github.com/AvinashAnalytics', 'font-size: 14px; color: #8892a6;');
-console.log('%c\n🎨 Built with vanilla JavaScript, CSS, and lots of ☕', 'font-size: 12px; font-style: italic; color: #b8c5d6;');
-
-// =====================
-// PERFORMANCE MONITORING
-// =====================
-window.addEventListener('load', () => {
-    // Log page load time
-    const loadTime = window.performance.timing.domContentLoadedEventEnd - window.performance.timing.navigationStart;
-    console.log(`⚡ Page loaded in ${loadTime}ms`);
-    
-    // Check for reduced motion preference
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-        document.documentElement.style.scrollBehavior = 'auto';
-        console.log('♿ Reduced motion mode enabled');
-    }
-});
-
-// =====================
-// KEYBOARD NAVIGATION ENHANCEMENT
-// =====================
-document.addEventListener('keydown', (e) => {
-    // Press 'Escape' to close mobile menu
-    if (e.key === 'Escape' && navMenu.classList.contains('active')) {
-        navMenu.classList.remove('active');
-    }
-    
-    // Press 'Home' to scroll to top
-    if (e.key === 'Home' && !e.shiftKey) {
-        e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    
-    // Press 'End' to scroll to bottom
-    if (e.key === 'End' && !e.shiftKey) {
-        e.preventDefault();
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    }
-});
-
-// =====================
-// FOCUS VISIBLE ENHANCEMENT
-// =====================
-document.addEventListener('DOMContentLoaded', () => {
-    let isUsingMouse = false;
-    
-    document.addEventListener('mousedown', () => {
-        isUsingMouse = true;
-    });
-    
-    document.addEventListener('keydown', () => {
-        isUsingMouse = false;
-    });
-    
-    document.addEventListener('focusin', (e) => {
-        if (isUsingMouse) {
-            e.target.classList.add('mouse-focus');
-        } else {
-            e.target.classList.remove('mouse-focus');
-        }
-    });
-});
-
-// =====================
-// THEME COLOR META UPDATE (for mobile browsers)
-// =====================
-function updateThemeColor() {
-    const scrolled = window.pageYOffset;
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    
-    if (!metaThemeColor) {
-        const meta = document.createElement('meta');
-        meta.name = 'theme-color';
-        meta.content = '#0a0e27';
-        document.head.appendChild(meta);
-    } else {
-        metaThemeColor.content = scrolled > 50 ? '#050711' : '#0a0e27';
-    }
-}
-
-window.addEventListener('scroll', updateThemeColor);
-
-// =====================
-// EXTERNAL LINK SECURITY
-// =====================
-document.querySelectorAll('a[target="_blank"]').forEach(link => {
-    link.setAttribute('rel', 'noopener noreferrer');
-});
-
-// =====================
-// ANALYTICS EVENT TRACKING (Optional - for Google Analytics)
-// =====================
-function trackEvent(category, action, label) {
-    if (typeof gtag !== 'undefined') {
-        gtag('event', action, {
-            'event_category': category,
-            'event_label': label
+        $$('a[href^="mailto:"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    const email = (link.getAttribute('href') || '').replace('mailto:', '');
+                    if (email) {
+                        copyToClipboard(email);
+                    }
+                }
+            });
         });
-    }
-    console.log(`📊 Event tracked: ${category} - ${action} - ${label}`);
-}
 
-// Track project clicks
-document.querySelectorAll('.project-link').forEach(link => {
-    link.addEventListener('click', () => {
-        const projectName = link.closest('.project-card').querySelector('h3').textContent;
-        trackEvent('Projects', 'Click', projectName);
+        /* ============================
+           STATS COUNTER ANIMATION
+        ============================ */
+        function animateCounter(element, target, duration = 2000) {
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target + '+';
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current) + '+';
+                }
+            }, 16);
+        }
+
+        if ('IntersectionObserver' in window && statBlocks.length) {
+            const statsObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const statNumber = entry.target.querySelector('.stat-number');
+                        if (statNumber && !statNumber.classList.contains('animated')) {
+                            const parsed = parseInt(statNumber.textContent, 10);
+                            const target = isNaN(parsed) ? 0 : parsed;
+                            animateCounter(statNumber, target);
+                            statNumber.classList.add('animated');
+                        }
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            statBlocks.forEach(stat => statsObserver.observe(stat));
+        }
+
+        /* ============================
+           EXTERNAL LINK SECURITY
+        ============================ */
+        $$('a[target="_blank"]').forEach(link => {
+            const rel = (link.getAttribute('rel') || '').toLowerCase();
+            if (!rel.includes('noopener') || !rel.includes('noreferrer')) {
+                link.setAttribute('rel', 'noopener noreferrer');
+            }
+        });
+
+        /* ============================
+           ANALYTICS EVENT TRACKING
+        ============================ */
+        function trackEvent(category, action, label) {
+            if (typeof gtag === 'function') {
+                gtag('event', action, {
+                    event_category: category,
+                    event_label: label
+                });
+            }
+            console.log(`📊 Event tracked: ${category} - ${action} - ${label}`);
+        }
+
+        // Track project clicks
+        $$('.project-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const card = link.closest('.project-card');
+                const projectName = card ? (card.querySelector('h3')?.textContent || 'Unknown Project') : 'Unknown Project';
+                trackEvent('Projects', 'Click', projectName.trim());
+            });
+        });
+
+        // Track social clicks
+        $$('.social-icon, .social-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const platform = link.getAttribute('title') || link.textContent.trim() || 'Social Link';
+                trackEvent('Social', 'Click', platform);
+            });
+        });
+
+        // Track CTA buttons
+        $$('.btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const label = button.textContent.trim() || 'Button';
+                trackEvent('CTA', 'Click', label);
+            });
+        });
+
+        /* ============================
+           GLOBAL SCROLL HANDLER (THROTTLED)
+        ============================ */
+        const onScroll = throttle(() => {
+            handleNavbarScroll();
+            highlightNav();
+            handleBackToTopScroll();
+            // parallaxScroll(); // will be defined in Part 2 (optional)
+            // updateThemeColor() is defined in Part 2 and also attached on scroll there
+        }, 80);
+
+        window.addEventListener('scroll', onScroll);
+
+        // Initial run
+        handleNavbarScroll();
+        highlightNav();
+        handleBackToTopScroll();
+
+        // Mark page as loaded for CSS transitions
+        document.body.classList.add('loaded');
     });
-});
-
-// Track social media clicks
-document.querySelectorAll('.social-icon, .social-link').forEach(link => {
-    link.addEventListener('click', () => {
-        const platform = link.getAttribute('title') || 'Social Link';
-        trackEvent('Social', 'Click', platform);
-    });
-});
-
-// Track contact button clicks
-document.querySelectorAll('.btn').forEach(button => {
-    button.addEventListener('click', () => {
-        const buttonText = button.textContent.trim();
-        trackEvent('CTA', 'Click', buttonText);
-    });
-});
-
-// =====================
-// INITIALIZATION
-// =====================
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('✅ Portfolio initialized successfully');
-    
-    // Highlight initial nav item
-    highlightNav();
-    
-    // Update theme color
-    updateThemeColor();
-    
-    // Add loaded class to body
-    document.body.classList.add('loaded');
-});
-
-// =====================
-// SERVICE WORKER REGISTRATION (Optional - for PWA)
-// =====================
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        // Uncomment to enable service worker
-        /*
-        navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('✅ Service Worker registered'))
-            .catch(err => console.log('❌ Service Worker registration failed', err));
-        */
-    });
-}
+})();
 /* =====================================================
-   🤖 AVINASH AI DIGITAL TWIN — CHAT WIDGET
-   FIXED VERSION - Ready for Production
+   PART 2: PARTICLES, PERFORMANCE, KEYBOARD, THEME, PWA
 ===================================================== */
 
-(function() {
+(function () {
     'use strict';
 
-    // =============== WAIT FOR DOM ===============
-    function initChatbot() {
-        
-        // =============== DOM ELEMENTS ===============
-        const aiChatButton = document.getElementById("ai-chat-button");
-        const aiChatWindow = document.getElementById("ai-chat-window");
-        const aiChatClose = document.getElementById("ai-chat-close");
-        const aiChatMessages = document.getElementById("ai-chat-messages");
-        const aiChatInput = document.getElementById("ai-chat-input");
-        const aiChatSend = document.getElementById("ai-chat-send");
+    const $ = (selector, parent = document) => parent.querySelector(selector);
+    const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
 
-        // =============== CONFIGURATION ===============
-        // ⚠️ FIXED: Correct URL (was "analystics", now "analytics")
-        const API_URL = "https://avinashanalytics-avinash-chatbot.hf.space/chat";
-        
-        // ⚠️ FIXED: Track conversation history
+    /* ============================
+       PARTICLES BACKGROUND
+    ============================ */
+    function injectParticleStyles() {
+        if (document.getElementById('particle-style-block')) return;
+
+        const style = document.createElement('style');
+        style.id = 'particle-style-block';
+        style.textContent = `
+            .particle {
+                position: absolute;
+                background: radial-gradient(circle, rgba(56, 182, 255, 0.85) 0%, transparent 70%);
+                border-radius: 50%;
+                pointer-events: none;
+                animation: float-particle linear infinite;
+            }
+
+            @keyframes float-particle {
+                0% {
+                    transform: translateY(0) translateX(0) scale(1);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                }
+                90% {
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(-100vh) translateX(var(--drift, 0px)) scale(0.6);
+                    opacity: 0;
+                }
+            }
+
+            /* Fade-in helper classes */
+            .fade-in-init {
+                opacity: 0;
+                transform: translateY(30px);
+                transition: opacity 0.6s ease, transform 0.6s ease;
+            }
+            .fade-in-visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* Simple notification animation */
+            @keyframes slideUp {
+                from { transform: translate(-50%, 20px); opacity: 0; }
+                to   { transform: translate(-50%, 0); opacity: 1; }
+            }
+            @keyframes slideDown {
+                from { transform: translate(-50%, 0); opacity: 1; }
+                to   { transform: translate(-50%, 20px); opacity: 0; }
+            }
+
+            /* Back-to-top visibility helper (optional if you use it in CSS) */
+            .back-to-top.visible {
+                opacity: 1;
+                pointer-events: auto;
+                transform: translateY(0);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function createParticles() {
+        const particlesContainer = $('#particles');
+        if (!particlesContainer) return;
+
+        injectParticleStyles();
+
+        const particleCount = 50;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const actualCount = prefersReducedMotion ? 20 : particleCount;
+
+        for (let i = 0; i < actualCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+
+            // Random position
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+
+            // Random size
+            const size = Math.random() * 4 + 1;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+
+            // Random animation duration
+            const duration = Math.random() * 20 + 10;
+            particle.style.animationDuration = duration + 's';
+
+            // Random delay
+            const delay = Math.random() * 5;
+            particle.style.animationDelay = delay + 's';
+
+            // Random horizontal drift set via CSS variable
+            const drift = (Math.random() * 120 - 60).toFixed(1) + 'px';
+            particle.style.setProperty('--drift', drift);
+
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    /* ============================
+       PARALLAX SCROLL (OPTIONAL)
+    ============================ */
+    // This function is referenced in Part 1's scroll handler (commented there).
+    function parallaxScroll() {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = $$('[data-parallax]');
+        parallaxElements.forEach(el => {
+            const speedAttr = el.getAttribute('data-parallax');
+            const speed = speedAttr ? parseFloat(speedAttr) : 0.5;
+            const yPos = -(scrolled * speed);
+            el.style.transform = `translateY(${yPos}px)`;
+        });
+    }
+    // If you want to enable parallax globally:
+    // window.addEventListener('scroll', parallaxScroll);
+
+    /* ============================
+       PERFORMANCE MONITORING
+    ============================ */
+    window.addEventListener('load', () => {
+        // Approximate load time using Performance API (modern way)
+        const loadTime = Math.round(performance.now());
+        console.log(`⚡ Page interactive in ~${loadTime}ms`);
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefersReducedMotion) {
+            document.documentElement.style.scrollBehavior = 'auto';
+            console.log('♿ Reduced motion mode respected');
+        }
+    });
+
+    /* ============================
+       KEYBOARD NAVIGATION EXTRAS
+    ============================ */
+    document.addEventListener('keydown', (e) => {
+        const navMenu = $('#navMenu');
+
+        // ESC closes mobile nav
+        if (e.key === 'Escape' && navMenu && navMenu.classList.contains('active')) {
+            navMenu.classList.remove('active');
+        }
+
+        // Home / End scroll helpers
+        if (e.key === 'Home' && !e.shiftKey) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        if (e.key === 'End' && !e.shiftKey) {
+            e.preventDefault();
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    });
+
+    /* ============================
+       FOCUS VISIBLE ENHANCEMENT
+    ============================ */
+    document.addEventListener('DOMContentLoaded', () => {
+        let usingMouse = false;
+
+        document.addEventListener('mousedown', () => {
+            usingMouse = true;
+        });
+
+        document.addEventListener('keydown', () => {
+            usingMouse = false;
+        });
+
+        document.addEventListener('focusin', (e) => {
+            if (!(e.target instanceof HTMLElement)) return;
+            if (usingMouse) {
+                e.target.classList.add('mouse-focus');
+            } else {
+                e.target.classList.remove('mouse-focus');
+            }
+        });
+    });
+
+    /* ============================
+       THEME COLOR META (MOBILE UI)
+    ============================ */
+    function updateThemeColor() {
+        const scrolled = window.pageYOffset;
+        let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+
+        if (!metaThemeColor) {
+            metaThemeColor = document.createElement('meta');
+            metaThemeColor.name = 'theme-color';
+            metaThemeColor.content = '#0a0e27';
+            document.head.appendChild(metaThemeColor);
+        }
+
+        metaThemeColor.content = scrolled > 50 ? '#050711' : '#0a0e27';
+    }
+
+    window.addEventListener('scroll', updateThemeColor);
+    document.addEventListener('DOMContentLoaded', updateThemeColor);
+
+    /* ============================
+       CONSOLE EASTER EGG
+    ============================ */
+    console.log('%c👋 Hello, Fellow Developer!', 'font-size: 24px; font-weight: bold; color: #38B6FF;');
+    console.log('%c🚀 Thanks for checking out my portfolio!', 'font-size: 16px; color: #FF6B9D;');
+    console.log('%c📧 Let\'s connect: masteravinashrai@gmail.com', 'font-size: 14px; color: #00D9A3;');
+    console.log('%c💼 LinkedIn: linkedin.com/in/avinashanalytics', 'font-size: 14px; color: #8892a6;');
+    console.log('%c⭐ GitHub: github.com/AvinashAnalytics', 'font-size: 14px; color: #8892a6;');
+    console.log('%c\n🎨 Built with vanilla JavaScript, CSS, and lots of ☕', 'font-size: 12px; font-style: italic; color: #b8c5d6;');
+
+    /* ============================
+       SERVICE WORKER REGISTRATION (PWA)
+    ============================ */
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            // Uncomment and place a valid sw.js at root to enable PWA support
+            /*
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('✅ Service Worker registered', reg.scope))
+                .catch(err => console.log('❌ Service Worker registration failed', err));
+            */
+        });
+    }
+
+    /* ============================
+       INIT PARTICLES AFTER DOM
+    ============================ */
+    document.addEventListener('DOMContentLoaded', () => {
+        // Use requestIdleCallback if available to not block main thread
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(createParticles);
+        } else {
+            setTimeout(createParticles, 200);
+        }
+    });
+
+    // Expose optional functions globally if you ever want to call from console
+    window._AvinashEffects = {
+        createParticles,
+        parallaxScroll,
+        updateThemeColor
+    };
+})();
+/* =====================================================
+   PART 3: 🤖 AVINASH AI DIGITAL TWIN — CHAT WIDGET
+   PRODUCTION-READY VERSION (SECURE + OPTIMIZED)
+===================================================== */
+
+(function () {
+    'use strict';
+
+    function sanitizeText(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatMessage(text) {
+        // Basic markdown-style formatting on ALREADY-SANITIZED text
+        let safe = sanitizeText(text);
+
+        safe = safe
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/\n/g, '<br>');
+
+        return safe;
+    }
+
+    function initChatbot() {
+        const aiChatButton = document.getElementById('ai-chat-button');
+        const aiChatWindow = document.getElementById('ai-chat-window');
+        const aiChatClose = document.getElementById('ai-chat-close');
+        const aiChatMessages = document.getElementById('ai-chat-messages');
+        const aiChatInput = document.getElementById('ai-chat-input');
+        const aiChatSend = document.getElementById('ai-chat-send');
+
+        // Hugging Face Space endpoint (ensure CORS is enabled there)
+        const API_URL = 'https://avinashanalytics-avinash-chatbot.hf.space/chat';
+
         let conversationHistory = [];
         let isLoading = false;
 
-        // =============== DEBUG CHECK ===============
-        console.log("🤖 Chatbot Initialization:");
-        console.log("  ├─ Button:", aiChatButton ? "✅ Found" : "❌ Missing");
-        console.log("  ├─ Window:", aiChatWindow ? "✅ Found" : "❌ Missing");
-        console.log("  ├─ Close:", aiChatClose ? "✅ Found" : "❌ Missing");
-        console.log("  ├─ Messages:", aiChatMessages ? "✅ Found" : "❌ Missing");
-        console.log("  ├─ Input:", aiChatInput ? "✅ Found" : "❌ Missing");
-        console.log("  └─ Send:", aiChatSend ? "✅ Found" : "❌ Missing");
-        console.log("  📡 API URL:", API_URL);
+        console.log('🤖 Chatbot DOM check:', {
+            button: !!aiChatButton,
+            window: !!aiChatWindow,
+            close: !!aiChatClose,
+            messages: !!aiChatMessages,
+            input: !!aiChatInput,
+            send: !!aiChatSend,
+            API_URL
+        });
 
-        // Skip if elements not present
-        if (!aiChatButton || !aiChatWindow) {
-            console.error("❌ Chatbot critical elements missing! Check your HTML.");
+        if (!aiChatButton || !aiChatWindow || !aiChatMessages) {
+            console.error('❌ Chatbot critical elements missing. Check HTML markup.');
             return;
         }
 
-        // =====================
-        // TOGGLE CHAT WINDOW
-        // =====================
-        aiChatButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const isCurrentlyOpen = aiChatWindow.style.display === "flex";
-            
-            if (isCurrentlyOpen) {
-                aiChatWindow.style.display = "none";
-                console.log("💬 Chat closed");
-            } else {
-                aiChatWindow.style.display = "flex";
-                console.log("💬 Chat opened");
-                
-                // Focus input when opening
-                if (aiChatInput) {
-                    setTimeout(() => aiChatInput.focus(), 100);
-                }
-            }
-            
-            // Button animation
-            aiChatButton.style.transform = "scale(0.9)";
-            setTimeout(() => {
-                aiChatButton.style.transform = "scale(1)";
-            }, 150);
-        });
-
-        // =====================
-        // CLOSE BUTTON
-        // =====================
-        if (aiChatClose) {
-            aiChatClose.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                aiChatWindow.style.display = "none";
-                console.log("❌ Chat closed via X button");
+        /* ============================
+           UI HELPERS
+        ============================ */
+        function scrollMessagesToBottom(smooth = true) {
+            if (!aiChatMessages) return;
+            aiChatMessages.scrollTo({
+                top: aiChatMessages.scrollHeight,
+                behavior: smooth ? 'smooth' : 'auto'
             });
         }
 
-        // =====================
-        // SEND MESSAGE FUNCTION
-        // =====================
+        function addMessage(text, className) {
+            if (!aiChatMessages) return;
+            const bubble = document.createElement('div');
+            bubble.className = className;
+            bubble.innerHTML = formatMessage(text);
+            aiChatMessages.appendChild(bubble);
+            requestAnimationFrame(() => scrollMessagesToBottom(true));
+        }
+
+        function showTyping() {
+            if (!aiChatMessages) return;
+            if (document.getElementById('typing-indicator')) return;
+
+            const indicator = document.createElement('div');
+            indicator.className = 'ai-msg typing-indicator';
+            indicator.id = 'typing-indicator';
+            indicator.innerHTML = `
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+            `;
+            aiChatMessages.appendChild(indicator);
+            scrollMessagesToBottom(false);
+        }
+
+        function removeTyping() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        function setChatVisible(visible) {
+            if (!aiChatWindow) return;
+            aiChatWindow.style.display = visible ? 'flex' : 'none';
+            if (visible && aiChatInput) {
+                setTimeout(() => aiChatInput.focus(), 100);
+            }
+        }
+
+        /* ============================
+           SEND MESSAGE LOGIC
+        ============================ */
         async function sendAIMessage() {
-            const msg = aiChatInput.value.trim();
-            
-            // Don't send if empty or already loading
-            if (!msg || isLoading) {
-                console.log("⚠️ Empty message or already loading");
+            if (!aiChatInput) return;
+
+            const rawMsg = aiChatInput.value.trim();
+            if (!rawMsg || isLoading) return;
+
+            if (!navigator.onLine) {
+                addMessage('⚠️ You appear to be offline. Please check your internet connection and try again.', 'ai-msg');
                 return;
             }
 
-            console.log("📤 Sending message:", msg);
+            aiChatInput.value = '';
+            addMessage(rawMsg, 'user-msg');
 
-            // Clear input immediately
-            aiChatInput.value = "";
-            
-            // Show user message
-            addMessage(msg, "user-msg");
+            conversationHistory.push({ role: 'user', content: rawMsg });
 
-            // ⚠️ FIXED: Add to conversation history BEFORE sending
-            conversationHistory.push({ 
-                role: "user", 
-                content: msg 
-            });
-
-            // Show loading indicator
             isLoading = true;
             showTyping();
 
             try {
-                console.log("📡 Calling API:", API_URL);
-                console.log("📦 Payload:", {
-                    text: msg,
+                // Small delay for more human-like feeling
+                await new Promise(r => setTimeout(r, 400 + Math.random() * 600));
+
+                const payload = {
+                    text: rawMsg,
                     conversation_history: conversationHistory.slice(-10)
-                });
+                };
+
+                console.log('📤 Sending to API:', payload);
 
                 const response = await fetch(API_URL, {
-                    method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify({
-                        text: msg,
-                        conversation_history: conversationHistory.slice(-10) // Last 10 messages
-                    })
+                    body: JSON.stringify(payload)
                 });
 
-                console.log("📡 Response status:", response.status);
+                console.log('📡 API status:', response.status);
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error("❌ API Error Response:", errorText);
+                    console.error('❌ API Error Response:', errorText);
                     throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
 
                 const data = await response.json();
-                console.log("📥 API Response:", data);
+                console.log('📥 API data:', data);
 
-                // Remove typing indicator
                 removeTyping();
 
-                // Get reply
-                const reply = data.reply || "Sorry, I couldn't process that request.";
-                
-                // Show AI response
-                addMessage(reply, "ai-msg");
+                const reply = data.reply || 'Sorry, I could not process that request.';
+                addMessage(reply, 'ai-msg');
 
-                // ⚠️ FIXED: Add AI response to history
-                conversationHistory.push({ 
-                    role: "assistant", 
-                    content: reply 
-                });
-
-                // Keep history manageable (max 20 messages)
+                conversationHistory.push({ role: 'assistant', content: reply });
                 if (conversationHistory.length > 20) {
                     conversationHistory = conversationHistory.slice(-20);
                 }
 
-                console.log("📜 Conversation history length:", conversationHistory.length);
-
             } catch (error) {
-                console.error("❌ Chat Error:", error);
-                
+                console.error('❌ Chat error:', error);
                 removeTyping();
-                
-                // User-friendly error messages
-                let errorMessage = "⚠️ Oops! Something went wrong. ";
-                
-                if (error.message.includes("422")) {
-                    errorMessage += "Request format issue. Please try again.";
-                } else if (error.message.includes("500")) {
-                    errorMessage += "Server error. Please try again in a moment.";
-                } else if (error.message.includes("503")) {
-                    errorMessage += "I'm waking up! Please wait 10-20 seconds and try again.";
-                } else if (error.message.includes("Failed to fetch")) {
-                    errorMessage += "Network error. Check your internet connection.";
+
+                let errorMessage = '⚠️ Oops! Something went wrong. ';
+
+                const msg = String(error.message || '');
+                if (msg.includes('422')) {
+                    errorMessage += 'The request format seems off. Please try again.';
+                } else if (msg.includes('500')) {
+                    errorMessage += 'Server error. Please try again in a moment.';
+                } else if (msg.includes('503')) {
+                    errorMessage += 'The model might be waking up. Please wait a bit and retry.';
+                } else if (msg.includes('Failed to fetch')) {
+                    errorMessage += 'Network error. Check your internet connection.';
                 } else {
-                    errorMessage += "Please try again shortly.";
+                    errorMessage += 'Please try again shortly.';
                 }
-                
-                addMessage(errorMessage, "ai-msg");
-                
+
+                addMessage(errorMessage, 'ai-msg');
             } finally {
                 isLoading = false;
             }
         }
 
-        // =====================
-        // EVENT LISTENERS
-        // =====================
+        /* ============================
+           EVENT LISTENERS
+        ============================ */
+        aiChatButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const isOpen = aiChatWindow.style.display === 'flex';
+            setChatVisible(!isOpen);
+
+            aiChatButton.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                aiChatButton.style.transform = 'scale(1)';
+            }, 150);
+        });
+
+        if (aiChatClose) {
+            aiChatClose.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setChatVisible(false);
+                console.log('❌ Chat closed via close button');
+            });
+        }
+
         if (aiChatSend) {
-            aiChatSend.addEventListener('click', function(e) {
+            aiChatSend.addEventListener('click', (e) => {
                 e.preventDefault();
                 sendAIMessage();
             });
         }
 
         if (aiChatInput) {
-            aiChatInput.addEventListener('keydown', function(e) {
+            aiChatInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     sendAIMessage();
@@ -842,93 +933,58 @@ if ('serviceWorker' in navigator) {
             });
         }
 
-        // =====================
-        // UI HELPER FUNCTIONS
-        // =====================
-        function addMessage(text, className) {
-            const bubble = document.createElement("div");
-            bubble.className = className;
-            
-            // Simple formatting
-            const formatted = text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/\n/g, '<br>');
-            
-            bubble.innerHTML = formatted;
-            aiChatMessages.appendChild(bubble);
-            
-            // Scroll to bottom
-            requestAnimationFrame(() => {
-                aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
-            });
-        }
-
-        function showTyping() {
-            const indicator = document.createElement("div");
-            indicator.className = "ai-msg typing-indicator";
-            indicator.id = "typing-indicator";
-            indicator.innerHTML = `
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
-            `;
-            aiChatMessages.appendChild(indicator);
-            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
-        }
-
-        function removeTyping() {
-            const indicator = document.getElementById("typing-indicator");
-            if (indicator) {
-                indicator.remove();
+        // Close chat when clicking outside (optional)
+        document.addEventListener('click', (e) => {
+            if (!aiChatWindow || aiChatWindow.style.display !== 'flex') return;
+            const clickInside = aiChatWindow.contains(e.target) || aiChatButton.contains(e.target);
+            if (!clickInside) {
+                setChatVisible(false);
             }
-        }
+        });
 
-        // =====================
-        // WELCOME MESSAGE
-        // =====================
-        addMessage("👋 Hey there! I'm Avinash's AI assistant. Ask me anything about his skills, projects, or experience!", "ai-msg");
+        /* ============================
+           INITIAL WELCOME MESSAGE
+        ============================ */
+        addMessage('👋 Hey there! I\'m Avinash\'s AI assistant. Ask me anything about his skills, projects, or experience!', 'ai-msg');
 
-        // =====================
-        // GLOBAL UTILITIES (for debugging)
-        // =====================
-        window.clearAvinashChat = function() {
+        /* ============================
+           GLOBAL DEBUG HELPERS
+        ============================ */
+        window.clearAvinashChat = function () {
             conversationHistory = [];
-            aiChatMessages.innerHTML = '';
-            addMessage("🔄 Chat cleared! How can I help you?", "ai-msg");
-            console.log("🧹 Chat history cleared");
+            if (aiChatMessages) {
+                aiChatMessages.innerHTML = '';
+            }
+            addMessage('🔄 Chat cleared! How can I help you?', 'ai-msg');
+            console.log('🧹 Chat history cleared');
         };
 
-        window.testAvinashAPI = async function() {
-            console.log("🧪 Testing API...");
+        window.testAvinashAPI = async function () {
+            console.log('🧪 Testing chatbot API...');
             try {
                 const res = await fetch(API_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        text: "Hello, who are you?",
+                        text: 'Hello, who are you?',
                         conversation_history: []
                     })
                 });
                 const data = await res.json();
-                console.log("✅ API Test Success:", data);
+                console.log('✅ API Test Success:', data);
                 return data;
             } catch (err) {
-                console.error("❌ API Test Failed:", err);
+                console.error('❌ API Test Failed:', err);
                 return null;
             }
         };
 
-        console.log("✅ Chatbot initialized successfully!");
-        console.log("💡 Debug commands: testAvinashAPI() | clearAvinashChat()");
+        console.log('✅ Avinash AI chatbot initialized. Debug: testAvinashAPI(), clearAvinashChat()');
     }
 
-    // =============== INITIALIZE WHEN READY ===============
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initChatbot);
     } else {
-        // DOM already loaded
         initChatbot();
     }
-
 })();
