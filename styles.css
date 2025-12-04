@@ -248,6 +248,10 @@ h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
     padding-top: 100px;
     position: relative;
     overflow: hidden;
+    /* dark hero background so particle effect reads on a dark site */
+    background: radial-gradient(circle at 30% 50%, rgba(56,182,255,0.02) 0%, transparent 30%),
+                radial-gradient(circle at 70% 80%, rgba(139,92,246,0.02) 0%, transparent 30%),
+                linear-gradient(180deg, rgba(7,10,38,0.6) 0%, rgba(5,7,20,0.95) 100%);
 }
 
 /* Animated Particles Background */
@@ -268,9 +272,10 @@ h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at 30% 50%, rgba(56, 182, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 50% 20%, rgba(0, 217, 163, 0.05) 0%, transparent 50%);
+    /* subtle, darker vignette and color accents to support particles */
+    background: radial-gradient(circle at 30% 50%, rgba(56,182,255,0.04) 0%, transparent 35%),
+                radial-gradient(circle at 70% 80%, rgba(139,92,246,0.03) 0%, transparent 35%),
+                radial-gradient(circle at 50% 20%, rgba(0,217,163,0.02) 0%, transparent 35%);
     pointer-events: none;
     z-index: 1;
 }
