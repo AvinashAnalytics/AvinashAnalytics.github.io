@@ -1232,29 +1232,30 @@ h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
 ===================== */
 .footer {
     background: var(--bg-darker);
-    /* extra bottom padding so fixed chat button doesn't overlap footer links */
-    padding: 4rem 0 6rem;
-    border-top: 1px solid rgba(56, 182, 255, 0.1);
+    /* professional footer spacing */
+    padding: 5rem 0 6.5rem;
+    border-top: 1px solid rgba(56, 182, 255, 0.06);
+    color: var(--text-secondary);
 }
 
 .footer-content {
-    /* use a flexible row layout so columns sit side-by-side on wide screens
-       and wrap naturally on smaller viewports */
-    display: flex;
-    gap: 3rem;
-    align-items: flex-start;
-    flex-wrap: wrap;
+    /* more structured grid for professional alignment */
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr;
+    gap: 3rem 4rem;
+    align-items: start;
     margin-bottom: 3rem;
 }
 
-.footer-brand { flex: 2 1 360px; }
-.footer-column { flex: 1 1 220px; }
+.footer-brand { padding-right: 1rem; }
+.footer-column { }
 
 .footer-column .links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem 1.5rem;
-    align-items: center;
+    /* place links in two compact columns for tidy rows */
+    display: grid;
+    grid-template-columns: repeat(2, minmax(100px, 1fr));
+    gap: 0.5rem 1.5rem;
+    align-items: start;
 }
 
 .footer-brand h3 {
@@ -1271,16 +1272,18 @@ h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
 }
 
 .footer-column h4 {
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+    font-weight: 700;
 }
 
 .footer-column a {
     color: var(--text-secondary);
     text-decoration: none;
-    margin-bottom: 0.5rem;
-    transition: var(--transition);
-    display: inline-block;
+    padding: 4px 0;
+    transition: color 0.18s ease, transform 0.18s ease;
+    font-size: 0.95rem;
 }
 
 .footer-column a:hover {
@@ -1292,6 +1295,22 @@ h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
     text-align: center;
     padding-top: 2rem;
     border-top: 1px solid rgba(56, 182, 255, 0.1);
+}
+
+/* Fine-tune footer typography for a professional look */
+.footer-brand h3 { font-size: 1.9rem; letter-spacing: -0.5px; }
+.footer-brand p { color: var(--text-secondary); max-width: 520px; font-size: 1rem; line-height: 1.8; }
+
+.footer-column a:hover { color: var(--primary); transform: translateY(-2px); }
+
+@media (max-width: 1024px) {
+    .footer-content { grid-template-columns: 1fr 1fr; }
+    .footer-brand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 768px) {
+    .footer-content { grid-template-columns: 1fr; text-align: left; }
+    .footer-column .links { grid-template-columns: 1fr; }
 }
 
 /* Restore vertical stacking for small screens */
