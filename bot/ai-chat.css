@@ -24,6 +24,35 @@
   box-shadow:0 6px 20px rgba(12,22,34,0.6);
   cursor:pointer;
   font-size:20px;
+  /* Fun floating animation */
+  animation: chatFloat 4s ease-in-out infinite, buddyBlink 6s linear infinite;
+  transform-origin: center bottom;
+  transition: transform 180ms cubic-bezier(.2,.9,.2,1), box-shadow 180ms;
+}
+
+/* Add an inner emoji to allow isolated wobble without conflicting with float translate */
+#ai-chat-button > span {
+  display:inline-block;
+  transform-origin:center;
+  animation: buddyWobble 8s ease-in-out infinite;
+}
+
+/* small speech bubble that appears occasionally */
+#ai-chat-button::after{
+  content:'Hi!';
+  position:absolute;
+  right:70px;
+  bottom:12px;
+  background:rgba(255,255,255,0.95);
+  color:#012234;
+  padding:6px 10px;
+  border-radius:12px;
+  font-size:12px;
+  box-shadow:0 6px 18px rgba(2,6,23,0.25);
+  opacity:0;
+  transform:translateY(6px) scale(0.95);
+  pointer-events:none;
+  animation: bubblePop 6s cubic-bezier(.2,.9,.2,1) infinite;
 }
 
 /* chat window */
@@ -111,6 +140,39 @@
 @keyframes typing{
   0%,100%{transform:translateY(0);opacity:0.6}
   50%{transform:translateY(-4px);opacity:1}
+}
+
+/* Floating + playful keyframes */
+@keyframes chatFloat{
+  0% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-6px) rotate(-3deg); }
+  50% { transform: translateY(-10px) rotate(0deg); }
+  75% { transform: translateY(-6px) rotate(3deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes buddyWobble{
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(-8deg); }
+  20% { transform: rotate(6deg); }
+  30% { transform: rotate(-4deg); }
+  40% { transform: rotate(3deg); }
+  50% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes bubblePop{
+  0% { opacity: 0; transform: translateY(6px) scale(0.95); }
+  10% { opacity: 1; transform: translateY(0) scale(1); }
+  25% { opacity: 1; }
+  35% { opacity: 0; transform: translateY(-6px) scale(0.9); }
+  100% { opacity: 0; }
+}
+
+@keyframes buddyBlink{
+  0%, 95% { filter: none; }
+  97% { filter: brightness(1.15) saturate(1.05); }
+  100% { filter: none; }
 }
 
 #ai-chat-input-box{
