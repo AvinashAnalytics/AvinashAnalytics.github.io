@@ -37,9 +37,9 @@
   animation: buddyWobble 8s ease-in-out infinite;
 }
 
-/* small speech bubble that appears occasionally */
+/* speech bubble content comes from the button attribute `data-bubble` */
 #ai-chat-button::after{
-  content:'Hi!';
+  content: attr(data-bubble);
   position:absolute;
   right:70px;
   bottom:12px;
@@ -52,8 +52,17 @@
   opacity:0;
   transform:translateY(6px) scale(0.95);
   pointer-events:none;
-  animation: bubblePop 6s cubic-bezier(.2,.9,.2,1) infinite;
+  transition: opacity 180ms ease, transform 180ms ease;
 }
+
+/* visible when the button has this helper class (used by JS) */
+#ai-chat-button.bubble-visible::after{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+
+/* show bubble on hover immediately */
+#ai-chat-button:hover::after{ opacity:1; transform:translateY(0) scale(1); }
 
 /* chat window */
 #ai-chat-window{
