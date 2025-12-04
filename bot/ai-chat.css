@@ -3,66 +3,6 @@
  * For GitHub.io Portfolio
  */
 
-/* Compatibility shim for legacy markup using #ai-chat-button / #ai-chat-window
-   This maps old IDs to the new class-based styles so existing HTML keeps working. */
-
-#ai-chat-button {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 9999;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: var(--chat-primary, #2563eb);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--chat-shadow, 0 10px 40px rgba(0,0,0,0.15));
-  cursor: pointer;
-}
-
-#ai-chat-button[data-bubble]::after {
-  content: attr(data-bubble);
-  position: absolute;
-  bottom: 72px;
-  right: 0;
-  transform: translateX(6px);
-  background: rgba(0,0,0,0.75);
-  color: white;
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-size: 13px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-#ai-chat-button.bubble-visible::after {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-#ai-chat-window {
-  position: fixed;
-  bottom: 88px;
-  right: 24px;
-  width: var(--chat-width, 380px);
-  height: var(--chat-height, 550px);
-  z-index: 9998;
-  display: none;
-}
-
-#ai-chat-window[style*="display: flex"] {
-  display: flex;
-}
-
-#ai-chat-messages { max-height: 420px; overflow-y: auto; padding: 12px; }
-#ai-chat-input { width: calc(100% - 56px); padding: 10px; border-radius: 8px; border: 1px solid var(--chat-border, #e5e7eb); }
-#ai-chat-send { width: 44px; height: 44px; border-radius: 50%; background: var(--chat-primary, #2563eb); color: white; border: none; cursor: pointer; }
-
-
 /* ═══════════════════════════════════════════════════════════════════════════════
    CSS Variables
    ═══════════════════════════════════════════════════════════════════════════════ */
