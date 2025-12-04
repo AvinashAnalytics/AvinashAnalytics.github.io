@@ -71,6 +71,7 @@
     <!-- Stylesheet -->
     <link rel="preload" href="styles.css" as="style">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="bot/ai-chat.css">
     
     <!-- Structured Data (JSON-LD) - Person Schema -->
     <script type="application/ld+json">
@@ -1215,7 +1216,23 @@
 
     <!-- Scripts -->
     <script src="script.js"></script>
-    <!-- Chat widget moved to `chat.html` (assets are in `bot/`) -->
+    <script src="bot/ai-chat.js"></script>
+<!-- 💬 Avinash AI Digital Twin Chatbot -->
+<div id="ai-chat-button" data-bubble="Ask me!"><span>🤖</span></div>
+
+<div id="ai-chat-window">
+    <div id="ai-chat-header">
+        <span>Avinash Rai • AI Twin</span>
+        <button id="ai-chat-close">✖</button>
+    </div>
+
+    <div id="ai-chat-messages"></div>
+
+    <div id="ai-chat-input-box">
+        <input id="ai-chat-input" type="text" placeholder="Ask me anything..." />
+        <button id="ai-chat-send">➤</button>
+    </div>
+</div>
 
 </body>
 </html>
