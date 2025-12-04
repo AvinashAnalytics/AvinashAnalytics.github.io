@@ -1232,7 +1232,8 @@ h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
 ===================== */
 .footer {
     background: var(--bg-darker);
-    padding: 4rem 0 2rem;
+    /* extra bottom padding so fixed chat button doesn't overlap footer links */
+    padding: 4rem 0 6rem;
     border-top: 1px solid rgba(56, 182, 255, 0.1);
 }
 
@@ -1262,9 +1263,11 @@ h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
 }
 
 .footer-column a {
-    display: block;
+    /* display links horizontally on larger screens */
+    display: inline-block;
     color: var(--text-secondary);
     text-decoration: none;
+    margin-right: 1.25rem;
     margin-bottom: 0.75rem;
     transition: var(--transition);
 }
@@ -1278,6 +1281,12 @@ h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
     text-align: center;
     padding-top: 2rem;
     border-top: 1px solid rgba(56, 182, 255, 0.1);
+}
+
+/* Restore vertical stacking for small screens */
+@media (max-width: 768px) {
+    .footer-column a { display: block; margin-right: 0; }
+    .footer-content { grid-template-columns: 1fr; }
 }
 
 .footer-bottom p {
