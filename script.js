@@ -602,6 +602,34 @@ document.querySelectorAll('.btn').forEach(button => {
 });
 
 // =====================
+// BACK TO TOP BUTTON
+// =====================
+if (backToTopButton) {
+    // Show/hide back to top button
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+            backToTopButton.style.display = 'flex';
+            backToTopButton.classList.add('visible');
+        } else {
+            backToTopButton.classList.remove('visible');
+            setTimeout(() => {
+                if (!backToTopButton.classList.contains('visible')) {
+                    backToTopButton.style.display = 'none';
+                }
+            }, 300);
+        }
+    });
+
+    // Click handler
+    backToTopButton.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+}
+
+// =====================
 // INITIALIZATION
 // =====================
 document.addEventListener('DOMContentLoaded', () => {

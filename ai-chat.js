@@ -152,8 +152,8 @@
         }
 
         // =============== WELCOME & SUGGESTIONS ===============
-        addMessage("👋 Hi — I'm Avinash's AI assistant. I can help with Snowflake, dbt, Matillion, and AI/ML questions. Try: 'Explain dbt incremental models'", 'ai-msg');
-        addMessage("Tip: Ask about projects, tech stack, or request sample code.", 'ai-msg');
+        addMessage("Hey there! 👋 I'm Avinash — nice to meet you! I'm a Data Engineer who loves working with Snowflake, dbt, and building data pipelines. Ask me about my projects or experience!", 'ai-msg');
+        addMessage("💡 Try asking: 'What projects have you built?' or 'Tell me about your experience at AWA'", 'ai-msg');
 
         console.log('✅ Chatbot ready!');
     }

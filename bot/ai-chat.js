@@ -1,9 +1,35 @@
 /* =====================================================
    🤖 AVINASH AI DIGITAL TWIN — CHAT WIDGET
-   ai-chat.js - lightweight chat widget client
+   ai-chat.js - Performance Optimized Chat Widget
 ===================================================== */
 (function() {
     'use strict';
+
+    // Performance optimization: Debounce and throttle utilities
+    const debounce = (func, wait) => {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    };
+
+    const throttle = (func, limit) => {
+        let inThrottle;
+        return function() {
+            const args = arguments;
+            const context = this;
+            if (!inThrottle) {
+                func.apply(context, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    };
 
     function initChatbot() {
         // =============== DOM ELEMENTS ===============
@@ -14,15 +40,19 @@
         const aiChatInput = document.getElementById('ai-chat-input');
         const aiChatSend = document.getElementById('ai-chat-send');
 
-        // =============== CORRECT API URL ===============
-        // ✅ Fixed: using provided URL (confirm this is the intended endpoint)
+        // =============== API CONFIG ===============
         const API_URL = 'https://avinashanalystics-avinash-chatbot.hf.space/chat';
-
+        
+        // Performance: Limit conversation history
+        const MAX_HISTORY = 8;
+        const MAX_RETRIES = 2;
+        
         let conversationHistory = [];
         let isLoading = false;
+        let retryCount = 0;
 
         // =============== DEBUG ===============
-        console.log('🤖 Chatbot Init');
+        console.log('🤖 Premium Chatbot Init');
         console.log('📡 API URL:', API_URL);
 
         // =====================
@@ -30,10 +60,10 @@
         // =====================
         const bubbleMessages = [
             'Ask me!',
-            'Need help?',
-            'Try: Explain dbt',
-            'Show projects',
-            'What can you do?'
+            'Chat with me',
+            'What\'s up?',
+            'My projects?',
+            'My experience?'
         ];
         let bubbleIndex = 0;
         const bubbleIntervalMs = 14000; // how often to show bubble automatically
@@ -75,7 +105,7 @@
             });
         }
 
-        // =============== SEND MESSAGE ===============
+        // =============== OPTIMIZED SEND MESSAGE ===============
         async function sendMessage() {
             const text = aiChatInput ? aiChatInput.value.trim() : '';
             if (!text || isLoading) return;
@@ -84,6 +114,11 @@
             addMessage(text, 'user-msg');
 
             conversationHistory.push({ role: 'user', content: text });
+
+            // Performance: Limit history to prevent bloating
+            if (conversationHistory.length > MAX_HISTORY) {
+                conversationHistory = conversationHistory.slice(-MAX_HISTORY);
+            }
 
             isLoading = true;
             showTyping();
@@ -94,7 +129,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         text: text,
-                        conversation_history: conversationHistory.slice(-10)
+                        conversation_history: conversationHistory
                     })
                 });
 
@@ -112,11 +147,11 @@
                 console.error('❌ Error:', error);
                 removeTyping();
 
-                let msg = '⚠ Connection error. ';
+                let msg = '⚠ Connection hiccup. ';
                 if (error.message && error.message.includes('503')) {
-                    msg += 'AI is waking up — try again in a few seconds!';
+                    msg += 'AI is starting up — give me a moment! 🚀';
                 } else {
-                    msg += 'Please try again.';
+                    msg += 'Mind trying again? 🤔';
                 }
                 addMessage(msg, 'ai-msg');
 
@@ -142,14 +177,27 @@
             });
         }
 
-        // =============== HELPERS ===============
+        // =============== OPTIMIZED MESSAGE RENDERING ===============
         function addMessage(text, className) {
             if (!aiChatMessages) return;
+            
             const bubble = document.createElement('div');
             bubble.className = className;
             bubble.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
-            aiChatMessages.appendChild(bubble);
-            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+            
+            // Performance: Use requestAnimationFrame for smooth rendering
+            requestAnimationFrame(() => {
+                bubble.style.animation = 'messageSlideIn 0.3s ease-out';
+                aiChatMessages.appendChild(bubble);
+                
+                // Optimized smooth scroll
+                bubble.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            });
+
+            // Sound notification for AI messages only
+            if (className === 'ai-msg' && chatSoundEnabled) {
+                try { playMessageBeep(); } catch(e) {/*ignore*/}
+            }
         }
 
         // Bubble rotation logic: update data attribute and briefly show bubble
@@ -223,8 +271,8 @@
         }
 
         // =============== WELCOME & SUGGESTIONS ===============
-        addMessage("👋 Hi — I'm Avinash's AI assistant. I can help with Snowflake, dbt, Matillion, and AI/ML questions. Try: 'Explain dbt incremental models'", 'ai-msg');
-        addMessage("Tip: Ask about projects, tech stack, or request sample code.", 'ai-msg');
+        addMessage("Hey there! 👋 I'm Avinash — nice to meet you! I'm a Data Engineer who loves working with Snowflake, dbt, and building data pipelines. Ask me about my projects or experience!", 'ai-msg');
+        addMessage("💡 Try asking: 'What projects have you built?' or 'Tell me about your experience at AWA'", 'ai-msg');
 
         console.log('✅ Chatbot ready!');
     }
