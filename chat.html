@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Avinash AI 🤖</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    
+    <style>
+        /* ==================== RESET ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== BODY ==================== */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1224 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #e6eef3;
+        }
+
+        /* ==================== CHAT CONTAINER ==================== */
+        .chat-container {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(13, 18, 36, 0.95);
+            border-radius: 24px;
+            border: 1px solid rgba(56, 182, 255, 0.3);
+            box-shadow: 
+                0 25px 80px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(56, 182, 255, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        /* ==================== HEADER ==================== */
+        .chat-header {
+            background: linear-gradient(135deg, #38B6FF 0%, #8B5CF6 100%);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header-info h1 {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .header-info p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00D9A3;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ==================== STATUS BAR ==================== */
+        .status-bar {
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(56, 182, 255, 0.1);
+        }
+
+        .status-bar.online {
+            background: rgba(0, 217, 163, 0.06);
+            color: #00D9A3;
+        }
+
+        .status-bar.offline {
+            background: rgba(255, 107, 157, 0.06);
+            color: #FF6B9D;
+        }
+
+        .status-bar.checking {
+            background: rgba(56, 182, 255, 0.06);
+            color: #38B6FF;
+        }
+
+        /* ==================== MESSAGES ==================== */
+        .messages {
+            height: 380px;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: linear-gradient(180deg, #0a0e1a 0%, #0d1224 100%);
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 20px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            animation: slideIn 0.3s ease;
+            word-wrap: break-word;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #38B6FF 0%, #8B5CF6 100%);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.04);
+            color: #e0e6ed;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom-left-radius: 6px;
+        }
+
+        /* ==================== TYPING INDICATOR ==================== */
+        .typing {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 16px 20px !important;
+        }
+
+        .typing span {
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, #38B6FF, #8B5CF6);
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        /* ==================== QUICK BUTTONS ==================== */
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.06);
+            border-top: 1px solid rgba(56, 182, 255, 0.06);
+        }
+
+        .quick-btn {
+            padding: 8px 14px;
+            background: rgba(56, 182, 255, 0.08);
+            border: 1px solid rgba(56, 182, 255, 0.12);
+            border-radius: 20px;
+            color: #38B6FF;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-btn:hover {
+            background: rgba(56, 182, 255, 0.14);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(56, 182, 255, 0.08);
+        }
+
+        /* ==================== INPUT AREA ==================== */
+        .input-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: rgba(13, 18, 36, 0.95);
+            border-top: 1px solid rgba(56, 182, 255, 0.06);
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1px solid rgba(56, 182, 255, 0.08);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.02);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #userInput:focus {
+            border-color: #38B6FF;
+            box-shadow: 0 0 20px rgba(56, 182, 255, 0.08);
+        }
+
+        #userInput::placeholder {
+            color: #8892a6;
+        }
+
+        #sendBtn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38B6FF 0%, #8B5CF6 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(56, 182, 255, 0.18);
+        }
+
+        #sendBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(56, 182, 255, 0.25);
+        }
+
+        #sendBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #sendBtn svg {
+            width: 22px;
+            height: 22px;
+            fill: white;
+        }
+
+        /* ==================== SCROLLBAR ==================== */
+        .messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: rgba(56, 182, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(56, 182, 255, 0.4);
+        }
+
+        /* ==================== FOOTER ==================== */
+        .footer {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #8892a6;
+            background: rgba(0, 0, 0, 0.04);
+            border-top: 1px solid rgba(56, 182, 255, 0.06);
+        }
+
+        .footer a {
+            color: #38B6FF;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ==================== MOBILE ==================== */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .chat-container {
+                border-radius: 16px;
+            }
+
+            .messages {
+                height: 320px;
+            }
+
+            .quick-btn {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="avatar">🤖</div>
+            <div class="header-info">
+                <h1>Avinash AI</h1>
+                <p><span class="status-dot"></span>Data Engineer Digital Twin</p>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div id="statusBar" class="status-bar checking">
+            🔄 Connecting to AI...
+        </div>
+
+        <!-- Messages -->
+        <div class="messages" id="messages"></div>
+
+        <!-- Quick Buttons -->
+        <div class="quick-buttons">
+            <button class="quick-btn" onclick="askQuestion('Tell me about yourself')">👋 About</button>
+            <button class="quick-btn" onclick="askQuestion('What are your skills?')">🛠 Skills</button>
+            <button class="quick-btn" onclick="askQuestion('Tell me about your projects')">📁 Projects</button>
+            <button class="quick-btn" onclick="askQuestion('What is your experience?')">💼 Experience</button>
+            <button class="quick-btn" onclick="askQuestion('How can I contact you?')">📧 Contact</button>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <input 
+                type="text" 
+                id="userInput" 
+                placeholder="Ask me anything..." 
+                autocomplete="off"
+                autofocus
+            >
+            <button id="sendBtn" onclick="sendMessage()" title="Send message">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Powered by <a href="https://huggingface.co/spaces/avinashanalystics/avinash-chatbot" target="_blank">Avinash AI</a> • 
+            <a href="https://avinashanalytics.github.io" target="_blank">Portfolio</a>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        // ✅ CORRECT URL with "analystics" (extra 's')
+        const API_URL = "https://avinashanalystics-avinash-chatbot.hf.space/chat";
+        const HEALTH_URL = "https://avinashanalystics-avinash-chatbot.hf.space/health";
+
+        // ==================== DOM ELEMENTS ====================
+        const messagesDiv = document.getElementById("messages");
+        const userInput = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const statusBar = document.getElementById("statusBar");
+
+        // ==================== STATE ====================
+        let conversationHistory = [];
+        let isLoading = false;
+        let retryCount = 0;
+
+        // ==================== HELPERS ====================
+        function escapeHtml(str){
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function updateStatus(type, message) {
+            // set class to 'status-bar <type>'
+            statusBar.className = 'status-bar ' + type;
+            statusBar.textContent = message;
+        }
+
+        function addMessage(text, type) {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = 'message ' + type;
+
+            const safe = escapeHtml(String(text)).replace(/\n/g, '<br>');
+            messageDiv.innerHTML = safe;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTyping() {
+            const typingDiv = document.createElement("div");
+            typingDiv.className = "message ai typing";
+            typingDiv.id = "typingIndicator";
+            typingDiv.innerHTML = `
+                <span></span>
+                <span></span>
+                <span></span>
+            `;
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function removeTyping() {
+            const typing = document.getElementById("typingIndicator");
+            if (typing) typing.remove();
+        }
+
+        // ==================== INITIALIZE ====================
+        console.log("🤖 Avinash AI Chat Initialized");
+        console.log("📡 API URL:", API_URL);
+
+        checkHealth();
+
+        // Enter key to send
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter" && !isLoading) sendMessage();
+        });
+
+        // ==================== HEALTH CHECK ====================
+        async function checkHealth() {
+            updateStatus("checking", "🔄 Connecting to AI...");
+
+            try {
+                const response = await fetch(HEALTH_URL, { method: "GET", mode: "cors" });
+                if (response.ok) {
+                    // Some spaces return JSON, others return text; try json then fallback
+                    let data;
+                    try { data = await response.json(); } catch(e) { data = await response.text(); }
+                    console.log("✅ Health check passed:", data);
+                    updateStatus("online", "🟢 Online - Ready to chat!");
+                    addMessage("👋 Hey there! I'm Avinash's AI twin. Ask me anything about my skills, projects, or experience!", "ai");
+                } else {
+                    throw new Error('HTTP ' + response.status);
+                }
+            } catch (error) {
+                console.error("❌ Health check failed:", error);
+                updateStatus("offline", "🟡 AI is waking up... please wait 30 seconds");
+                addMessage("⏳ I'm waking up! Please wait a moment and try again.", "ai");
+
+                // Auto-retry after 30 seconds
+                setTimeout(checkHealth, 30000);
+            }
+        }
+
+        // ==================== QUICK QUESTION ====================
+        function askQuestion(question) {
+            userInput.value = question;
+            sendMessage();
+        }
+
+        // ==================== SEND MESSAGE ====================
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) { userInput.focus(); return; }
+            if (isLoading) { console.log("⚠ Already loading"); return; }
+
+            console.log("📤 Sending:", text);
+            userInput.value = "";
+            addMessage(text, "user");
+
+            conversationHistory.push({ role: "user", content: text });
+
+            isLoading = true; sendBtn.disabled = true; showTyping();
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                    body: JSON.stringify({ text: text, conversation_history: conversationHistory.slice(-10) })
+                });
+
+                console.log("📡 Response status:", response.status);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("❌ Error response:", errorText);
+                    throw new Error('HTTP ' + response.status);
+                }
+
+                const data = await response.json();
+                console.log("📥 Response data:", data);
+
+                removeTyping();
+
+                const reply = (data && (data.reply || data.output || data.text)) || "Sorry, I couldn't process that request.";
+                addMessage(reply, "ai");
+
+                conversationHistory.push({ role: "assistant", content: reply });
+                if (conversationHistory.length > 20) conversationHistory = conversationHistory.slice(-20);
+
+                updateStatus("online", "🟢 Online");
+                retryCount = 0;
+
+            } catch (error) {
+                console.error("❌ Error:", error);
+                removeTyping();
+                retryCount++;
+
+                const msg = String(error.message || error);
+                if (msg.includes("Failed to fetch") || msg.includes("503")) {
+                    updateStatus("offline", "🟡 AI is waking up...");
+
+                    if (retryCount < 3) {
+                        addMessage("⏳ AI is waking up. Auto-retrying in 5 seconds... (Attempt " + retryCount + "/3)", "ai");
+                        setTimeout(() => { userInput.value = text; sendMessage(); }, 5000);
+                    } else {
+                        addMessage("⚠ AI is still sleeping. Please wait 1-2 minutes and try again, or visit the Space directly to wake it up.", "ai");
+                        retryCount = 0;
+                    }
+                } else if (msg.includes("422")) {
+                    addMessage("⚠ Request format error. Please try rephrasing your question.", "ai");
+                } else {
+                    addMessage("⚠ Connection error. Please check your internet and try again.", "ai");
+                }
+
+            } finally {
+                isLoading = false; sendBtn.disabled = false; userInput.focus();
+            }
+        }
+
+        // ==================== UTILITIES ====================
+        window.clearChat = function() { conversationHistory = []; messagesDiv.innerHTML = ''; addMessage("🔄 Chat cleared! How can I help you?", "ai"); };
+
+        window.testAPI = async function() {
+            try {
+                const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: "Hello!", conversation_history: [] }) });
+                const data = await res.json();
+                alert("API Working! Reply: " + String(data.reply || data.text || data.output).substring(0, 200));
+                return data;
+            } catch (err) { alert("API Test Failed: " + (err.message || err)); return null; }
+        };
+
+        console.log("💡 Debug commands: testAPI() | clearChat()");
+    </script>
+</body>
+</html>
