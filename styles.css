@@ -65,73 +65,75 @@
 /* =====================
    RESET & BASE
 ===================== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* =====================
+   FOOTER (REDESIGN)
+   Clean, minimal, 4-column layout for professional portfolio
+===================== */
+.footer {
+    background: #0f0f12; /* darker, rich background */
+    color: var(--text-secondary);
+    padding: 4.5rem 0 3.5rem;
+    font-size: 0.98rem;
 }
 
-html {
-    scroll-behavior: smooth;
-    font-size: 16px;
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 2.5rem 3.5rem;
+    align-items: start;
+    margin-bottom: 1.25rem;
 }
 
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background-color: var(--bg-dark);
+.footer-col h4 {
+    margin: 0 0 0.9rem 0;
+    font-size: 1.05rem;
     color: var(--text-primary);
-    line-height: 1.6;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-::selection {
-    background: var(--primary);
-    color: white;
-}
-
-/* =====================
-   CONTAINER & LAYOUT
-===================== */
-.container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-md);
-}
-
-section {
-    padding: var(--spacing-xl) 0;
-    position: relative;
-}
-
-/* =====================
-   TYPOGRAPHY
-===================== */
-h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 1rem;
 }
 
-h1 { font-size: clamp(2.5rem, 5vw, 4rem); }
-h2 { font-size: clamp(2rem, 4vw, 3rem); }
-h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
+.brand-name { font-size: 1.6rem; margin-bottom: 0.35rem; }
+.brand-tag { color: var(--text-secondary); max-width: 460px; line-height: 1.7; }
 
-.gradient-text {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.link-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.55rem;
 }
 
-.inline-link {
-    color: var(--primary);
+.link-list li a {
+    color: var(--text-secondary);
     text-decoration: none;
-    border-bottom: 1px solid var(--primary);
-    transition: var(--transition);
+    transition: color 0.18s ease, transform 0.18s ease;
+    display: inline-block;
+    padding: 3px 0;
 }
 
+.link-list li a:hover { color: var(--primary); transform: translateY(-2px); }
+
+.social-list { display: grid; }
+.social-list li a { white-space: nowrap; }
+
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.03);
+    padding-top: 1.25rem;
+}
+
+.footer-divider { border: none; height: 1px; background: rgba(255,255,255,0.03); margin: 0 0 1rem 0; }
+
+.footer-meta { color: var(--text-muted); font-size: 0.95rem; }
+
+/* Responsiveness */
+@media (max-width: 1100px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 680px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .brand-tag { max-width: 100%; }
+    .footer { padding: 3rem 0 2.5rem; }
+}
 .inline-link:hover {
     color: var(--secondary);
     border-color: var(--secondary);
