@@ -1361,7 +1361,7 @@ h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
 .footer-logos { width: 100%; margin-bottom: 0.5rem; }
 .footer-logos ul { display: flex; gap: 0.75rem; align-items: center; list-style: none; padding: 0; margin: 0 0 0.5rem 0; }
 .footer-logos .logo-item { display: inline-flex; align-items: center; gap: 0.6rem; background: rgba(255,255,255,0.02); padding: 0.45rem 0.75rem; border-radius: 8px; color: var(--text-secondary); font-weight: 600; font-size: 0.95rem; transition: var(--transition); border: 1px solid rgba(255,255,255,0.02); }
-.footer-logos .logo-item img { width: 28px; height: 28px; display: block; }
+.footer-logos .logo-item i { font-size: 1.05rem; color: var(--text-primary); opacity: 0.95; }
 .footer-logos .logo-item span { color: var(--text-secondary); font-size: 0.9rem; }
 .footer-logos .logo-item:hover { transform: translateY(-3px); background: rgba(56,182,255,0.06); color: var(--text-primary); border-color: rgba(56,182,255,0.08); }
 
