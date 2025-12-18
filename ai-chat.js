@@ -1,7 +1,7 @@
 /* =====================================================
    🤖 AVINASH AI DIGITAL TWIN — CHAT WIDGET
    ai-chat.js - lightweight chat widget client
-   ✅ Updated API URL to match current HF Space
+   ✅ Updated API URL (Confirmed Fix)
 ===================================================== */
 (function () {
     'use strict';
