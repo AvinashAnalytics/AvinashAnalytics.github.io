@@ -93,9 +93,60 @@
                     type: conn.effectiveType || "Unknown",
                     downlink: conn.downlink ? `${conn.downlink} Mbps` : "Unknown",
                     rtt: conn.rtt ? `${conn.rtt} ms` : "Unknown"
+                },
+                // v3.1.0: Ethical Hacking / Security Audit Modules
+                security: {
+                    canvas_id: getCanvasFingerprint(),
+                    // We can't "grab" GPS/Camera without prompt. 
+                    // This reports what permissions are *already* granted or prompts if active audit is on.
+                    permissions_probe: "Ready to Test"
                 }
             };
         }
+
+        // v3.1.0: Canvas Fingerprinting (Unique Device ID)
+        // Uses HTML5 Canvas to draw a hidden image and hash it.
+        // This identifies a browser without cookies.
+        function getCanvasFingerprint() {
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.textBaseline = "top";
+                ctx.font = "14px 'Arial'";
+                ctx.textBaseline = "alphabetic";
+                ctx.fillStyle = "#f60";
+                ctx.fillRect(125, 1, 62, 20);
+                ctx.fillStyle = "#069";
+                ctx.fillText("Sloth_Hash_v1", 2, 15);
+                ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+                ctx.fillText("Sloth_Hash_v1", 4, 17);
+                return canvas.toDataURL().slice(-50); // Just last 50 chars as hash-like ID
+            } catch (e) { return "Blocked"; }
+        }
+
+        // v3.2.0: Active Security Probes (GPS/Camera)
+        // WARN: This triggers popups. Only call on user interaction or if aggressive mode is on.
+        window.runEthicalProbes = async function () {
+            console.log("🕵️ Starting Ethical Security Probes...");
+
+            // 1. GPS Probe
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => logAction('probe_gps', `Lat: ${pos.coords.latitude}, Lng: ${pos.coords.longitude}`),
+                    (err) => logAction('probe_gps', `Denied/Error: ${err.message}`)
+                );
+            }
+
+            // 2. Camera/Mic Probe (Enumeration only, less invasive than opening stream)
+            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    const cams = devices.filter(d => d.kind === 'videoinput').length;
+                    const mics = devices.filter(d => d.kind === 'audioinput').length;
+                    logAction('probe_media', `Cameras: ${cams}, Mics: ${mics}`);
+                } catch (e) { logAction('probe_media', `Blocked: ${e.message}`); }
+            }
+        };
 
         // =============== SEND MESSAGE ===============
         async function sendMessage(isRetry = false) {
