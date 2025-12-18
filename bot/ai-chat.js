@@ -233,6 +233,48 @@
         setInterval(pollReplies, 3000);
 
         console.log('✅ Chatbot ready!');
+
+        // v3.10.2: File upload handler
+        const attachButton = document.getElementById('ai-chat-attach');
+        const fileInput = document.getElementById('ai-chat-file');
+
+        if (attachButton && fileInput) {
+            attachButton.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', async () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                // Show uploading message
+                addMessage(`📎 Uploading ${file.name}...`, 'user-msg');
+
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('user_id', getUserId());
+
+                    const response = await fetch('https://AvinashAnalytics-avinash-chatbot.hf.space/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        addMessage(`✅ File sent to Avinash! ${data.message || ''}`, 'ai-msg');
+                    } else {
+                        addMessage('❌ Upload failed. Please try again.', 'ai-msg');
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    addMessage('❌ Upload failed. Please try again.', 'ai-msg');
+                }
+
+                // Reset file input
+                fileInput.value = '';
+            });
+        }
     }
 
     // Init when DOM ready
