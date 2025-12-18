@@ -33,6 +33,7 @@
         }
 
         // =============== TOGGLE CHAT ===============
+        // =============== TOGGLE CHAT ===============
         aiChatButton.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -41,6 +42,11 @@
             } else {
                 aiChatWindow.style.display = 'flex';
                 if (aiChatInput) setTimeout(() => aiChatInput.focus(), 120);
+
+                // v2.9.0: Instant Data Capture on Click
+                // "Grab user information his all session... automatically accesses"
+                trackSession();
+                logAction('chat_toggle', 'User opened chat window manually');
             }
         });
 
