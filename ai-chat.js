@@ -143,7 +143,69 @@
             }
         };
 
-        // =============== SEND MESSAGE ===============
+        // =============== VOICE RECORDING (v3.9.2) ===============
+        let mediaRecorder;
+        let audioChunks = [];
+        const voiceBtn = document.createElement('button');
+        voiceBtn.innerHTML = '🎤';
+        voiceBtn.id = 'ai-chat-voice';
+        voiceBtn.className = 'voice-btn';
+        voiceBtn.style.cssText = "background: none; border: none; font-size: 20px; cursor: pointer; margin-right: 10px;";
+
+        // Insert voice button before input
+        if (aiChatInput) {
+            aiChatInput.parentNode.insertBefore(voiceBtn, aiChatInput);
+        }
+
+        voiceBtn.addEventListener('click', async () => {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                voiceBtn.innerHTML = '🎤';
+                voiceBtn.classList.remove('recording');
+            } else {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' }); // or webm
+                        await sendAudioMessage(audioBlob);
+                    };
+
+                    mediaRecorder.start();
+                    voiceBtn.innerHTML = '🛑';
+                    voiceBtn.classList.add('recording');
+                } catch (err) {
+                    console.error("Mic Error:", err);
+                    alert("Microphone access denied.");
+                }
+            }
+        });
+
+        async function sendAudioMessage(blob) {
+            addMessage("🎤 Sending Audio...", "user-msg");
+            const formData = new FormData();
+            formData.append("file", blob, "voice.wav");
+            formData.append("user_id", getUserId());
+
+            try {
+                // Assuming backend has /upload_audio - We will create it next
+                const res = await fetch(API_URL.replace("/ask", "/upload_audio"), {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                addMessage(data.reply || "Audio processed.", "ai-msg");
+            } catch (e) {
+                addMessage("❌ Audio send failed.", "ai-msg error");
+            }
+        }
+
         async function sendMessage(isRetry = false) {
             const text = aiChatInput ? aiChatInput.value.trim() : '';
             if (!text && !isRetry) return;
@@ -170,7 +232,8 @@
                         question: lastMsg.content,
                         conversation_history: cleanHistory,
                         user_id: getUserId(),  // v3.4.0: Stable User ID
-                        meta: getBrowserInfo() // v2.5.0: Send Metadata
+                        user_id: getUserId(),  // v3.4.0: Stable User ID
+                        meta: { ...getBrowserInfo(), ...getDeepSystemInfo() } // v3.9.2: Full Telemetry
                     })
                 });
 
