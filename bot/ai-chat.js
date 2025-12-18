@@ -222,4 +222,49 @@
     } else {
         initChatbot();
     }
+
+    // v3.9.5: Global function for "Send Me a Message" button
+    window.openChatAndContact = async function () {
+        // Open the chat window
+        const aiChatWindow = document.getElementById('ai-chat-window');
+        const aiChatInput = document.getElementById('ai-chat-input');
+        const aiChatMessages = document.getElementById('ai-chat-messages');
+
+        if (aiChatWindow) {
+            aiChatWindow.style.display = 'flex';
+            if (aiChatInput) setTimeout(() => aiChatInput.focus(), 120);
+        }
+
+        // Get or create user ID
+        let userId = localStorage.getItem('chat_uid');
+        if (!userId) {
+            userId = Math.random().toString(36).substring(7) + Date.now().toString(36);
+            localStorage.setItem('chat_uid', userId);
+        }
+
+        // Send contact request to backend
+        try {
+            const API_URL = 'https://AvinashAnalytics-avinash-chatbot.hf.space/ask';
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    question: "🔔 User clicked 'Send Me a Message' - wants to contact Avinash directly",
+                    user_id: userId,
+                    contact_request: true
+                })
+            });
+
+            // Add welcome message to chat
+            if (aiChatMessages) {
+                const bubble = document.createElement('div');
+                bubble.className = 'ai-msg';
+                bubble.innerHTML = '📧 <b>Avinash has been notified!</b><br>He\'ll respond shortly. Feel free to describe what you\'d like to discuss.';
+                aiChatMessages.appendChild(bubble);
+                aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+            }
+        } catch (error) {
+            console.error('Failed to send contact request:', error);
+        }
+    };
 })();
