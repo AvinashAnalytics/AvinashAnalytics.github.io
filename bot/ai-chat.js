@@ -19,7 +19,19 @@
         // ✅ Correct HuggingFace Space URL with /ask endpoint
         const API_URL = 'https://AvinashAnalytics-avinash-chatbot.hf.space/ask';
 
+        // v3.10.1: Load conversation history from localStorage for sync
         let conversationHistory = [];
+        try {
+            const savedHistory = localStorage.getItem('chat_conversation_history');
+            if (savedHistory) {
+                const parsed = JSON.parse(savedHistory);
+                conversationHistory = Array.isArray(parsed) ? parsed : [];
+                console.log(`[Chat] Restored ${conversationHistory.length} messages from history`);
+            }
+        } catch (e) {
+            console.error('[Chat] Failed to restore history:', e);
+        }
+
         let isLoading = false;
 
         // =============== DEBUG ===============
@@ -90,6 +102,13 @@
                 addMessage(reply, 'ai-msg');
 
                 conversationHistory.push({ role: 'assistant', content: reply });
+
+                // v3.10.1: Save to localStorage for sync across pages
+                try {
+                    localStorage.setItem('chat_conversation_history', JSON.stringify(conversationHistory));
+                } catch (e) {
+                    console.error('[Chat] Failed to save history:', e);
+                }
 
             } catch (error) {
                 console.error('❌ Error:', error);
