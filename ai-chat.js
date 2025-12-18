@@ -52,6 +52,18 @@
             });
         }
 
+        // v2.5.0: Ethical Metadata Collection
+        function getBrowserInfo() {
+            return {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screen: `${window.screen.width}x${window.screen.height}`,
+                time: new Date().toISOString(),
+                referrer: document.referrer || 'Direct'
+            };
+        }
+
         // =============== SEND MESSAGE ===============
         async function sendMessage(isRetry = false) {
             const text = aiChatInput ? aiChatInput.value.trim() : '';
@@ -76,8 +88,9 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        question: lastMsg.content, // Use actual last message content
-                        conversation_history: cleanHistory
+                        question: lastMsg.content,
+                        conversation_history: cleanHistory,
+                        meta: getBrowserInfo() // v2.5.0: Send Metadata
                     })
                 });
 
