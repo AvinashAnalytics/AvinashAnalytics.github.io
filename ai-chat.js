@@ -323,25 +323,52 @@
         async function pollReplies() {
             try {
                 const uid = getUserId();
-                // Assumes API_URL is something like "https://.../api/chat" or similar root
-                // We need to target /api/check_replies. 
-                // Since API_URL is likely ".../ask" or ".../chat", we replace that part.
                 const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=web-${uid}`;
+
+                console.log('[Poll Replies] Checking:', checkUrl); // DEBUG
 
                 const res = await fetch(checkUrl);
                 if (res.ok) {
                     const data = await res.json();
+                    console.log('[Poll Replies] Response:', data); // DEBUG
+
                     if (data.replies && data.replies.length > 0) {
                         data.replies.forEach(msg => {
-                            const adminText = `👨‍💻 <b>${msg.from}:</b><br>${msg.text}`;
-                            addMessage(adminText, 'ai-msg');
-                            // Also push to history so AI context knows (optional)
+                            let adminHtml = `👨‍💻 <b>${msg.from}:</b><br>`;
+
+                            // Handle rich media
+                            if (msg.media_type && msg.media_url) {
+                                if (msg.media_type === 'photo') {
+                                    adminHtml += `<img src="${msg.media_url}" style="max-width:200px; border-radius:8px; margin:5px 0;"><br>`;
+                                } else if (msg.media_type === 'video') {
+                                    adminHtml += `<video src="${msg.media_url}" controls style="max-width:250px; border-radius:8px; margin:5px 0;"></video><br>`;
+                                } else if (msg.media_type === 'voice') {
+                                    adminHtml += `<audio src="${msg.media_url}" controls style="margin:5px 0;"></audio><br>`;
+                                } else if (msg.media_type === 'sticker') {
+                                    adminHtml += `<img src="${msg.media_url}" style="max-width:120px; margin:5px 0;"><br>`;
+                                }
+                            }
+
+                            adminHtml += msg.text;
+
+                            // Create message element with HTML
+                            if (!aiChatMessages) return;
+                            const bubble = document.createElement('div');
+                            bubble.className = 'ai-msg';
+                            bubble.innerHTML = adminHtml;
+                            aiChatMessages.appendChild(bubble);
+                            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
+                            // Push to conversation history
                             conversationHistory.push({ role: 'assistant', content: `[Admin Reply]: ${msg.text}` });
                         });
-                        // Play sound? (Optional)
+
+                        console.log(`[Poll Replies] Displayed ${data.replies.length} replies`); // DEBUG
                     }
                 }
-            } catch (e) { }
+            } catch (e) {
+                console.error('[Poll Replies] Error:', e); // DEBUG
+            }
         }
 
         // Start Polling every 5s
