@@ -177,7 +177,7 @@
             logAction('tab_visibility', document.hidden ? 'Hidden (Switched Tab)' : 'Visible (Returned)');
         });
 
-        // v2.7.0: Spy-Level Telemetry (Scroll, Mouse, Perf)
+        // v2.7.0: Advanced UX Telemetry (Scroll, Mouse, Perf)
         // 1. Scroll Depth
         let maxScroll = 0;
         window.addEventListener('scroll', () => {
@@ -193,8 +193,8 @@
         document.addEventListener('mousemove', (e) => {
             if (mouseTimer) return;
             mouseTimer = setTimeout(() => {
-                // Only log if inside chat window to save data, or global? User asked for "Spy-Level", so Global.
-                // But we act ethical, so we send coordinates relative to screen.
+                // Only log if inside chat window to save data, or global? Global for UX heatmaps.
+                // We act ethical, so we send coordinates relative to screen.
                 // We won't log EVERY move, just "Zones" to be efficient.
                 const x = Math.round(e.clientX / window.innerWidth * 100);
                 const y = Math.round(e.clientY / window.innerHeight * 100);
