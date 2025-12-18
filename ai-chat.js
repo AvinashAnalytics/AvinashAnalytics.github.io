@@ -21,6 +21,7 @@
 
         let conversationHistory = [];
         let isLoading = false;
+        let retryCount = 0; // v2.4.0: Auto-retry state
 
         // =============== DEBUG ===============
         console.log('🤖 Chatbot Init');
@@ -52,25 +53,31 @@
         }
 
         // =============== SEND MESSAGE ===============
-        async function sendMessage() {
+        async function sendMessage(isRetry = false) {
             const text = aiChatInput ? aiChatInput.value.trim() : '';
-            if (!text || isLoading) return;
+            if (!text && !isRetry) return;
+            if (isLoading && !isRetry) return;
 
-            if (aiChatInput) aiChatInput.value = '';
-            addMessage(text, 'user-msg');
-
-            conversationHistory.push({ role: 'user', content: text });
+            if (!isRetry) {
+                if (aiChatInput) aiChatInput.value = '';
+                addMessage(text, 'user-msg');
+                conversationHistory.push({ role: 'user', content: text });
+            }
 
             isLoading = true;
             showTyping();
 
             try {
+                // v2.4.0: Context-aware retries
+                const lastMsg = conversationHistory[conversationHistory.length - 1];
+                const cleanHistory = conversationHistory.slice(-10);
+
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        question: text,
-                        conversation_history: conversationHistory.slice(-10)
+                        question: lastMsg.content, // Use actual last message content
+                        conversation_history: cleanHistory
                     })
                 });
 
@@ -84,20 +91,40 @@
 
                 conversationHistory.push({ role: 'assistant', content: reply });
 
+                // Reset retry count on success
+                retryCount = 0;
+
             } catch (error) {
                 console.error('❌ Error:', error);
                 removeTyping();
 
-                let msg = '⚠ Connection error. ';
-                if (error.message && error.message.includes('503')) {
-                    msg += 'AI is waking up — try again in a few seconds!';
-                } else {
-                    msg += 'Please try again.';
+                // v2.4.0: Robust Retry Logic
+                retryCount++;
+                let msg = String(error.message || error);
+
+                if (retryCount <= 3 && (msg.includes('503') || msg.includes('Failed to fetch'))) {
+                    addMessage(`⏳ Connection issue. Auto-retrying in 3s... (Attempt ${retryCount}/3)`, 'ai-msg system-msg');
+
+                    setTimeout(() => {
+                        showTyping();
+                        sendMessage(true);
+                    }, 3000);
+                    return; // Don't reset loading yet
                 }
-                addMessage(msg, 'ai-msg');
+
+                if (msg.includes('503')) {
+                    msg = '⚠ AI is waking up. Please wait ~30 seconds and try again.';
+                } else {
+                    msg = '⚠ Connection failed. Please check your internet.';
+                }
+                addMessage(msg, 'ai-msg error');
+                retryCount = 0; // Reset after failure
 
             } finally {
-                isLoading = false;
+                // Only reset loading if we aren't retrying
+                if (retryCount === 0 || retryCount > 3) {
+                    isLoading = false;
+                }
             }
         }
 
