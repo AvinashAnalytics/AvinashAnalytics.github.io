@@ -1,8 +1,9 @@
 /* =====================================================
    🤖 AVINASH AI DIGITAL TWIN — CHAT WIDGET
    ai-chat.js - lightweight chat widget client
+   ✅ Fixed API endpoint: /ask with 'question' field
 ===================================================== */
-(function() {
+(function () {
     'use strict';
 
     function initChatbot() {
@@ -14,9 +15,9 @@
         const aiChatInput = document.getElementById('ai-chat-input');
         const aiChatSend = document.getElementById('ai-chat-send');
 
-        // =============== CORRECT API URL ===============
-        // ✅ Fixed: using provided URL (confirm this is the intended endpoint)
-        const API_URL = 'https://avinashanalystics-avinash-chatbot.hf.space/chat';
+        // =============== API URL ===============
+        // ✅ Correct HuggingFace Space URL with /ask endpoint
+        const API_URL = 'https://AvinashAnalytics-avinash-chatbot.hf.space/ask';
 
         let conversationHistory = [];
         let isLoading = false;
@@ -25,36 +26,13 @@
         console.log('🤖 Chatbot Init');
         console.log('📡 API URL:', API_URL);
 
-        // =====================
-        // Bubble messages rotation & sound
-        // =====================
-        const bubbleMessages = [
-            'Ask me!',
-            'Need help?',
-            'Try: Explain dbt',
-            'Show projects',
-            'What can you do?'
-        ];
-        let bubbleIndex = 0;
-        const bubbleIntervalMs = 14000; // how often to show bubble automatically
-        const bubbleShowDuration = 3500; // how long the bubble stays visible
-
-        // Sound: default enabled. Expose toggle function.
-        let chatSoundEnabled = (localStorage.getItem('chatSound') ?? 'true') === 'true';
-        window.toggleChatSound = function() {
-            chatSoundEnabled = !chatSoundEnabled;
-            localStorage.setItem('chatSound', String(chatSoundEnabled));
-            console.log('Chat sound:', chatSoundEnabled ? 'enabled' : 'disabled');
-            return chatSoundEnabled;
-        };
-
         if (!aiChatButton || !aiChatWindow) {
             console.error('❌ Chatbot elements missing!');
             return;
         }
 
         // =============== TOGGLE CHAT ===============
-        aiChatButton.addEventListener('click', function(e) {
+        aiChatButton.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
             if (aiChatWindow.style.display === 'flex') {
@@ -62,14 +40,12 @@
             } else {
                 aiChatWindow.style.display = 'flex';
                 if (aiChatInput) setTimeout(() => aiChatInput.focus(), 120);
-                    // play a small sound on open (user gesture) if enabled
-                    try { if (chatSoundEnabled) playOpenBeep(); } catch(e){/*ignore*/}
             }
         });
 
         // =============== CLOSE ===============
         if (aiChatClose) {
-            aiChatClose.addEventListener('click', function(e) {
+            aiChatClose.addEventListener('click', function (e) {
                 e.preventDefault();
                 aiChatWindow.style.display = 'none';
             });
@@ -93,8 +69,8 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        text: text,
-                        conversation_history: conversationHistory.slice(-10)
+                        question: text,
+                        user_id: 'portfolio_user'
                     })
                 });
 
@@ -103,7 +79,7 @@
                 const data = await response.json();
                 removeTyping();
 
-                const reply = (data && (data.reply || data.output || data.text)) || "Sorry, I couldn't process that.";
+                const reply = (data && (data.response || data.reply || data.output || data.text)) || "Sorry, I couldn't process that.";
                 addMessage(reply, 'ai-msg');
 
                 conversationHistory.push({ role: 'assistant', content: reply });
@@ -152,52 +128,6 @@
             aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
         }
 
-        // Bubble rotation logic: update data attribute and briefly show bubble
-        function showRotatingBubble() {
-            if (!aiChatButton) return;
-            bubbleIndex = (bubbleIndex + 1) % bubbleMessages.length;
-            aiChatButton.setAttribute('data-bubble', bubbleMessages[bubbleIndex]);
-            aiChatButton.classList.add('bubble-visible');
-            setTimeout(() => aiChatButton.classList.remove('bubble-visible'), bubbleShowDuration);
-        }
-
-        // Periodic auto-show
-        const bubbleTimer = setInterval(() => {
-            // only auto-show when button not hovered and not focused
-            if (document.activeElement !== aiChatButton) showRotatingBubble();
-        }, bubbleIntervalMs);
-
-        // Show bubble on mouseenter and hide on leave
-        aiChatButton.addEventListener('mouseenter', () => {
-            aiChatButton.classList.add('bubble-visible');
-        });
-        aiChatButton.addEventListener('mouseleave', () => {
-            aiChatButton.classList.remove('bubble-visible');
-        });
-
-        // Play a short beep using WebAudio API
-        function playOpenBeep() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const o = ctx.createOscillator();
-                const g = ctx.createGain();
-                o.type = 'sine';
-                o.frequency.value = 880; // A5
-                g.gain.value = 0.0001;
-                o.connect(g);
-                g.connect(ctx.destination);
-                // quick ramp to avoid clicks
-                g.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.01);
-                o.start();
-                setTimeout(() => {
-                    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
-                    setTimeout(() => { o.stop(); ctx.close(); }, 180);
-                }, 120);
-            } catch (err) {
-                console.warn('Audio not available', err);
-            }
-        }
-
         function showTyping() {
             if (!aiChatMessages) return;
             const div = document.createElement('div');
@@ -215,11 +145,11 @@
 
         function escapeHtml(unsafe) {
             return unsafe
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;')
-              .replace(/'/g, '&#039;');
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         // =============== WELCOME & SUGGESTIONS ===============

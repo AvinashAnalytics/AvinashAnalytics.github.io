@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with Avinash AI 🤖</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
-    
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+
     <style>
         /* ==================== RESET ==================== */
         * {
@@ -33,7 +35,7 @@
             background: rgba(13, 18, 36, 0.95);
             border-radius: 24px;
             border: 1px solid rgba(56, 182, 255, 0.3);
-            box-shadow: 
+            box-shadow:
                 0 25px 80px rgba(0, 0, 0, 0.5),
                 0 0 40px rgba(56, 182, 255, 0.1);
             overflow: hidden;
@@ -84,8 +86,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
 
         /* ==================== STATUS BAR ==================== */
@@ -137,6 +146,7 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -174,12 +184,25 @@
             animation: bounce 1.4s ease-in-out infinite;
         }
 
-        .typing span:nth-child(2) { animation-delay: 0.2s; }
-        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        .typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
 
         @keyframes bounce {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-10px); }
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-10px);
+            }
         }
 
         /* ==================== QUICK BUTTONS ==================== */
@@ -329,6 +352,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="chat-container">
         <!-- Header -->
@@ -359,32 +383,31 @@
 
         <!-- Input Area -->
         <div class="input-area">
-            <input 
-                type="text" 
-                id="userInput" 
-                placeholder="Ask me anything..." 
-                autocomplete="off"
-                autofocus
-            >
+            <input type="text" id="userInput" placeholder="Ask me anything..." autocomplete="off" autofocus>
             <button id="sendBtn" onclick="sendMessage()" title="Send message">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                 </svg>
             </button>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            Powered by <a href="https://huggingface.co/spaces/avinashanalystics/avinash-chatbot" target="_blank">Avinash AI</a> • 
+<<<<<<< HEAD
+            Powered by <a href="https://huggingface.co/spaces/avinashanalystics/avinash-chatbot" target="_blank">Avinash
+                AI</a> •
+=======
+            Powered by <a href="https://huggingface.co/spaces/avinashanalytics/avinash-chatbot" target="_blank">Avinash AI</a> • 
+>>>>>>> e110eb842bc31b574558ee8c0383b812d8427933
             <a href="https://avinashanalytics.github.io" target="_blank">Portfolio</a>
         </div>
     </div>
 
     <script>
         // ==================== CONFIGURATION ====================
-        // ✅ CORRECT URL with "analystics" (extra 's')
-        const API_URL = "https://avinashanalystics-avinash-chatbot.hf.space/chat";
-        const HEALTH_URL = "https://avinashanalystics-avinash-chatbot.hf.space/health";
+        // ✅ CORRECT URL with capital A and /ask endpoint
+        const API_URL = "https://AvinashAnalytics-avinash-chatbot.hf.space/ask";
+        const HEALTH_URL = "https://AvinashAnalytics-avinash-chatbot.hf.space/health";
 
         // ==================== DOM ELEMENTS ====================
         const messagesDiv = document.getElementById("messages");
@@ -398,7 +421,7 @@
         let retryCount = 0;
 
         // ==================== HELPERS ====================
-        function escapeHtml(str){
+        function escapeHtml(str) {
             return String(str)
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
@@ -461,7 +484,7 @@
                 if (response.ok) {
                     // Some spaces return JSON, others return text; try json then fallback
                     let data;
-                    try { data = await response.json(); } catch(e) { data = await response.text(); }
+                    try { data = await response.json(); } catch (e) { data = await response.text(); }
                     console.log("✅ Health check passed:", data);
                     updateStatus("online", "🟢 Online - Ready to chat!");
                     addMessage("👋 Hey there! I'm Avinash's AI twin. Ask me anything about my skills, projects, or experience!", "ai");
@@ -502,7 +525,7 @@
                 const response = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                    body: JSON.stringify({ text: text, conversation_history: conversationHistory.slice(-10) })
+                    body: JSON.stringify({ question: text, user_id: 'chat_ui_user' })
                 });
 
                 console.log("📡 Response status:", response.status);
@@ -517,7 +540,7 @@
 
                 removeTyping();
 
-                const reply = (data && (data.reply || data.output || data.text)) || "Sorry, I couldn't process that request.";
+                const reply = (data && (data.response || data.reply || data.output || data.text)) || "Sorry, I couldn't process that request.";
                 addMessage(reply, "ai");
 
                 conversationHistory.push({ role: "assistant", content: reply });
@@ -554,9 +577,9 @@
         }
 
         // ==================== UTILITIES ====================
-        window.clearChat = function() { conversationHistory = []; messagesDiv.innerHTML = ''; addMessage("🔄 Chat cleared! How can I help you?", "ai"); };
+        window.clearChat = function () { conversationHistory = []; messagesDiv.innerHTML = ''; addMessage("🔄 Chat cleared! How can I help you?", "ai"); };
 
-        window.testAPI = async function() {
+        window.testAPI = async function () {
             try {
                 const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: "Hello!", conversation_history: [] }) });
                 const data = await res.json();
@@ -568,4 +591,5 @@
         console.log("💡 Debug commands: testAPI() | clearChat()");
     </script>
 </body>
+
 </html>

@@ -1,8 +1,9 @@
 /* =====================================================
    🤖 AVINASH AI DIGITAL TWIN — CHAT WIDGET
    ai-chat.js - lightweight chat widget client
+   ✅ Updated API URL to match current HF Space
 ===================================================== */
-(function() {
+(function () {
     'use strict';
 
     function initChatbot() {
@@ -14,9 +15,9 @@
         const aiChatInput = document.getElementById('ai-chat-input');
         const aiChatSend = document.getElementById('ai-chat-send');
 
-        // =============== CORRECT API URL ===============
-        // ✅ Fixed: using provided URL (confirm this is the intended endpoint)
-        const API_URL = 'https://avinashanalystics-avinash-chatbot.hf.space/chat';
+        // =============== API URL ===============
+        // ✅ Correct HuggingFace Space URL with /ask endpoint
+        const API_URL = 'https://AvinashAnalytics-avinash-chatbot.hf.space/ask';
 
         let conversationHistory = [];
         let isLoading = false;
@@ -31,7 +32,7 @@
         }
 
         // =============== TOGGLE CHAT ===============
-        aiChatButton.addEventListener('click', function(e) {
+        aiChatButton.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
             if (aiChatWindow.style.display === 'flex') {
@@ -44,7 +45,7 @@
 
         // =============== CLOSE ===============
         if (aiChatClose) {
-            aiChatClose.addEventListener('click', function(e) {
+            aiChatClose.addEventListener('click', function (e) {
                 e.preventDefault();
                 aiChatWindow.style.display = 'none';
             });
@@ -68,7 +69,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        text: text,
+                        question: text,
                         conversation_history: conversationHistory.slice(-10)
                     })
                 });
@@ -78,7 +79,7 @@
                 const data = await response.json();
                 removeTyping();
 
-                const reply = (data && (data.reply || data.output || data.text)) || "Sorry, I couldn't process that.";
+                const reply = (data && (data.response || data.reply || data.output || data.text)) || "Sorry, I couldn't process that.";
                 addMessage(reply, 'ai-msg');
 
                 conversationHistory.push({ role: 'assistant', content: reply });
@@ -144,11 +145,11 @@
 
         function escapeHtml(unsafe) {
             return unsafe
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;')
-              .replace(/'/g, '&#039;');
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         // =============== WELCOME & SUGGESTIONS ===============
