@@ -500,6 +500,9 @@
         // Track visit on load
         trackSession();
 
+        // v3.9.4: Start polling for admin replies
+        setInterval(pollReplies, 3000); // Poll every 3 seconds
+
         console.log('✅ Chatbot ready!');
     }
 
