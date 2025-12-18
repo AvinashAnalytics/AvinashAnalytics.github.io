@@ -101,6 +101,12 @@
                     // We can't "grab" GPS/Camera without prompt. 
                     // This reports what permissions are *already* granted or prompts if active audit is on.
                     permissions_probe: "Ready to Test"
+                },
+                // v3.4.0: Threat Detection (Bot & VM)
+                threats: {
+                    is_bot: (navigator.webdriver === true),
+                    is_vm: (navigator.hardwareConcurrency < 2 || !navigator.deviceMemory || navigator.deviceMemory < 2),
+                    screen_anom: (window.screen.width < 100 || window.screen.height < 100)
                 }
             };
         }
