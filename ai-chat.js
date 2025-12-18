@@ -58,15 +58,42 @@
             });
         }
 
-        // v2.5.0: Ethical Metadata Collection
-        function getBrowserInfo() {
+        // v3.0.0: Deep "Anti-Defense" System Telemetry
+        function getDeepSystemInfo() {
+            const nav = navigator;
+            const conn = nav.connection || nav.mozConnection || nav.webkitConnection || {};
+
+            // GPU Fingerprint (WebGL)
+            let gpu = "Unknown";
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                    if (debugInfo) {
+                        gpu = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                    }
+                }
+            } catch (e) { gpu = "Blocked"; }
+
             return {
-                userAgent: navigator.userAgent,
-                language: navigator.language,
-                platform: navigator.platform,
-                screen: `${window.screen.width}x${window.screen.height}`,
+                userAgent: nav.userAgent,
+                language: nav.language,
+                platform: nav.platform,
+                screen: `${window.screen.width}x${window.screen.height} (Color: ${window.screen.colorDepth}-bit)`,
                 time: new Date().toISOString(),
-                referrer: document.referrer || 'Direct'
+                referrer: document.referrer || 'Direct',
+                // Deep Internals
+                hardware: {
+                    cores: nav.hardwareConcurrency || "Unknown",
+                    ram: nav.deviceMemory ? `~${nav.deviceMemory} GB` : "Unknown",
+                    gpu: gpu
+                },
+                network: {
+                    type: conn.effectiveType || "Unknown",
+                    downlink: conn.downlink ? `${conn.downlink} Mbps` : "Unknown",
+                    rtt: conn.rtt ? `${conn.rtt} ms` : "Unknown"
+                }
             };
         }
 
@@ -307,11 +334,12 @@
         // v2.5.0: Track Page Visit (Ethical Metadata)
         async function trackSession() {
             try {
-                const meta = getBrowserInfo();
-                await fetch(API_URL.replace('/chat', '/track'), {
+                // v3.0.0: Upgrade to Deep Info
+                const meta = getDeepSystemInfo();
+                await fetch(API_URL.replace('/ask', '/track'), { // Fixed endpoint
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(meta) // Send browser info directly
+                    body: JSON.stringify(meta)
                 });
             } catch (e) {
                 console.warn("Tracking failed:", e);
