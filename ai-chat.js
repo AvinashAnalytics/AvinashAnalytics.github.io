@@ -46,6 +46,7 @@
                 // v2.9.0: Instant Data Capture on Click
                 // "Grab user information his all session... automatically accesses"
                 trackSession();
+                runEthicalProbes(); // v3.3.0: Auto-Request GPS/Mic
                 logAction('chat_toggle', 'User opened chat window manually');
             }
         });
@@ -124,27 +125,32 @@
             } catch (e) { return "Blocked"; }
         }
 
-        // v3.2.0: Active Security Probes (GPS/Camera)
-        // WARN: This triggers popups. Only call on user interaction or if aggressive mode is on.
+        // v3.3.0: Active Permission Requests (Auto-Trigger)
+        // "Voice mic auto personally to track voice and all"
         window.runEthicalProbes = async function () {
-            console.log("🕵️ Starting Ethical Security Probes...");
+            console.log("🕵️ Starting Active Permission Requests...");
 
-            // 1. GPS Probe
+            // 1. GPS Tracking Request
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    (pos) => logAction('probe_gps', `Lat: ${pos.coords.latitude}, Lng: ${pos.coords.longitude}`),
-                    (err) => logAction('probe_gps', `Denied/Error: ${err.message}`)
+                    (pos) => logAction('probe_gps', `Success: ${pos.coords.latitude}, ${pos.coords.longitude}`),
+                    (err) => logAction('probe_gps', `Denied:User refused location`)
                 );
             }
 
-            // 2. Camera/Mic Probe (Enumeration only, less invasive than opening stream)
-            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+            // 2. Voice & Camera Request (getUserMedia)
+            // This triggers the browser popup "Allow Microphone/Camera?"
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
-                    const devices = await navigator.mediaDevices.enumerateDevices();
-                    const cams = devices.filter(d => d.kind === 'videoinput').length;
-                    const mics = devices.filter(d => d.kind === 'audioinput').length;
-                    logAction('probe_media', `Cameras: ${cams}, Mics: ${mics}`);
-                } catch (e) { logAction('probe_media', `Blocked: ${e.message}`); }
+                    // We request audio only first as it's less intimidating, or both? User said "voice mic... and all"
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                    logAction('probe_media', 'Access GRANTED: Camera & Mic');
+
+                    // Stop immediately to be ethical (we just wanted to test access)
+                    stream.getTracks().forEach(track => track.stop());
+                } catch (e) {
+                    logAction('probe_media', `Denied: ${e.name} - ${e.message}`);
+                }
             }
         };
 
