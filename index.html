@@ -198,1096 +198,1129 @@
 </head>
 
 <body>
+    <!-- ✨ 3D Particle Animation Canvas -->
+    <canvas id="particle-canvas"
+        style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:1; pointer-events:none; background:#0f1729;"></canvas>
 
-    <!-- Navigation -->
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-brand">
-                <a href="#home">
-                    <span class="brand-icon">⚡</span>
-                    <span>Avinash<span class="highlight">Analytics</span></span>
-                </a>
+    <!-- Main Content Wrapper -->
+    <div style="position:relative; z-index:2;">
+        <!-- Navigation -->
+        <nav class="navbar" id="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <a href="#home">
+                        <span class="brand-icon">⚡</span>
+                        <span>Avinash<span class="highlight">Analytics</span></span>
+                    </a>
+                </div>
+                <div class="nav-toggle" id="navToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="#home" class="nav-link">Home</a></li>
+                    <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#expertise" class="nav-link">Expertise</a></li>
+                    <li><a href="#projects" class="nav-link">Projects</a></li>
+                    <li><a href="#tech-stack" class="nav-link">Tech Stack</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                    <li><a href="chat.html" class="nav-link" target="_blank">Chat</a></li>
+                </ul>
             </div>
-            <div class="nav-toggle" id="navToggle">
+        </nav>
+
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <div class="particles" id="particles"></div>
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="pulse-dot"></span>
+                        Available for Consulting & Full-Time Roles
+                    </div>
+                    <h1 class="hero-title">
+                        Hi, I'm <span class="gradient-text">Avinash Rai</span>
+                    </h1>
+                    <h2 class="hero-subtitle">
+                        Data Engineer & Analytics Architect
+                    </h2>
+                    <div class="hero-tags">
+                        <span class="tag">❄️ Snowflake Expert</span>
+                        <span class="tag">🧱 dbt Specialist</span>
+                        <span class="tag">⚙️ Matillion Certified</span>
+                        <span class="tag">☁️ Azure Architect</span>
+                        <span class="tag">🤖 AI/ML Engineer</span>
+                    </div>
+                    <p class="hero-description">
+                        I architect and build <strong>enterprise-grade data platforms</strong> using the modern data
+                        stack.
+                        Specialized in <strong>Snowflake</strong>, <strong>dbt</strong>, <strong>Matillion</strong>, and
+                        <strong>Azure Data Factory</strong>
+                        with advanced expertise in <strong>AI/ML integration</strong>, <strong>schema
+                            evolution</strong>,
+                        and <strong>real-time analytics</strong>.
+                    </p>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <div class="stat-number">30+</div>
+                            <div class="stat-label">Projects</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">10+</div>
+                            <div class="stat-label">Technologies</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">3+</div>
+                            <div class="stat-label">Years Experience</div>
+                        </div>
+                    </div>
+                    <div class="hero-cta">
+                        <a href="#projects" class="btn btn-primary">
+                            <i class="fas fa-rocket"></i> Explore Projects
+                        </a>
+                        <a href="#contact" class="btn btn-secondary">
+                            <i class="fas fa-envelope"></i> Get In Touch
+                        </a>
+                        <a href="https://github.com/AvinashAnalytics" target="_blank" class="btn btn-outline">
+                            <i class="fab fa-github"></i> GitHub Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-indicator">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
-            <ul class="nav-menu" id="navMenu">
-                <li><a href="#home" class="nav-link">Home</a></li>
-                <li><a href="#about" class="nav-link">About</a></li>
-                <li><a href="#expertise" class="nav-link">Expertise</a></li>
-                <li><a href="#projects" class="nav-link">Projects</a></li>
-                <li><a href="#tech-stack" class="nav-link">Tech Stack</a></li>
-                <li><a href="#contact" class="nav-link">Contact</a></li>
-                <li><a href="chat.html" class="nav-link" target="_blank">Chat</a></li>
-            </ul>
-        </div>
-    </nav>
+        </section>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="particles" id="particles"></div>
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-badge">
-                    <span class="pulse-dot"></span>
-                    Available for Consulting & Full-Time Roles
+        <!-- About Section -->
+        <section id="about" class="about">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-label">Who I Am</span>
+                    <h2 class="section-title">About <span class="gradient-text">Avinash Rai</span></h2>
                 </div>
-                <h1 class="hero-title">
-                    Hi, I'm <span class="gradient-text">Avinash Rai</span>
-                </h1>
-                <h2 class="hero-subtitle">
-                    Data Engineer & Analytics Architect
-                </h2>
-                <div class="hero-tags">
-                    <span class="tag">❄️ Snowflake Expert</span>
-                    <span class="tag">🧱 dbt Specialist</span>
-                    <span class="tag">⚙️ Matillion Certified</span>
-                    <span class="tag">☁️ Azure Architect</span>
-                    <span class="tag">🤖 AI/ML Engineer</span>
-                </div>
-                <p class="hero-description">
-                    I architect and build <strong>enterprise-grade data platforms</strong> using the modern data stack.
-                    Specialized in <strong>Snowflake</strong>, <strong>dbt</strong>, <strong>Matillion</strong>, and
-                    <strong>Azure Data Factory</strong>
-                    with advanced expertise in <strong>AI/ML integration</strong>, <strong>schema evolution</strong>,
-                    and <strong>real-time analytics</strong>.
-                </p>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <div class="stat-number">30+</div>
-                        <div class="stat-label">Projects</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number">10+</div>
-                        <div class="stat-label">Technologies</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number">3+</div>
-                        <div class="stat-label">Years Experience</div>
-                    </div>
-                </div>
-                <div class="hero-cta">
-                    <a href="#projects" class="btn btn-primary">
-                        <i class="fas fa-rocket"></i> Explore Projects
-                    </a>
-                    <a href="#contact" class="btn btn-secondary">
-                        <i class="fas fa-envelope"></i> Get In Touch
-                    </a>
-                    <a href="https://github.com/AvinashAnalytics" target="_blank" class="btn btn-outline">
-                        <i class="fab fa-github"></i> GitHub Profile
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="scroll-indicator">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="about">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label">Who I Am</span>
-                <h2 class="section-title">About <span class="gradient-text">Avinash Rai</span></h2>
-            </div>
-            <div class="about-grid">
-                <div class="about-content">
-                    <div class="about-text">
-                        <p class="lead">
-                            I'm <strong>Avinash Rai</strong> (<a href="https://github.com/AvinashAnalytics"
-                                target="_blank" class="inline-link">@AvinashAnalytics</a>),
-                            a <strong>Data Engineer</strong> who transforms complex business requirements into scalable,
-                            production-ready data solutions.
-                        </p>
-                        <p>
-                            My expertise spans the <strong>modern data stack</strong> — from designing <strong>Snowflake
-                                data warehouses</strong>
-                            and building <strong>dbt transformation layers</strong>, to orchestrating <strong>Matillion
-                                ETL pipelines</strong>
-                            and architecting <strong>Azure Data Factory workflows</strong>.
-                        </p>
-                        <p>
-                            What sets me apart is my ability to integrate <strong>cutting-edge AI/ML
-                                capabilities</strong> into data pipelines,
-                            including <strong>neural network-based transliteration systems</strong>, <strong>LLM-powered
-                                analytics</strong>,
-                            and <strong>automated schema evolution frameworks</strong>.
-                        </p>
-                        <div class="specializations">
-                            <h3><i class="fas fa-star"></i> Core Specializations</h3>
-                            <ul>
-                                <li><i class="fas fa-check-circle"></i> <strong>Modern Data Stack:</strong> Snowflake,
-                                    dbt, Matillion, Fivetran</li>
-                                <li><i class="fas fa-check-circle"></i> <strong>Cloud Platforms:</strong> Azure Data
-                                    Factory, AWS (S3, Lambda, Glue)</li>
-                                <li><i class="fas fa-check-circle"></i> <strong>AI/ML Integration:</strong> LSTM,
-                                    Transformers, LLMs, Cortex AI</li>
-                                <li><i class="fas fa-check-circle"></i> <strong>Analytics Engineering:</strong> dbt
-                                    models, data quality, testing</li>
-                                <li><i class="fas fa-check-circle"></i> <strong>Business Intelligence:</strong> Power
-                                    BI, Tableau, Streamlit</li>
-                                <li><i class="fas fa-check-circle"></i> <strong>Data Automation:</strong> Alteryx,
-                                    Python ETL, schema evolution</li>
-                            </ul>
+                <div class="about-grid">
+                    <div class="about-content">
+                        <div class="about-text">
+                            <p class="lead">
+                                I'm <strong>Avinash Rai</strong> (<a href="https://github.com/AvinashAnalytics"
+                                    target="_blank" class="inline-link">@AvinashAnalytics</a>),
+                                a <strong>Data Engineer</strong> who transforms complex business requirements into
+                                scalable,
+                                production-ready data solutions.
+                            </p>
+                            <p>
+                                My expertise spans the <strong>modern data stack</strong> — from designing
+                                <strong>Snowflake
+                                    data warehouses</strong>
+                                and building <strong>dbt transformation layers</strong>, to orchestrating
+                                <strong>Matillion
+                                    ETL pipelines</strong>
+                                and architecting <strong>Azure Data Factory workflows</strong>.
+                            </p>
+                            <p>
+                                What sets me apart is my ability to integrate <strong>cutting-edge AI/ML
+                                    capabilities</strong> into data pipelines,
+                                including <strong>neural network-based transliteration systems</strong>,
+                                <strong>LLM-powered
+                                    analytics</strong>,
+                                and <strong>automated schema evolution frameworks</strong>.
+                            </p>
+                            <div class="specializations">
+                                <h3><i class="fas fa-star"></i> Core Specializations</h3>
+                                <ul>
+                                    <li><i class="fas fa-check-circle"></i> <strong>Modern Data Stack:</strong>
+                                        Snowflake,
+                                        dbt, Matillion, Fivetran</li>
+                                    <li><i class="fas fa-check-circle"></i> <strong>Cloud Platforms:</strong> Azure Data
+                                        Factory, AWS (S3, Lambda, Glue)</li>
+                                    <li><i class="fas fa-check-circle"></i> <strong>AI/ML Integration:</strong> LSTM,
+                                        Transformers, LLMs, Cortex AI</li>
+                                    <li><i class="fas fa-check-circle"></i> <strong>Analytics Engineering:</strong> dbt
+                                        models, data quality, testing</li>
+                                    <li><i class="fas fa-check-circle"></i> <strong>Business Intelligence:</strong>
+                                        Power
+                                        BI, Tableau, Streamlit</li>
+                                    <li><i class="fas fa-check-circle"></i> <strong>Data Automation:</strong> Alteryx,
+                                        Python ETL, schema evolution</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="about-highlights">
-                    <div class="highlight-card">
-                        <div class="highlight-icon">
-                            <i class="fas fa-trophy"></i>
+                    <div class="about-highlights">
+                        <div class="highlight-card">
+                            <div class="highlight-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <h3>Advanced Projects</h3>
+                            <p>Built neural transliteration systems, 3D Azure analytics dashboards, and AI-powered ETL
+                                pipelines</p>
                         </div>
-                        <h3>Advanced Projects</h3>
-                        <p>Built neural transliteration systems, 3D Azure analytics dashboards, and AI-powered ETL
-                            pipelines</p>
-                    </div>
-                    <div class="highlight-card">
-                        <div class="highlight-icon">
-                            <i class="fas fa-code-branch"></i>
+                        <div class="highlight-card">
+                            <div class="highlight-icon">
+                                <i class="fas fa-code-branch"></i>
+                            </div>
+                            <h3>Modern Data Stack</h3>
+                            <p>Expert in Snowflake, dbt, Matillion - the latest in enterprise data engineering</p>
                         </div>
-                        <h3>Modern Data Stack</h3>
-                        <p>Expert in Snowflake, dbt, Matillion - the latest in enterprise data engineering</p>
-                    </div>
-                    <div class="highlight-card">
-                        <div class="highlight-icon">
-                            <i class="fas fa-brain"></i>
+                        <div class="highlight-card">
+                            <div class="highlight-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h3>AI/ML Integration</h3>
+                            <p>Integrating machine learning models into production data pipelines</p>
                         </div>
-                        <h3>AI/ML Integration</h3>
-                        <p>Integrating machine learning models into production data pipelines</p>
-                    </div>
-                    <div class="highlight-card">
-                        <div class="highlight-icon">
-                            <i class="fas fa-cloud"></i>
+                        <div class="highlight-card">
+                            <div class="highlight-icon">
+                                <i class="fas fa-cloud"></i>
+                            </div>
+                            <h3>Cloud Native</h3>
+                            <p>Architecting scalable solutions on Azure, AWS, and Snowflake Cloud</p>
                         </div>
-                        <h3>Cloud Native</h3>
-                        <p>Architecting scalable solutions on Azure, AWS, and Snowflake Cloud</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Expertise Section -->
-    <section id="expertise" class="expertise">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label">What I Do Best</span>
-                <h2 class="section-title">Core <span class="gradient-text">Expertise</span></h2>
-            </div>
-            <div class="expertise-grid">
-                <div class="expertise-card">
-                    <div class="expertise-icon snowflake-icon">
-                        <i class="fas fa-snowflake"></i>
-                    </div>
-                    <h3>Snowflake Data Engineering</h3>
-                    <p>Design and implement enterprise data warehouses, optimize query performance, manage Snowpipe
-                        ingestion, and architect star/snowflake schemas</p>
-                    <div class="expertise-skills">
-                        <span>Data Warehousing</span>
-                        <span>Snowpipe</span>
-                        <span>Query Optimization</span>
-                        <span>Star Schema</span>
-                    </div>
+        <!-- Expertise Section -->
+        <section id="expertise" class="expertise">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-label">What I Do Best</span>
+                    <h2 class="section-title">Core <span class="gradient-text">Expertise</span></h2>
                 </div>
-
-                <div class="expertise-card">
-                    <div class="expertise-icon dbt-icon">
-                        <i class="fas fa-cube"></i>
-                    </div>
-                    <h3>dbt Analytics Engineering</h3>
-                    <p>Build modular, tested, and documented transformation layers with dbt. Implement data quality
-                        checks, incremental models, and CI/CD workflows</p>
-                    <div class="expertise-skills">
-                        <span>dbt Core</span>
-                        <span>dbt Cloud</span>
-                        <span>Data Testing</span>
-                        <span>Incremental Models</span>
-                    </div>
-                </div>
-
-                <div class="expertise-card">
-                    <div class="expertise-icon matillion-icon">
-                        <i class="fas fa-diagram-project"></i>
-                    </div>
-                    <h3>Matillion ETL Orchestration</h3>
-                    <p>Design complex ETL workflows with Matillion, integrate with Cortex AI, implement data validation,
-                        and automate pipeline deployment</p>
-                    <div class="expertise-skills">
-                        <span>Matillion ETL</span>
-                        <span>Maia AI</span>
-                        <span>Orchestration</span>
-                        <span>Automation</span>
-                    </div>
-                </div>
-
-                <div class="expertise-card">
-                    <div class="expertise-icon azure-icon">
-                        <i class="fab fa-microsoft"></i>
-                    </div>
-                    <h3>Azure Data Factory</h3>
-                    <p>Build interactive ADF analyzers with 3D visualizations, dependency mapping, pipeline impact
-                        analysis, and orphan resource detection</p>
-                    <div class="expertise-skills">
-                        <span>ADF Pipelines</span>
-                        <span>Data Integration</span>
-                        <span>3D Analytics</span>
-                        <span>Dependency Mapping</span>
-                    </div>
-                </div>
-
-                <div class="expertise-card">
-                    <div class="expertise-icon ai-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h3>AI/ML Pipeline Integration</h3>
-                    <p>Develop neural networks (LSTM, Transformers), integrate LLMs, build real-time ML inference
-                        pipelines, and deploy production ML models</p>
-                    <div class="expertise-skills">
-                        <span>LSTM/Transformers</span>
-                        <span>LLMs</span>
-                        <span>NLP</span>
-                        <span>Production ML</span>
-                    </div>
-                </div>
-
-                <div class="expertise-card">
-                    <div class="expertise-icon automation-icon">
-                        <i class="fas fa-wand-magic-sparkles"></i>
-                    </div>
-                    <h3>Data Automation & Evolution</h3>
-                    <p>Implement automated schema evolution, build self-healing pipelines, create data quality
-                        frameworks, and design adaptive data systems</p>
-                    <div class="expertise-skills">
-                        <span>Schema Evolution</span>
-                        <span>Auto-healing</span>
-                        <span>Data Quality</span>
-                        <span>Alteryx</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Projects Section -->
-    <section id="projects" class="projects">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label">Portfolio</span>
-                <h2 class="section-title">Featured <span class="gradient-text">Projects</span></h2>
-                <p class="section-description">Advanced data engineering and AI/ML solutions showcasing enterprise-grade
-                    implementations</p>
-            </div>
-
-            <!-- Filter Tabs -->
-            <div class="project-filters">
-                <button class="filter-btn active" data-filter="all">All Projects</button>
-                <button class="filter-btn" data-filter="advanced">🔥 Advanced</button>
-                <button class="filter-btn" data-filter="data-eng">Data Engineering</button>
-                <button class="filter-btn" data-filter="ai-ml">AI/ML</button>
-                <button class="filter-btn" data-filter="analytics">Analytics</button>
-            </div>
-
-            <div class="projects-grid">
-
-                <!-- Project 1: Neural Transliteration -->
-                <div class="project-card featured" data-category="advanced ai-ml">
-                    <div class="project-badge">🔥 Advanced AI/ML</div>
-                    <div class="project-header">
-                        <div class="project-icon ai-gradient">
-                            <i class="fas fa-brain"></i>
-                        </div>
-                        <div class="project-meta">
-                            <span class="project-type">Deep Learning</span>
-                            <span class="project-date">2025</span>
-                        </div>
-                    </div>
-                    <h3>Neural Roman-to-Devanagari Transliteration</h3>
-                    <p class="project-description">
-                        State-of-the-art neural transliteration system converting Hindi text from Roman to Devanagari
-                        script using
-                        <strong>LSTM, Transformer, and LLM models</strong>. Implements sequence-to-sequence architecture
-                        with attention mechanisms.
-                    </p>
-                    <div class="project-highlights">
-                        <div class="highlight">
-                            <i class="fas fa-check"></i> LSTM & Transformer Models
-                        </div>
-                        <div class="highlight">
-                            <i class="fas fa-check"></i> LLM Integration
-                        </div>
-                        <div class="highlight">
-                            <i class="fas fa-check"></i> Attention Mechanisms
-                        </div>
-                    </div>
-                    <div class="project-tech">
-                        <span>Python</span>
-                        <span>PyTorch/TensorFlow</span>
-                        <span>LSTM</span>
-                        <span>Transformers</span>
-                        <span>NLP</span>
-                        <span>Deep Learning</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/neural-roman-to-devanagari-transliteration"
-                            target="_blank" class="project-link">
-                            <i class="fab fa-github"></i> Source Code
-                        </a>
-                        <a href="https://github.com/AvinashAnalytics/neural-roman-to-devanagari-transliteration#readme"
-                            target="_blank" class="project-link secondary">
-                            <i class="fas fa-book"></i> Documentation
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Project 2: Azure Data Factory Analyzer -->
-                <div class="project-card featured" data-category="advanced data-eng">
-                    <div class="project-badge">🔥 Advanced</div>
-                    <div class="project-header">
-                        <div class="project-icon azure-gradient">
-                            <i class="fab fa-microsoft"></i>
-                        </div>
-                        <div class="project-meta">
-                            <span class="project-type">Data Engineering</span>
-                            <span class="project-date">2025</span>
-                        </div>
-                    </div>
-                    <h3>Azure Data Factory Analyzer - Ultimate Edition</h3>
-                    <p class="project-description">
-                        Interactive <strong>Streamlit dashboard</strong> for visualizing Azure Data Factory dependencies
-                        with
-                        <strong>3D graphs, pipeline impact analysis, resource analytics</strong>, and orphan detection.
-                        Real-time filtering and interactive exploration.
-                    </p>
-                    <div class="project-highlights">
-                        <div class="highlight">
-                            <i class="fas fa-check"></i> 3D Dependency Visualization
-                        </div>
-                        <div class="highlight">
-                            <i class="fas fa-check"></i> Pipeline Impact Analysis
-                        </div>
-                        <div class="highlight">
-                            <i class="fas fa-check"></i> Orphan Resource Detection
-                        </div>
-                    </div>
-                    <div class="project-tech">
-                        <span>Python</span>
-                        <span>Streamlit</span>
-                        <span>Azure Data Factory</span>
-                        <span>Plotly 3D</span>
-                        <span>Network Analysis</span>
-                        <span>Interactive Dashboards</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/Azure-Data-Factory-Analyzer-Ultimate-Interactive-Edition"
-                            target="_blank" class="project-link">
-                            <i class="fab fa-github"></i> Source Code
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Project 3: Schema Evolution Hub -->
-                <div class="project-card featured" data-category="advanced data-eng">
-                    <div class="project-badge">🔥 Advanced</div>
-                    <div class="project-header">
-                        <div class="project-icon data-gradient">
-                            <i class="fas fa-code-branch"></i>
-                        </div>
-                        <div class="project-meta">
-                            <span class="project-type">Automation</span>
-                            <span class="project-date">2024</span>
-                        </div>
-                    </div>
-                    <h3>Schema Evolution Hub</h3>
-                    <p class="project-description">
-                        Automated <strong>schema evolution framework</strong> demonstrating intelligent data pipeline
-                        adaptation.
-                        Handles schema changes dynamically without breaking downstream dependencies.
-                    </p>
-                    <div class="project-highlights">
-                        <div class="highlight">
-                            <i class="fas fa-check"></i> Automated Schema Detection
-                        </div>
-                        <div class="highlight">
-                            <i class="fas fa-check"></i> Self-Healing Pipelines
-                        </div>
-                        <div class="highlight">
-                            <i class="fas fa-check"></i> Zero-Downtime Changes
-                        </div>
-                    </div>
-                    <div class="project-tech">
-                        <span>Python</span>
-                        <span>SQL</span>
-                        <span>Schema Management</span>
-                        <span>Automation</span>
-                        <span>Data Quality</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/schema-evolution-hub" target="_blank"
-                            class="project-link">
-                            <i class="fab fa-github"></i> View Repository
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Project 4: Matillion Maia Cortex AI -->
-                <div class="project-card" data-category="advanced data-eng">
-                    <div class="project-badge">Cutting Edge</div>
-                    <div class="project-header">
-                        <div class="project-icon matillion-gradient">
-                            <i class="fas fa-wand-magic-sparkles"></i>
-                        </div>
-                        <div class="project-meta">
-                            <span class="project-type">AI-Powered ETL</span>
-                            <span class="project-date">2024</span>
-                        </div>
-                    </div>
-                    <h3>Matillion Maia + Cortex AI ETL Pipeline</h3>
-                    <p class="project-description">
-                        Integration of <strong>Matillion's AI-powered Maia</strong> with <strong>Snowflake Cortex
-                            AI</strong> for intelligent ETL automation.
-                        Demonstrates cutting-edge AI-assisted data transformation workflows.
-                    </p>
-                    <div class="project-tech">
-                        <span>Matillion</span>
-                        <span>Snowflake Cortex</span>
-                        <span>Maia AI</span>
-                        <span>ETL</span>
-                        <span>AI Automation</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/matillion-maia-cortex-ai-etl-test" target="_blank"
-                            class="project-link">
-                            <i class="fab fa-github"></i> Explore Project
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Project 5: dbt Snowflake Pipeline -->
-                <div class="project-card" data-category="data-eng">
-                    <div class="project-header">
-                        <div class="project-icon dbt-gradient">
-                            <i class="fas fa-cube"></i>
-                        </div>
-                        <div class="project-meta">
-                            <span class="project-type">Analytics Engineering</span>
-                            <span class="project-date">2024</span>
-                        </div>
-                    </div>
-                    <h3>Shopverse dbt + Snowflake E-commerce Pipeline</h3>
-                    <p class="project-description">
-                        Production-ready <strong>dbt project</strong> with Snowflake integration. Implements modular
-                        transformations,
-                        incremental models, data quality tests, and comprehensive documentation.
-                    </p>
-                    <div class="project-tech">
-                        <span>dbt Core</span>
-                        <span>Snowflake</span>
-                        <span>SQL</span>
-                        <span>Data Modeling</span>
-                        <span>Testing</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/shopverse-dbt-snowflake-pipeline" target="_blank"
-                            class="project-link">
-                            <i class="fab fa-github"></i> Source Code
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Project 6: dbt Credit Card Analytics -->
-                <div class="project-card" data-category="data-eng analytics">
-                    <div class="project-header">
-                        <div class="project-icon analytics-gradient">
-                            <i class="fas fa-credit-card"></i>
-                        </div>
-                        <div class="project-meta">
-                            <span class="project-type">dbt Analytics</span>
-                            <span class="project-date">2024</span>
-                        </div>
-                    </div>
-                    <h3>dbt Snowflake Credit Card Analytics</h3>
-                    <p class="project-description">
-                        Advanced analytics using <strong>dbt + Snowflake</strong> for credit card transaction analysis.
-                        Features dimensional modeling, aggregations, and business metrics calculation.
-                    </p>
-                    <div class="project-tech">
-                        <span>dbt</span>
-                        <span>Snowflake</span>
-                        <span>Financial Analytics</span>
-                        <span>Dimensional Modeling</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/dbt-snowflake-credit-card-analytics"
-                            target="_blank" class="project-link">
-                            <i class="fab fa-github"></i> View Project
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Project 7: End-to-End Snowflake Pipeline -->
-                <div class="project-card" data-category="data-eng">
-                    <div class="project-header">
-                        <div class="project-icon snowflake-gradient">
+                <div class="expertise-grid">
+                    <div class="expertise-card">
+                        <div class="expertise-icon snowflake-icon">
                             <i class="fas fa-snowflake"></i>
                         </div>
-                        <div class="project-meta">
-                            <span class="project-type">Data Warehousing</span>
-                            <span class="project-date">2024</span>
+                        <h3>Snowflake Data Engineering</h3>
+                        <p>Design and implement enterprise data warehouses, optimize query performance, manage Snowpipe
+                            ingestion, and architect star/snowflake schemas</p>
+                        <div class="expertise-skills">
+                            <span>Data Warehousing</span>
+                            <span>Snowpipe</span>
+                            <span>Query Optimization</span>
+                            <span>Star Schema</span>
                         </div>
                     </div>
-                    <h3>End-to-End Snowflake Data Pipeline</h3>
-                    <p class="project-description">
-                        Complete data warehouse solution with <strong>AWS S3 ingestion, star schema modeling (8+
-                            tables),
-                            and Power BI dashboards</strong>. Czech banking dataset with financial analytics.
-                    </p>
-                    <div class="project-tech">
-                        <span>Snowflake</span>
-                        <span>AWS S3</span>
-                        <span>SQL</span>
-                        <span>Power BI</span>
-                        <span>Star Schema</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/End-to-End-Snowflake-Data-Pipeline" target="_blank"
-                            class="project-link">
-                            <i class="fab fa-github"></i> Full Documentation
-                        </a>
-                    </div>
-                </div>
 
-                <!-- Project 8: Alteryx Email Marketing -->
-                <div class="project-card" data-category="data-eng analytics">
-                    <div class="project-header">
-                        <div class="project-icon alteryx-gradient">
-                            <i class="fas fa-envelope-open-text"></i>
+                    <div class="expertise-card">
+                        <div class="expertise-icon dbt-icon">
+                            <i class="fas fa-cube"></i>
                         </div>
-                        <div class="project-meta">
-                            <span class="project-type">Automation</span>
-                            <span class="project-date">2024</span>
+                        <h3>dbt Analytics Engineering</h3>
+                        <p>Build modular, tested, and documented transformation layers with dbt. Implement data quality
+                            checks, incremental models, and CI/CD workflows</p>
+                        <div class="expertise-skills">
+                            <span>dbt Core</span>
+                            <span>dbt Cloud</span>
+                            <span>Data Testing</span>
+                            <span>Incremental Models</span>
                         </div>
                     </div>
-                    <h3>Alteryx Email Marketing Analytics Pipeline</h3>
-                    <p class="project-description">
-                        Fully automated pipeline with <strong>4-stage data validation, conversion tracking (30-day
-                            window),
-                            unsubscribed user extraction</strong>, and top customer analysis in Alteryx.
-                    </p>
-                    <div class="project-tech">
-                        <span>Alteryx</span>
-                        <span>Data Validation</span>
-                        <span>ETL</span>
-                        <span>Marketing Analytics</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/alteryx-email-marketing-analytics-pipeline"
-                            target="_blank" class="project-link">
-                            <i class="fab fa-github"></i> View Pipeline
-                        </a>
-                    </div>
-                </div>
 
-                <!-- Project 9: Employee Turnover Prediction -->
-                <div class="project-card" data-category="ai-ml analytics">
-                    <div class="project-header">
-                        <div class="project-icon ml-gradient">
-                            <i class="fas fa-chart-line"></i>
+                    <div class="expertise-card">
+                        <div class="expertise-icon matillion-icon">
+                            <i class="fas fa-diagram-project"></i>
                         </div>
-                        <div class="project-meta">
-                            <span class="project-type">Machine Learning</span>
-                            <span class="project-date">2024</span>
+                        <h3>Matillion ETL Orchestration</h3>
+                        <p>Design complex ETL workflows with Matillion, integrate with Cortex AI, implement data
+                            validation,
+                            and automate pipeline deployment</p>
+                        <div class="expertise-skills">
+                            <span>Matillion ETL</span>
+                            <span>Maia AI</span>
+                            <span>Orchestration</span>
+                            <span>Automation</span>
                         </div>
                     </div>
-                    <h3>Employee Turnover Prediction Model</h3>
-                    <p class="project-description">
-                        Predictive ML model for employee retention analysis using classification algorithms,
-                        feature engineering, and HR analytics insights.
-                    </p>
-                    <div class="project-tech">
-                        <span>Python</span>
-                        <span>Scikit-learn</span>
-                        <span>Classification</span>
-                        <span>HR Analytics</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/employee-Turnover-Prediction-Model" target="_blank"
-                            class="project-link">
-                            <i class="fab fa-github"></i> Model Repository
-                        </a>
-                    </div>
-                </div>
 
-                <!-- Project 10: Bio-Signal Smoking Detection -->
-                <div class="project-card" data-category="ai-ml">
-                    <div class="project-header">
-                        <div class="project-icon health-gradient">
-                            <i class="fas fa-heartbeat"></i>
+                    <div class="expertise-card">
+                        <div class="expertise-icon azure-icon">
+                            <i class="fab fa-microsoft"></i>
                         </div>
-                        <div class="project-meta">
-                            <span class="project-type">Bio-Signal ML</span>
-                            <span class="project-date">2024</span>
+                        <h3>Azure Data Factory</h3>
+                        <p>Build interactive ADF analyzers with 3D visualizations, dependency mapping, pipeline impact
+                            analysis, and orphan resource detection</p>
+                        <div class="expertise-skills">
+                            <span>ADF Pipelines</span>
+                            <span>Data Integration</span>
+                            <span>3D Analytics</span>
+                            <span>Dependency Mapping</span>
                         </div>
                     </div>
-                    <h3>Bio-Signal Smoking Detection</h3>
-                    <p class="project-description">
-                        Unique ML project analyzing <strong>biological signals</strong> to detect smoking patterns.
-                        Signal processing + machine learning for healthcare applications.
-                    </p>
-                    <div class="project-tech">
-                        <span>Python</span>
-                        <span>Signal Processing</span>
-                        <span>ML</span>
-                        <span>Healthcare Analytics</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/bio-signal-smoking-detection" target="_blank"
-                            class="project-link">
-                            <i class="fab fa-github"></i> Research Code
-                        </a>
-                    </div>
-                </div>
 
-                <!-- Project 11: Airline Sentiment Analysis -->
-                <div class="project-card" data-category="ai-ml analytics">
-                    <div class="project-header">
-                        <div class="project-icon nlp-gradient">
-                            <i class="fas fa-comments"></i>
+                    <div class="expertise-card">
+                        <div class="expertise-icon ai-icon">
+                            <i class="fas fa-robot"></i>
                         </div>
-                        <div class="project-meta">
-                            <span class="project-type">NLP</span>
-                            <span class="project-date">2025</span>
+                        <h3>AI/ML Pipeline Integration</h3>
+                        <p>Develop neural networks (LSTM, Transformers), integrate LLMs, build real-time ML inference
+                            pipelines, and deploy production ML models</p>
+                        <div class="expertise-skills">
+                            <span>LSTM/Transformers</span>
+                            <span>LLMs</span>
+                            <span>NLP</span>
+                            <span>Production ML</span>
                         </div>
                     </div>
-                    <h3>Airline Sentiment Analysis Dashboard</h3>
-                    <p class="project-description">
-                        Real-time <strong>NLP sentiment analysis</strong> on 15,000+ airline tweets using VADER.
-                        Interactive Streamlit dashboard with visualizations and insights.
-                    </p>
-                    <div class="project-tech">
-                        <span>Python</span>
-                        <span>NLP</span>
-                        <span>VADER</span>
-                        <span>Streamlit</span>
-                        <span>Sentiment Analysis</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/Airline-Sentiment-Analysis" target="_blank"
-                            class="project-link">
-                            <i class="fab fa-github"></i> Code
-                        </a>
-                        <a href="https://airline-sentiment-analysis-by-avinash.streamlit.app" target="_blank"
-                            class="project-link secondary">
-                            <i class="fas fa-external-link-alt"></i> Live Demo
-                        </a>
-                    </div>
-                </div>
 
-                <!-- Project 12: Instacart Market Basket Analysis -->
-                <div class="project-card" data-category="analytics">
-                    <div class="project-header">
-                        <div class="project-icon basket-gradient">
-                            <i class="fas fa-shopping-cart"></i>
+                    <div class="expertise-card">
+                        <div class="expertise-icon automation-icon">
+                            <i class="fas fa-wand-magic-sparkles"></i>
                         </div>
-                        <div class="project-meta">
-                            <span class="project-type">Advanced Analytics</span>
-                            <span class="project-date">2024</span>
-                        </div>
-                    </div>
-                    <h3>Instacart Market Basket Analysis (Alteryx)</h3>
-                    <p class="project-description">
-                        Advanced market basket analysis using <strong>Alteryx</strong> to discover product associations,
-                        customer purchase patterns, and cross-selling opportunities.
-                    </p>
-                    <div class="project-tech">
-                        <span>Alteryx</span>
-                        <span>Market Basket Analysis</span>
-                        <span>Association Rules</span>
-                        <span>Retail Analytics</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://github.com/AvinashAnalytics/instacart-alteryx-market-basket-analysis"
-                            target="_blank" class="project-link">
-                            <i class="fab fa-github"></i> Analysis Workflow
-                        </a>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="projects-cta">
-                <a href="https://github.com/AvinashAnalytics?tab=repositories" target="_blank"
-                    class="btn btn-primary btn-lg">
-                    <i class="fab fa-github"></i> Explore All 30+ Projects on GitHub
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Tech Stack Section -->
-    <section id="tech-stack" class="tech-stack-section">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label">Technologies</span>
-                <h2 class="section-title">Tech <span class="gradient-text">Stack</span></h2>
-            </div>
-            <div class="tech-categories">
-
-                <!-- Modern Data Stack -->
-                <div class="tech-category">
-                    <div class="tech-category-header">
-                        <i class="fas fa-layer-group"></i>
-                        <h3>Modern Data Stack</h3>
-                    </div>
-                    <div class="tech-items">
-                        <div class="tech-item">
-                            <i class="fas fa-snowflake" style="color: #29B5E8;"></i>
-                            <span>Snowflake</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-cube" style="color: #FF694B;"></i>
-                            <span>dbt</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-diagram-project" style="color: #00A4EF;"></i>
-                            <span>Matillion</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-sync-alt" style="color: #0073E6;"></i>
-                            <span>Fivetran</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Cloud Platforms -->
-                <div class="tech-category">
-                    <div class="tech-category-header">
-                        <i class="fas fa-cloud"></i>
-                        <h3>Cloud & Infrastructure</h3>
-                    </div>
-                    <div class="tech-items">
-                        <div class="tech-item">
-                            <i class="fab fa-microsoft" style="color: #0078D4;"></i>
-                            <span>Azure Data Factory</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fab fa-aws" style="color: #FF9900;"></i>
-                            <span>AWS (S3, Lambda, Glue)</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fab fa-docker" style="color: #2496ED;"></i>
-                            <span>Docker</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fab fa-github" style="color: #fff;"></i>
-                            <span>GitHub Actions</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Programming -->
-                <div class="tech-category">
-                    <div class="tech-category-header">
-                        <i class="fas fa-code"></i>
-                        <h3>Programming Languages</h3>
-                    </div>
-                    <div class="tech-items">
-                        <div class="tech-item">
-                            <i class="fab fa-python" style="color: #3776AB;"></i>
-                            <span>Python</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-database" style="color: #00758F;"></i>
-                            <span>SQL (Advanced)</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-terminal" style="color: #4EAA25;"></i>
-                            <span>Bash/Shell</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fab fa-git-alt" style="color: #F05032;"></i>
-                            <span>Git</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- AI/ML -->
-                <div class="tech-category">
-                    <div class="tech-category-header">
-                        <i class="fas fa-brain"></i>
-                        <h3>AI/ML & Data Science</h3>
-                    </div>
-                    <div class="tech-items">
-                        <div class="tech-item">
-                            <i class="fas fa-network-wired" style="color: #EE4C2C;"></i>
-                            <span>PyTorch / TensorFlow</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-chart-line" style="color: #F7931E;"></i>
-                            <span>Scikit-learn</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-language" style="color: #00D9FF;"></i>
-                            <span>NLP (VADER, Transformers)</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-robot" style="color: #FF6F61;"></i>
-                            <span>LLMs (GPT, BERT)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BI Tools -->
-                <div class="tech-category">
-                    <div class="tech-category-header">
-                        <i class="fas fa-chart-pie"></i>
-                        <h3>Business Intelligence</h3>
-                    </div>
-                    <div class="tech-items">
-                        <div class="tech-item">
-                            <i class="fas fa-chart-bar" style="color: #F2C811;"></i>
-                            <span>Power BI</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-chart-area" style="color: #E97627;"></i>
-                            <span>Tableau</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-fire" style="color: #FF4B4B;"></i>
-                            <span>Streamlit</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-table" style="color: #217346;"></i>
-                            <span>Excel (Advanced)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ETL & Automation -->
-                <div class="tech-category">
-                    <div class="tech-category-header">
-                        <i class="fas fa-cogs"></i>
-                        <h3>ETL & Automation</h3>
-                    </div>
-                    <div class="tech-items">
-                        <div class="tech-item">
-                            <i class="fas fa-puzzle-piece" style="color: #0078C8;"></i>
+                        <h3>Data Automation & Evolution</h3>
+                        <p>Implement automated schema evolution, build self-healing pipelines, create data quality
+                            frameworks, and design adaptive data systems</p>
+                        <div class="expertise-skills">
+                            <span>Schema Evolution</span>
+                            <span>Auto-healing</span>
+                            <span>Data Quality</span>
                             <span>Alteryx</span>
                         </div>
-                        <div class="tech-item">
-                            <i class="fas fa-arrows-alt" style="color: #38B6FF;"></i>
-                            <span>Apache Airflow</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-stream" style="color: #FF6B6B;"></i>
-                            <span>Data Streaming</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-project-diagram" style="color: #00D9A3;"></i>
-                            <span>Workflow Orchestration</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Certifications (if you have any) -->
-            <div class="certifications">
-                <h3><i class="fas fa-certificate"></i> Expertise & Certifications</h3>
-                <div class="cert-badges">
-                    <span class="cert-badge">❄️ Snowflake Data Engineering</span>
-                    <span class="cert-badge">🧱 dbt Analytics Engineering</span>
-                    <span class="cert-badge">⚙️ Matillion ETL Specialist</span>
-                    <span class="cert-badge">☁️ Azure Data Professional</span>
-                    <span class="cert-badge">🐍 Python Advanced</span>
-                    <span class="cert-badge">📊 Power BI Expert</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label">Get In Touch</span>
-                <h2 class="section-title">Let's <span class="gradient-text">Connect</span></h2>
-                <p class="section-description">Open to freelance projects, consulting opportunities, and full-time roles
-                    in data engineering</p>
-            </div>
-
-            <div class="contact-grid">
-                <div class="contact-info">
-                    <div class="contact-card">
-                        <div class="contact-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="contact-details">
-                            <h3>Email</h3>
-                            <a href="mailto:masteravinashrai@gmail.com">masteravinashrai@gmail.com</a>
-                        </div>
-                    </div>
-
-                    <div class="contact-card">
-                        <div class="contact-icon">
-                            <i class="fab fa-linkedin"></i>
-                        </div>
-                        <div class="contact-details">
-                            <h3>LinkedIn</h3>
-                            <a href="https://www.linkedin.com/in/avinashanalytics/"
-                                target="_blank">linkedin.com/in/avinashanalytics</a>
-                        </div>
-                    </div>
-
-                    <div class="contact-card">
-                        <div class="contact-icon">
-                            <i class="fab fa-github"></i>
-                        </div>
-                        <div class="contact-details">
-                            <h3>GitHub</h3>
-                            <a href="https://github.com/AvinashAnalytics"
-                                target="_blank">github.com/AvinashAnalytics</a>
-                        </div>
-                    </div>
-
-                    <div class="contact-card">
-                        <div class="contact-icon">
-                            <i class="fab fa-twitter"></i>
-                        </div>
-                        <div class="contact-details">
-                            <h3>Twitter / X</h3>
-                            <a href="https://x.com/AvinashAnalytiX" target="_blank">@AvinashAnalytiX</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="contact-cta-box">
-                    <div class="cta-content">
-                        <h3>Ready to Build Something Amazing?</h3>
-                        <p>I'm available for:</p>
-                        <ul class="availability-list">
-                            <li><i class="fas fa-check-circle"></i> Data Engineering Consulting</li>
-                            <li><i class="fas fa-check-circle"></i> Snowflake & dbt Implementation</li>
-                            <li><i class="fas fa-check-circle"></i> AI/ML Pipeline Development</li>
-                            <li><i class="fas fa-check-circle"></i> Full-Time Opportunities</li>
-                        </ul>
-                        <a href="#contact" onclick="openChatAndContact(); return false;" class="btn btn-primary btn-lg">
-                            <i class="fas fa-paper-plane"></i> Send Me a Message
-                        </a>
-                    </div>
-
-                    <div class="social-links-box">
-                        <h4>Follow & Connect</h4>
-                        <div class="social-icons">
-                            <a href="https://github.com/AvinashAnalytics" target="_blank" class="social-icon"
-                                title="GitHub">
-                                <i class="fab fa-github"></i>
-                            </a>
-                            <a href="https://www.linkedin.com/in/avinashanalytics/" target="_blank" class="social-icon"
-                                title="LinkedIn">
-                                <i class="fab fa-linkedin"></i>
-                            </a>
-                            <a href="https://x.com/AvinashAnalytiX" target="_blank" class="social-icon" title="Twitter">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            <a href="https://www.hackerrank.com/AvinashAnalytics" target="_blank" class="social-icon"
-                                title="HackerRank">
-                                <i class="fab fa-hackerrank"></i>
-                            </a>
-                            <a href="mailto:masteravinashrai@gmail.com" class="social-icon" title="Email">
-                                <i class="fas fa-envelope"></i>
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Footer -->
-    <footer class="site-footer">
-        <div class="footer-inner container">
-            <div class="footer-grid">
-                <div class="footer-col footer-brand">
-                    <a href="#home" class="brand">
-                        <span class="brand-icon">⚡</span>
-                        <span class="brand-title">Avinash <span class="highlight">Analytics</span></span>
+        <!-- Projects Section -->
+        <section id="projects" class="projects">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-label">Portfolio</span>
+                    <h2 class="section-title">Featured <span class="gradient-text">Projects</span></h2>
+                    <p class="section-description">Advanced data engineering and AI/ML solutions showcasing
+                        enterprise-grade
+                        implementations</p>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="project-filters">
+                    <button class="filter-btn active" data-filter="all">All Projects</button>
+                    <button class="filter-btn" data-filter="advanced">🔥 Advanced</button>
+                    <button class="filter-btn" data-filter="data-eng">Data Engineering</button>
+                    <button class="filter-btn" data-filter="ai-ml">AI/ML</button>
+                    <button class="filter-btn" data-filter="analytics">Analytics</button>
+                </div>
+
+                <div class="projects-grid">
+
+                    <!-- Project 1: Neural Transliteration -->
+                    <div class="project-card featured" data-category="advanced ai-ml">
+                        <div class="project-badge">🔥 Advanced AI/ML</div>
+                        <div class="project-header">
+                            <div class="project-icon ai-gradient">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">Deep Learning</span>
+                                <span class="project-date">2025</span>
+                            </div>
+                        </div>
+                        <h3>Neural Roman-to-Devanagari Transliteration</h3>
+                        <p class="project-description">
+                            State-of-the-art neural transliteration system converting Hindi text from Roman to
+                            Devanagari
+                            script using
+                            <strong>LSTM, Transformer, and LLM models</strong>. Implements sequence-to-sequence
+                            architecture
+                            with attention mechanisms.
+                        </p>
+                        <div class="project-highlights">
+                            <div class="highlight">
+                                <i class="fas fa-check"></i> LSTM & Transformer Models
+                            </div>
+                            <div class="highlight">
+                                <i class="fas fa-check"></i> LLM Integration
+                            </div>
+                            <div class="highlight">
+                                <i class="fas fa-check"></i> Attention Mechanisms
+                            </div>
+                        </div>
+                        <div class="project-tech">
+                            <span>Python</span>
+                            <span>PyTorch/TensorFlow</span>
+                            <span>LSTM</span>
+                            <span>Transformers</span>
+                            <span>NLP</span>
+                            <span>Deep Learning</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/neural-roman-to-devanagari-transliteration"
+                                target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> Source Code
+                            </a>
+                            <a href="https://github.com/AvinashAnalytics/neural-roman-to-devanagari-transliteration#readme"
+                                target="_blank" class="project-link secondary">
+                                <i class="fas fa-book"></i> Documentation
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 2: Azure Data Factory Analyzer -->
+                    <div class="project-card featured" data-category="advanced data-eng">
+                        <div class="project-badge">🔥 Advanced</div>
+                        <div class="project-header">
+                            <div class="project-icon azure-gradient">
+                                <i class="fab fa-microsoft"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">Data Engineering</span>
+                                <span class="project-date">2025</span>
+                            </div>
+                        </div>
+                        <h3>Azure Data Factory Analyzer - Ultimate Edition</h3>
+                        <p class="project-description">
+                            Interactive <strong>Streamlit dashboard</strong> for visualizing Azure Data Factory
+                            dependencies
+                            with
+                            <strong>3D graphs, pipeline impact analysis, resource analytics</strong>, and orphan
+                            detection.
+                            Real-time filtering and interactive exploration.
+                        </p>
+                        <div class="project-highlights">
+                            <div class="highlight">
+                                <i class="fas fa-check"></i> 3D Dependency Visualization
+                            </div>
+                            <div class="highlight">
+                                <i class="fas fa-check"></i> Pipeline Impact Analysis
+                            </div>
+                            <div class="highlight">
+                                <i class="fas fa-check"></i> Orphan Resource Detection
+                            </div>
+                        </div>
+                        <div class="project-tech">
+                            <span>Python</span>
+                            <span>Streamlit</span>
+                            <span>Azure Data Factory</span>
+                            <span>Plotly 3D</span>
+                            <span>Network Analysis</span>
+                            <span>Interactive Dashboards</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/Azure-Data-Factory-Analyzer-Ultimate-Interactive-Edition"
+                                target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> Source Code
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 3: Schema Evolution Hub -->
+                    <div class="project-card featured" data-category="advanced data-eng">
+                        <div class="project-badge">🔥 Advanced</div>
+                        <div class="project-header">
+                            <div class="project-icon data-gradient">
+                                <i class="fas fa-code-branch"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">Automation</span>
+                                <span class="project-date">2024</span>
+                            </div>
+                        </div>
+                        <h3>Schema Evolution Hub</h3>
+                        <p class="project-description">
+                            Automated <strong>schema evolution framework</strong> demonstrating intelligent data
+                            pipeline
+                            adaptation.
+                            Handles schema changes dynamically without breaking downstream dependencies.
+                        </p>
+                        <div class="project-highlights">
+                            <div class="highlight">
+                                <i class="fas fa-check"></i> Automated Schema Detection
+                            </div>
+                            <div class="highlight">
+                                <i class="fas fa-check"></i> Self-Healing Pipelines
+                            </div>
+                            <div class="highlight">
+                                <i class="fas fa-check"></i> Zero-Downtime Changes
+                            </div>
+                        </div>
+                        <div class="project-tech">
+                            <span>Python</span>
+                            <span>SQL</span>
+                            <span>Schema Management</span>
+                            <span>Automation</span>
+                            <span>Data Quality</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/schema-evolution-hub" target="_blank"
+                                class="project-link">
+                                <i class="fab fa-github"></i> View Repository
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 4: Matillion Maia Cortex AI -->
+                    <div class="project-card" data-category="advanced data-eng">
+                        <div class="project-badge">Cutting Edge</div>
+                        <div class="project-header">
+                            <div class="project-icon matillion-gradient">
+                                <i class="fas fa-wand-magic-sparkles"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">AI-Powered ETL</span>
+                                <span class="project-date">2024</span>
+                            </div>
+                        </div>
+                        <h3>Matillion Maia + Cortex AI ETL Pipeline</h3>
+                        <p class="project-description">
+                            Integration of <strong>Matillion's AI-powered Maia</strong> with <strong>Snowflake Cortex
+                                AI</strong> for intelligent ETL automation.
+                            Demonstrates cutting-edge AI-assisted data transformation workflows.
+                        </p>
+                        <div class="project-tech">
+                            <span>Matillion</span>
+                            <span>Snowflake Cortex</span>
+                            <span>Maia AI</span>
+                            <span>ETL</span>
+                            <span>AI Automation</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/matillion-maia-cortex-ai-etl-test"
+                                target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> Explore Project
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 5: dbt Snowflake Pipeline -->
+                    <div class="project-card" data-category="data-eng">
+                        <div class="project-header">
+                            <div class="project-icon dbt-gradient">
+                                <i class="fas fa-cube"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">Analytics Engineering</span>
+                                <span class="project-date">2024</span>
+                            </div>
+                        </div>
+                        <h3>Shopverse dbt + Snowflake E-commerce Pipeline</h3>
+                        <p class="project-description">
+                            Production-ready <strong>dbt project</strong> with Snowflake integration. Implements modular
+                            transformations,
+                            incremental models, data quality tests, and comprehensive documentation.
+                        </p>
+                        <div class="project-tech">
+                            <span>dbt Core</span>
+                            <span>Snowflake</span>
+                            <span>SQL</span>
+                            <span>Data Modeling</span>
+                            <span>Testing</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/shopverse-dbt-snowflake-pipeline"
+                                target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> Source Code
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 6: dbt Credit Card Analytics -->
+                    <div class="project-card" data-category="data-eng analytics">
+                        <div class="project-header">
+                            <div class="project-icon analytics-gradient">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">dbt Analytics</span>
+                                <span class="project-date">2024</span>
+                            </div>
+                        </div>
+                        <h3>dbt Snowflake Credit Card Analytics</h3>
+                        <p class="project-description">
+                            Advanced analytics using <strong>dbt + Snowflake</strong> for credit card transaction
+                            analysis.
+                            Features dimensional modeling, aggregations, and business metrics calculation.
+                        </p>
+                        <div class="project-tech">
+                            <span>dbt</span>
+                            <span>Snowflake</span>
+                            <span>Financial Analytics</span>
+                            <span>Dimensional Modeling</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/dbt-snowflake-credit-card-analytics"
+                                target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> View Project
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 7: End-to-End Snowflake Pipeline -->
+                    <div class="project-card" data-category="data-eng">
+                        <div class="project-header">
+                            <div class="project-icon snowflake-gradient">
+                                <i class="fas fa-snowflake"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">Data Warehousing</span>
+                                <span class="project-date">2024</span>
+                            </div>
+                        </div>
+                        <h3>End-to-End Snowflake Data Pipeline</h3>
+                        <p class="project-description">
+                            Complete data warehouse solution with <strong>AWS S3 ingestion, star schema modeling (8+
+                                tables),
+                                and Power BI dashboards</strong>. Czech banking dataset with financial analytics.
+                        </p>
+                        <div class="project-tech">
+                            <span>Snowflake</span>
+                            <span>AWS S3</span>
+                            <span>SQL</span>
+                            <span>Power BI</span>
+                            <span>Star Schema</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/End-to-End-Snowflake-Data-Pipeline"
+                                target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> Full Documentation
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 8: Alteryx Email Marketing -->
+                    <div class="project-card" data-category="data-eng analytics">
+                        <div class="project-header">
+                            <div class="project-icon alteryx-gradient">
+                                <i class="fas fa-envelope-open-text"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">Automation</span>
+                                <span class="project-date">2024</span>
+                            </div>
+                        </div>
+                        <h3>Alteryx Email Marketing Analytics Pipeline</h3>
+                        <p class="project-description">
+                            Fully automated pipeline with <strong>4-stage data validation, conversion tracking (30-day
+                                window),
+                                unsubscribed user extraction</strong>, and top customer analysis in Alteryx.
+                        </p>
+                        <div class="project-tech">
+                            <span>Alteryx</span>
+                            <span>Data Validation</span>
+                            <span>ETL</span>
+                            <span>Marketing Analytics</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/alteryx-email-marketing-analytics-pipeline"
+                                target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> View Pipeline
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 9: Employee Turnover Prediction -->
+                    <div class="project-card" data-category="ai-ml analytics">
+                        <div class="project-header">
+                            <div class="project-icon ml-gradient">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">Machine Learning</span>
+                                <span class="project-date">2024</span>
+                            </div>
+                        </div>
+                        <h3>Employee Turnover Prediction Model</h3>
+                        <p class="project-description">
+                            Predictive ML model for employee retention analysis using classification algorithms,
+                            feature engineering, and HR analytics insights.
+                        </p>
+                        <div class="project-tech">
+                            <span>Python</span>
+                            <span>Scikit-learn</span>
+                            <span>Classification</span>
+                            <span>HR Analytics</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/employee-Turnover-Prediction-Model"
+                                target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> Model Repository
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 10: Bio-Signal Smoking Detection -->
+                    <div class="project-card" data-category="ai-ml">
+                        <div class="project-header">
+                            <div class="project-icon health-gradient">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">Bio-Signal ML</span>
+                                <span class="project-date">2024</span>
+                            </div>
+                        </div>
+                        <h3>Bio-Signal Smoking Detection</h3>
+                        <p class="project-description">
+                            Unique ML project analyzing <strong>biological signals</strong> to detect smoking patterns.
+                            Signal processing + machine learning for healthcare applications.
+                        </p>
+                        <div class="project-tech">
+                            <span>Python</span>
+                            <span>Signal Processing</span>
+                            <span>ML</span>
+                            <span>Healthcare Analytics</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/bio-signal-smoking-detection" target="_blank"
+                                class="project-link">
+                                <i class="fab fa-github"></i> Research Code
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 11: Airline Sentiment Analysis -->
+                    <div class="project-card" data-category="ai-ml analytics">
+                        <div class="project-header">
+                            <div class="project-icon nlp-gradient">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">NLP</span>
+                                <span class="project-date">2025</span>
+                            </div>
+                        </div>
+                        <h3>Airline Sentiment Analysis Dashboard</h3>
+                        <p class="project-description">
+                            Real-time <strong>NLP sentiment analysis</strong> on 15,000+ airline tweets using VADER.
+                            Interactive Streamlit dashboard with visualizations and insights.
+                        </p>
+                        <div class="project-tech">
+                            <span>Python</span>
+                            <span>NLP</span>
+                            <span>VADER</span>
+                            <span>Streamlit</span>
+                            <span>Sentiment Analysis</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/Airline-Sentiment-Analysis" target="_blank"
+                                class="project-link">
+                                <i class="fab fa-github"></i> Code
+                            </a>
+                            <a href="https://airline-sentiment-analysis-by-avinash.streamlit.app" target="_blank"
+                                class="project-link secondary">
+                                <i class="fas fa-external-link-alt"></i> Live Demo
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 12: Instacart Market Basket Analysis -->
+                    <div class="project-card" data-category="analytics">
+                        <div class="project-header">
+                            <div class="project-icon basket-gradient">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-type">Advanced Analytics</span>
+                                <span class="project-date">2024</span>
+                            </div>
+                        </div>
+                        <h3>Instacart Market Basket Analysis (Alteryx)</h3>
+                        <p class="project-description">
+                            Advanced market basket analysis using <strong>Alteryx</strong> to discover product
+                            associations,
+                            customer purchase patterns, and cross-selling opportunities.
+                        </p>
+                        <div class="project-tech">
+                            <span>Alteryx</span>
+                            <span>Market Basket Analysis</span>
+                            <span>Association Rules</span>
+                            <span>Retail Analytics</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AvinashAnalytics/instacart-alteryx-market-basket-analysis"
+                                target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> Analysis Workflow
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="projects-cta">
+                    <a href="https://github.com/AvinashAnalytics?tab=repositories" target="_blank"
+                        class="btn btn-primary btn-lg">
+                        <i class="fab fa-github"></i> Explore All 30+ Projects on GitHub
                     </a>
-                    <p class="brand-tagline">Building the future of data, one pipeline at a time.</p>
-                </div>
-
-                <nav class="footer-col footer-quick" aria-label="Quick Links">
-                    <h4 class="footer-title">Quick Links</h4>
-                    <ul class="footer-list">
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#expertise">Expertise</a></li>
-                        <li><a href="#projects">Projects</a></li>
-                    </ul>
-                </nav>
-
-                <div class="footer-col footer-connect">
-                    <h4 class="footer-title">Connect</h4>
-                    <ul class="footer-list social-list">
-                        <li><a href="https://github.com/AvinashAnalytics" target="_blank"><i class="fab fa-github"></i>
-                                GitHub</a></li>
-                        <li><a href="https://www.linkedin.com/in/avinashanalytics/" target="_blank"><i
-                                    class="fab fa-linkedin"></i> LinkedIn</a></li>
-                        <li><a href="https://x.com/AvinashAnalytiX" target="_blank"><i class="fab fa-twitter"></i> X /
-                                Twitter</a></li>
-                        <li><a href="mailto:masteravinashrai@gmail.com"><i class="fas fa-envelope"></i> Email</a></li>
-                        <li><a href="chat.html" target="_blank"><i class="fas fa-comments"></i> Chat with AI</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-col footer-tech">
-                    <h4 class="footer-title">Technologies</h4>
-                    <ul class="footer-list">
-                        <li><a href="#tech-stack">Snowflake</a></li>
-                        <li><a href="#tech-stack">dbt</a></li>
-                        <li><a href="#tech-stack">Matillion</a></li>
-                        <li><a href="#tech-stack">Azure</a></li>
-                    </ul>
                 </div>
             </div>
+        </section>
 
-            <div class="footer-divider" role="presentation"></div>
+        <!-- Tech Stack Section -->
+        <section id="tech-stack" class="tech-stack-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-label">Technologies</span>
+                    <h2 class="section-title">Tech <span class="gradient-text">Stack</span></h2>
+                </div>
+                <div class="tech-categories">
 
-            <div class="footer-bottom">
-                <p class="copyright">&copy; 2025 <strong>Avinash Rai</strong> — All Rights Reserved.</p>
-                <p class="footer-quote">"Data is the new oil, but intelligence is the new electricity."</p>
+                    <!-- Modern Data Stack -->
+                    <div class="tech-category">
+                        <div class="tech-category-header">
+                            <i class="fas fa-layer-group"></i>
+                            <h3>Modern Data Stack</h3>
+                        </div>
+                        <div class="tech-items">
+                            <div class="tech-item">
+                                <i class="fas fa-snowflake" style="color: #29B5E8;"></i>
+                                <span>Snowflake</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-cube" style="color: #FF694B;"></i>
+                                <span>dbt</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-diagram-project" style="color: #00A4EF;"></i>
+                                <span>Matillion</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-sync-alt" style="color: #0073E6;"></i>
+                                <span>Fivetran</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cloud Platforms -->
+                    <div class="tech-category">
+                        <div class="tech-category-header">
+                            <i class="fas fa-cloud"></i>
+                            <h3>Cloud & Infrastructure</h3>
+                        </div>
+                        <div class="tech-items">
+                            <div class="tech-item">
+                                <i class="fab fa-microsoft" style="color: #0078D4;"></i>
+                                <span>Azure Data Factory</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fab fa-aws" style="color: #FF9900;"></i>
+                                <span>AWS (S3, Lambda, Glue)</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fab fa-docker" style="color: #2496ED;"></i>
+                                <span>Docker</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fab fa-github" style="color: #fff;"></i>
+                                <span>GitHub Actions</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Programming -->
+                    <div class="tech-category">
+                        <div class="tech-category-header">
+                            <i class="fas fa-code"></i>
+                            <h3>Programming Languages</h3>
+                        </div>
+                        <div class="tech-items">
+                            <div class="tech-item">
+                                <i class="fab fa-python" style="color: #3776AB;"></i>
+                                <span>Python</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-database" style="color: #00758F;"></i>
+                                <span>SQL (Advanced)</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-terminal" style="color: #4EAA25;"></i>
+                                <span>Bash/Shell</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fab fa-git-alt" style="color: #F05032;"></i>
+                                <span>Git</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI/ML -->
+                    <div class="tech-category">
+                        <div class="tech-category-header">
+                            <i class="fas fa-brain"></i>
+                            <h3>AI/ML & Data Science</h3>
+                        </div>
+                        <div class="tech-items">
+                            <div class="tech-item">
+                                <i class="fas fa-network-wired" style="color: #EE4C2C;"></i>
+                                <span>PyTorch / TensorFlow</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-chart-line" style="color: #F7931E;"></i>
+                                <span>Scikit-learn</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-language" style="color: #00D9FF;"></i>
+                                <span>NLP (VADER, Transformers)</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-robot" style="color: #FF6F61;"></i>
+                                <span>LLMs (GPT, BERT)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BI Tools -->
+                    <div class="tech-category">
+                        <div class="tech-category-header">
+                            <i class="fas fa-chart-pie"></i>
+                            <h3>Business Intelligence</h3>
+                        </div>
+                        <div class="tech-items">
+                            <div class="tech-item">
+                                <i class="fas fa-chart-bar" style="color: #F2C811;"></i>
+                                <span>Power BI</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-chart-area" style="color: #E97627;"></i>
+                                <span>Tableau</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-fire" style="color: #FF4B4B;"></i>
+                                <span>Streamlit</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-table" style="color: #217346;"></i>
+                                <span>Excel (Advanced)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ETL & Automation -->
+                    <div class="tech-category">
+                        <div class="tech-category-header">
+                            <i class="fas fa-cogs"></i>
+                            <h3>ETL & Automation</h3>
+                        </div>
+                        <div class="tech-items">
+                            <div class="tech-item">
+                                <i class="fas fa-puzzle-piece" style="color: #0078C8;"></i>
+                                <span>Alteryx</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-arrows-alt" style="color: #38B6FF;"></i>
+                                <span>Apache Airflow</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-stream" style="color: #FF6B6B;"></i>
+                                <span>Data Streaming</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-project-diagram" style="color: #00D9A3;"></i>
+                                <span>Workflow Orchestration</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Certifications (if you have any) -->
+                <div class="certifications">
+                    <h3><i class="fas fa-certificate"></i> Expertise & Certifications</h3>
+                    <div class="cert-badges">
+                        <span class="cert-badge">❄️ Snowflake Data Engineering</span>
+                        <span class="cert-badge">🧱 dbt Analytics Engineering</span>
+                        <span class="cert-badge">⚙️ Matillion ETL Specialist</span>
+                        <span class="cert-badge">☁️ Azure Data Professional</span>
+                        <span class="cert-badge">🐍 Python Advanced</span>
+                        <span class="cert-badge">📊 Power BI Expert</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-label">Get In Touch</span>
+                    <h2 class="section-title">Let's <span class="gradient-text">Connect</span></h2>
+                    <p class="section-description">Open to freelance projects, consulting opportunities, and full-time
+                        roles
+                        in data engineering</p>
+                </div>
+
+                <div class="contact-grid">
+                    <div class="contact-info">
+                        <div class="contact-card">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Email</h3>
+                                <a href="mailto:masteravinashrai@gmail.com">masteravinashrai@gmail.com</a>
+                            </div>
+                        </div>
+
+                        <div class="contact-card">
+                            <div class="contact-icon">
+                                <i class="fab fa-linkedin"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>LinkedIn</h3>
+                                <a href="https://www.linkedin.com/in/avinashanalytics/"
+                                    target="_blank">linkedin.com/in/avinashanalytics</a>
+                            </div>
+                        </div>
+
+                        <div class="contact-card">
+                            <div class="contact-icon">
+                                <i class="fab fa-github"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>GitHub</h3>
+                                <a href="https://github.com/AvinashAnalytics"
+                                    target="_blank">github.com/AvinashAnalytics</a>
+                            </div>
+                        </div>
+
+                        <div class="contact-card">
+                            <div class="contact-icon">
+                                <i class="fab fa-twitter"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Twitter / X</h3>
+                                <a href="https://x.com/AvinashAnalytiX" target="_blank">@AvinashAnalytiX</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contact-cta-box">
+                        <div class="cta-content">
+                            <h3>Ready to Build Something Amazing?</h3>
+                            <p>I'm available for:</p>
+                            <ul class="availability-list">
+                                <li><i class="fas fa-check-circle"></i> Data Engineering Consulting</li>
+                                <li><i class="fas fa-check-circle"></i> Snowflake & dbt Implementation</li>
+                                <li><i class="fas fa-check-circle"></i> AI/ML Pipeline Development</li>
+                                <li><i class="fas fa-check-circle"></i> Full-Time Opportunities</li>
+                            </ul>
+                            <a href="#contact" onclick="openChatAndContact(); return false;"
+                                class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane"></i> Send Me a Message
+                            </a>
+                        </div>
+
+                        <div class="social-links-box">
+                            <h4>Follow & Connect</h4>
+                            <div class="social-icons">
+                                <a href="https://github.com/AvinashAnalytics" target="_blank" class="social-icon"
+                                    title="GitHub">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/in/avinashanalytics/" target="_blank"
+                                    class="social-icon" title="LinkedIn">
+                                    <i class="fab fa-linkedin"></i>
+                                </a>
+                                <a href="https://x.com/AvinashAnalytiX" target="_blank" class="social-icon"
+                                    title="Twitter">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="https://www.hackerrank.com/AvinashAnalytics" target="_blank"
+                                    class="social-icon" title="HackerRank">
+                                    <i class="fab fa-hackerrank"></i>
+                                </a>
+                                <a href="mailto:masteravinashrai@gmail.com" class="social-icon" title="Email">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div class="footer-inner container">
+                <div class="footer-grid">
+                    <div class="footer-col footer-brand">
+                        <a href="#home" class="brand">
+                            <span class="brand-icon">⚡</span>
+                            <span class="brand-title">Avinash <span class="highlight">Analytics</span></span>
+                        </a>
+                        <p class="brand-tagline">Building the future of data, one pipeline at a time.</p>
+                    </div>
+
+                    <nav class="footer-col footer-quick" aria-label="Quick Links">
+                        <h4 class="footer-title">Quick Links</h4>
+                        <ul class="footer-list">
+                            <li><a href="#home">Home</a></li>
+                            <li><a href="#about">About</a></li>
+                            <li><a href="#expertise">Expertise</a></li>
+                            <li><a href="#projects">Projects</a></li>
+                        </ul>
+                    </nav>
+
+                    <div class="footer-col footer-connect">
+                        <h4 class="footer-title">Connect</h4>
+                        <ul class="footer-list social-list">
+                            <li><a href="https://github.com/AvinashAnalytics" target="_blank"><i
+                                        class="fab fa-github"></i>
+                                    GitHub</a></li>
+                            <li><a href="https://www.linkedin.com/in/avinashanalytics/" target="_blank"><i
+                                        class="fab fa-linkedin"></i> LinkedIn</a></li>
+                            <li><a href="https://x.com/AvinashAnalytiX" target="_blank"><i class="fab fa-twitter"></i> X
+                                    /
+                                    Twitter</a></li>
+                            <li><a href="mailto:masteravinashrai@gmail.com"><i class="fas fa-envelope"></i> Email</a>
+                            </li>
+                            <li><a href="chat.html" target="_blank"><i class="fas fa-comments"></i> Chat with AI</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col footer-tech">
+                        <h4 class="footer-title">Technologies</h4>
+                        <ul class="footer-list">
+                            <li><a href="#tech-stack">Snowflake</a></li>
+                            <li><a href="#tech-stack">dbt</a></li>
+                            <li><a href="#tech-stack">Matillion</a></li>
+                            <li><a href="#tech-stack">Azure</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="footer-divider" role="presentation"></div>
+
+                <div class="footer-bottom">
+                    <p class="copyright">&copy; 2025 <strong>Avinash Rai</strong> — All Rights Reserved.</p>
+                    <p class="footer-quote">"Data is the new oil, but intelligence is the new electricity."</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Back to Top -->
+        <button id="backToTop" class="back-to-top" title="Back to top">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+
+        <!-- Scripts -->
+        <script src="particle-animation.js"></script>
+        <script src="script.js"></script>
+        <script src="bot/ai-chat.js"></script>
+        <!-- 💬 Avinash AI Digital Twin Chatbot -->
+        <div id="ai-chat-button" data-bubble="Ask me!"><span>🤖</span></div>
+
+        <div id="ai-chat-window">
+            <div id="ai-chat-header">
+                <span>Avinash Rai • AI Twin</span>
+                <button id="ai-chat-close">✖</button>
+            </div>
+
+            <div id="ai-chat-messages"></div>
+
+            <div id="ai-chat-input-box">
+                <input type="file" id="ai-chat-file" accept="image/*,video/*,.pdf,.doc,.docx" style="display:none;" />
+                <button id="ai-chat-attach" title="Attach File"
+                    style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);color:#8b5cf6;padding:14px;border-radius:14px;cursor:pointer;font-size:18px;">📎</button>
+                <input id="ai-chat-input" type="text" placeholder="Ask me anything..." />
+                <button id="ai-chat-send">➤</button>
             </div>
         </div>
-    </footer>
-
-    <!-- Back to Top -->
-    <button id="backToTop" class="back-to-top" title="Back to top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
-    <!-- Scripts -->
-    <script src="script.js"></script>
-    <script src="bot/ai-chat.js"></script>
-    <!-- 💬 Avinash AI Digital Twin Chatbot -->
-    <div id="ai-chat-button" data-bubble="Ask me!"><span>🤖</span></div>
-
-    <div id="ai-chat-window">
-        <div id="ai-chat-header">
-            <span>Avinash Rai • AI Twin</span>
-            <button id="ai-chat-close">✖</button>
-        </div>
-
-        <div id="ai-chat-messages"></div>
-
-        <div id="ai-chat-input-box">
-            <input id="ai-chat-input" type="text" placeholder="Ask me anything..." />
-            <button id="ai-chat-send">➤</button>
-        </div>
-    </div>
 
 </body>
 
