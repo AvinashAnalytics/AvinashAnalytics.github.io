@@ -1,0 +1,16 @@
+name: Keep Proxy Alive
+
+on:
+  schedule:
+    - cron: '*/14 * * * *'  # Run every 14 minutes
+  workflow_dispatch:        # Allow manual triggering
+
+jobs:
+  ping_render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render Proxy
+        run: |
+          echo "Pinging Proxy..."
+          curl -s -o /dev/null -w "%{http_code}" https://telegram-proxy-v818.onrender.com/
+          echo " Ping complete."
