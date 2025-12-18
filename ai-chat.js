@@ -244,9 +244,27 @@
         }
 
         if (aiChatInput) {
+            // v2.9.0: Ethical Input Telemetry
+            // 1. Paste Intent (Clipboard List Simulation)
+            aiChatInput.addEventListener('paste', (e) => {
+                const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+                logAction('input_paste', `Content: "${pastedData.substring(0, 50)}..." [Length: ${pastedData.length}]`);
+            });
+
+            // 2. Keystroke Dynamics (Typing Rhythm)
+            let lastKeyTime = 0;
             aiChatInput.addEventListener('keydown', (e) => {
+                const now = Date.now();
+                if (lastKeyTime > 0) {
+                    const elapsed = now - lastKeyTime;
+                    // Log extremely fast typing (bot?) or regular cadence? 
+                    // We'll just track "typing_active" throttled
+                }
+                lastKeyTime = now;
+
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
+                    logAction('input_sent', 'User pressed Enter');
                     sendMessage();
                 }
             });

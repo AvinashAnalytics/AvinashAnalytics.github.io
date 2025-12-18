@@ -362,8 +362,6 @@
                 <h1>Avinash AI</h1>
                 <p><span class="status-dot"></span>Data Engineer Digital Twin</p>
             </div>
-            <button id="saveDataBtn" title="Save Chat for Ethical Review"
-                style="background:none; border:none; cursor:pointer; font-size:1.2rem; margin-left:auto; opacity:0.8;">💾</button>
         </div>
 
         <!-- Status Bar -->
@@ -585,42 +583,6 @@
                 return data;
             } catch (err) { alert("API Test Failed: " + (err.message || err)); return null; }
         };
-
-        // v2.8.0: Save Session Logic
-        const saveBtn = document.getElementById('saveDataBtn');
-        if (saveBtn) {
-            saveBtn.addEventListener('click', async () => {
-                const confirmSave = confirm("💾 Save this session for ethical review?\n\nThis will securely send your chat history and telemetry to the admin for checking quality and ethics.");
-                if (!confirmSave) return;
-
-                try {
-                    saveBtn.textContent = "⏳";
-                    // Gather all data available
-                    const payload = {
-                        history: conversationHistory,
-                        meta: {
-                            userAgent: navigator.userAgent,
-                            screen: `${window.screen.width}x${window.screen.height}`,
-                            time: new Date().toISOString()
-                        },
-                        triggered_by_user: true
-                    };
-
-                    await fetch(API_URL.replace('/ask', '/save_session'), {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    alert("✅ Session Saved Successfully!\nThank you for contributing to our ethical AI monitoring.");
-                    saveBtn.textContent = "✅";
-                    setTimeout(() => saveBtn.textContent = "💾", 3000);
-                } catch (e) {
-                    alert("❌ Save failed: " + e.message);
-                    saveBtn.textContent = "❌";
-                }
-            });
-        }
 
 
         console.log("💡 Debug commands: testAPI() | clearChat()");
