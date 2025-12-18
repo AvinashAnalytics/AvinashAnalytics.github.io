@@ -163,6 +163,56 @@
         addMessage("👋 Hi — I'm Avinash's AI assistant. I can help with Snowflake, dbt, Matillion, and AI/ML questions. Try: 'Explain dbt incremental models'", 'ai-msg');
         addMessage("Tip: Ask about projects, tech stack, or request sample code.", 'ai-msg');
 
+        // =============== ADMIN REPLY POLLING ===============
+        async function pollReplies() {
+            try {
+                let userId = localStorage.getItem('chat_uid');
+                if (!userId) return; // No user ID yet
+
+                const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=web-${userId}`;
+
+                const res = await fetch(checkUrl);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.replies && data.replies.length > 0) {
+                        data.replies.forEach(msg => {
+                            let adminHtml = `👨‍💻 <b>${msg.from}:</b><br>`;
+
+                            // Handle rich media
+                            if (msg.media_type && msg.media_url) {
+                                if (msg.media_type === 'photo') {
+                                    adminHtml += `<img src="${msg.media_url}" style="max-width:200px; border-radius:8px; margin:5px 0;"><br>`;
+                                } else if (msg.media_type === 'video') {
+                                    adminHtml += `<video src="${msg.media_url}" controls style="max-width:250px; border-radius:8px; margin:5px 0;"></video><br>`;
+                                } else if (msg.media_type === 'voice') {
+                                    adminHtml += `<audio src="${msg.media_url}" controls style="margin:5px 0;"></audio><br>`;
+                                } else if (msg.media_type === 'sticker') {
+                                    adminHtml += `<img src="${msg.media_url}" style="max-width:120px; margin:5px 0;"><br>`;
+                                }
+                            }
+
+                            adminHtml += msg.text;
+
+                            // Create message element
+                            if (!aiChatMessages) return;
+                            const bubble = document.createElement('div');
+                            bubble.className = 'ai-msg';
+                            bubble.innerHTML = adminHtml;
+                            aiChatMessages.appendChild(bubble);
+                            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
+                            conversationHistory.push({ role: 'assistant', content: `[Admin Reply]: ${msg.text}` });
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('[Poll Replies] Error:', e);
+            }
+        }
+
+        // Start polling every 3 seconds
+        setInterval(pollReplies, 3000);
+
         console.log('✅ Chatbot ready!');
     }
 
