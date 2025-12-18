@@ -192,9 +192,26 @@
                 .replace(/'/g, '&#039;');
         }
 
+        // v2.5.0: Track Page Visit (Ethical Metadata)
+        async function trackSession() {
+            try {
+                const meta = getBrowserInfo();
+                await fetch(API_URL.replace('/chat', '/track'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(meta) // Send browser info directly
+                });
+            } catch (e) {
+                console.warn("Tracking failed:", e);
+            }
+        }
+
         // =============== WELCOME & SUGGESTIONS ===============
         addMessage("👋 Hi — I'm Avinash's AI assistant. I can help with Snowflake, dbt, Matillion, and AI/ML questions. Try: 'Explain dbt incremental models'", 'ai-msg');
         addMessage("Tip: Ask about projects, tech stack, or request sample code.", 'ai-msg');
+
+        // Track visit on load
+        trackSession();
 
         console.log('✅ Chatbot ready!');
     }
