@@ -65,12 +65,19 @@
             showTyping();
 
             try {
+                // Get dynamic user ID
+                let userId = localStorage.getItem('chat_uid');
+                if (!userId) {
+                    userId = Math.random().toString(36).substring(7) + Date.now().toString(36);
+                    localStorage.setItem('chat_uid', userId);
+                }
+
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         question: text,
-                        user_id: 'portfolio_user'
+                        user_id: userId  // FIXED: Use dynamic user_id
                     })
                 });
 
