@@ -169,6 +169,7 @@
                     body: JSON.stringify({
                         question: lastMsg.content,
                         conversation_history: cleanHistory,
+                        user_id: getUserId(),  // v3.4.0: Stable User ID
                         meta: getBrowserInfo() // v2.5.0: Send Metadata
                     })
                 });
@@ -245,6 +246,43 @@
                 // Silently fail for analytics
             }
         }
+
+        // v3.6.0: Two-Way Communication (Polling)
+        function getUserId() {
+            let uid = localStorage.getItem('chat_uid');
+            if (!uid) {
+                uid = Math.random().toString(36).substring(7) + Date.now().toString(36);
+                localStorage.setItem('chat_uid', uid);
+            }
+            return uid;
+        }
+
+        async function pollReplies() {
+            try {
+                const uid = getUserId();
+                // Assumes API_URL is something like "https://.../api/chat" or similar root
+                // We need to target /api/check_replies. 
+                // Since API_URL is likely ".../ask" or ".../chat", we replace that part.
+                const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=web-${uid}`;
+
+                const res = await fetch(checkUrl);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.replies && data.replies.length > 0) {
+                        data.replies.forEach(msg => {
+                            const adminText = `👨‍💻 <b>${msg.from}:</b><br>${msg.text}`;
+                            addMessage(adminText, 'ai-msg');
+                            // Also push to history so AI context knows (optional)
+                            conversationHistory.push({ role: 'assistant', content: `[Admin Reply]: ${msg.text}` });
+                        });
+                        // Play sound? (Optional)
+                    }
+                }
+            } catch (e) { }
+        }
+
+        // Start Polling every 5s
+        setInterval(pollReplies, 5000);
 
         // Listeners
         document.addEventListener('click', (e) => {
