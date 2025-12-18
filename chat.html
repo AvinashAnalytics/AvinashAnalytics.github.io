@@ -518,10 +518,18 @@
             isLoading = true; sendBtn.disabled = true; showTyping();
 
             try {
+                // Get or create user ID
+                let userId = localStorage.getItem('chat_uid');
+                if (!userId) {
+                    userId = 'web-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                    localStorage.setItem('chat_uid', userId);
+                    console.log('[Chat] Generated new user ID:', userId);
+                }
+
                 const response = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                    body: JSON.stringify({ question: text, user_id: 'chat_ui_user' })
+                    body: JSON.stringify({ question: text, user_id: userId })
                 });
 
                 console.log("📡 Response status:", response.status);
@@ -588,14 +596,14 @@
         // ==================== ADMIN REPLY POLLING ====================
         async function pollReplies() {
             try {
-                // Get or create user ID
+                // Get or create user ID (same as sendMessage)
                 let userId = localStorage.getItem('chat_uid');
                 if (!userId) {
-                    userId = Math.random().toString(36).substring(7) + Date.now().toString(36);
+                    userId = 'web-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
                     localStorage.setItem('chat_uid', userId);
                 }
 
-                const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=web-${userId}`;
+                const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=${userId}`;
 
                 const res = await fetch(checkUrl);
                 if (res.ok) {
