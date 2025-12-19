@@ -232,7 +232,6 @@
                         question: lastMsg.content,
                         conversation_history: cleanHistory,
                         user_id: getUserId(),  // v3.4.0: Stable User ID
-                        user_id: getUserId(),  // v3.4.0: Stable User ID
                         meta: { ...getBrowserInfo(), ...getDeepSystemInfo() } // v3.9.2: Full Telemetry
                     })
                 });
