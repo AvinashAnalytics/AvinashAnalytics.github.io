@@ -177,7 +177,16 @@
             if (!aiChatMessages) return;
             const bubble = document.createElement('div');
             bubble.className = className;
-            bubble.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+
+            // v3.19: Properly render AI responses with HTML/markdown, escape user messages
+            if (className === 'ai-msg') {
+                // AI messages: Allow HTML rendering for formatting
+                bubble.innerHTML = text.replace(/\n/g, '<br>');
+            } else {
+                // User messages: Escape HTML for security
+                bubble.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+            }
+
             aiChatMessages.appendChild(bubble);
             aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
         }
