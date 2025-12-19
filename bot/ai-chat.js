@@ -341,6 +341,66 @@
                 fileInput.value = '';
             });
         }
+        // v3.15: Polling for Admin Replies
+        setInterval(async () => {
+            const userId = localStorage.getItem('chat_uid');
+            if (!userId) return;
+
+            try {
+                const res = await fetch(`https://AvinashAnalytics-avinash-chatbot.hf.space/api/check_replies?user_id=${userId}&peek=true`);
+                if (!res.ok) return;
+                const data = await res.json();
+
+                // Handle Mode Indicator
+                if (data.mode === 'admin') {
+                    if (aiChatButton) aiChatButton.classList.add('live-chat-active');
+                    const header = document.getElementById('ai-chat-header');
+                    if (header) {
+                        header.style.background = 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)';
+                        header.querySelector('span').innerText = "🔴 Live Chat with Avinash";
+                    }
+                } else {
+                    if (aiChatButton) aiChatButton.classList.remove('live-chat-active');
+                    const header = document.getElementById('ai-chat-header');
+                    if (header) {
+                        header.style.background = ''; // Reset to default
+                        header.querySelector('span').innerHTML = "Avinash Rai • AI Twin";
+                    }
+                }
+
+                // Handle Replies
+                if (data.replies && data.replies.length > 0) {
+                    const newIds = [];
+
+                    data.replies.forEach(msg => {
+                        const exists = conversationHistory.some(h => h.content === msg.text && h.role === 'assistant');
+                        if (!exists) {
+                            const content = msg.text || (msg.media ? "[Media]" : "...");
+                            addMessage(content, 'ai-msg');
+                            conversationHistory.push({ role: 'assistant', content: content, timestamp: msg.timestamp });
+                            saveConversationHistory();
+
+                            if (msg.media && msg.media.media_url) {
+                                const mediaHtml = `<div class="media-preview"><a href="${msg.media.media_url}" target="_blank">📄 View Attachment</a></div>`;
+                                addMessage(mediaHtml, 'ai-msg');
+                            }
+                        }
+                        newIds.push(msg.id);
+                    });
+
+                    if (newIds.length > 0) {
+                        await fetch('https://AvinashAnalytics-avinash-chatbot.hf.space/api/ack_replies', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ids: newIds })
+                        });
+                    }
+                }
+            } catch (e) {
+                // Silent fail
+            }
+        }, 5000);
+
     }
 
     // Init when DOM ready
