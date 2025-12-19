@@ -379,7 +379,11 @@
                         const exists = conversationHistory.some(h => h.msg_id === msg.id);
                         if (!exists) {
                             const content = msg.text || (msg.media ? "[Media]" : "...");
+
+                            // v3.18: Add message to DOM FIRST
                             addMessage(content, 'ai-msg');
+
+                            // v3.18: Save to conversation history with msg_id
                             conversationHistory.push({ role: 'assistant', content: content, timestamp: msg.timestamp, msg_id: msg.id });
                             saveConversationHistory();
 
@@ -387,16 +391,26 @@
                                 const mediaHtml = `<div class="media-preview"><a href="${msg.media.media_url}" target="_blank">📄 View Attachment</a></div>`;
                                 addMessage(mediaHtml, 'ai-msg');
                             }
+
+                            // v3.18: Only add to ACK list AFTER successful display
+                            newIds.push(msg.id);
                         }
-                        newIds.push(msg.id);
                     });
 
+                    // v3.18: Send ACK only after ALL messages are displayed and saved
                     if (newIds.length > 0) {
-                        await fetch('https://AvinashAnalytics-avinash-chatbot.hf.space/api/ack_replies', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ ids: newIds })
-                        });
+                        // Small delay to ensure DOM updates complete
+                        setTimeout(async () => {
+                            try {
+                                await fetch('https://AvinashAnalytics-avinash-chatbot.hf.space/api/ack_replies', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ ids: newIds })
+                                });
+                            } catch (e) {
+                                console.error('[ACK] Failed:', e);
+                            }
+                        }, 100);
                     }
                 }
             } catch (e) {

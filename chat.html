@@ -680,11 +680,8 @@
                             // v3.17: Use message ID for duplicate detection instead of text
                             const isDuplicate = conversationHistory.some(m => m.msg_id === msg.id);
                             if (isDuplicate) {
-                                receivedIds.push(msg.id);
-                                continue;
+                                continue; // Skip but don't ACK duplicates
                             }
-
-                            receivedIds.push(msg.id);
 
                             let adminHtml = `👨‍💻 <b>${msg.from || 'Avinash'}:</b><br>`;
 
@@ -704,26 +701,37 @@
 
                             adminHtml += msg.text;
 
-                            // Create message element
+                            // v3.18: Create and display message FIRST
                             const messageDiv = document.createElement("div");
                             messageDiv.className = 'message ai';
                             messageDiv.innerHTML = adminHtml;
                             messagesDiv.appendChild(messageDiv);
                             messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
+                            // v3.18: Save to history with msg_id
                             conversationHistory.push({ role: 'assistant', content: `[Admin Reply]: ${msg.text}`, msg_id: msg.id });
                             saveConversationHistory();
+
+                            // v3.18: Only add to ACK list AFTER successful display
+                            receivedIds.push(msg.id);
                         }
 
-                        // Send ACK
+                        // v3.18: Send ACK only after ALL messages are displayed and saved
                         if (receivedIds.length > 0) {
-                            await fetch(API_URL.replace(/\/ask|\/chat/, '/api/ack_replies'), {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ ids: receivedIds })
-                            });
+                            // Small delay to ensure DOM updates complete
+                            setTimeout(async () => {
+                                try {
+                                    await fetch(API_URL.replace(/\/ask|\/chat/, '/api/ack_replies'), {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ ids: receivedIds })
+                                    });
+                                    console.log(`[Poll Replies] ACK'd ${receivedIds.length} messages`);
+                                } catch (e) {
+                                    console.error('[ACK] Failed:', e);
+                                }
+                            }, 100);
                         }
-                        console.log(`[Poll Replies] Received ${data.replies.length} admin messages`);
                     }
                 }
             } catch (e) {
