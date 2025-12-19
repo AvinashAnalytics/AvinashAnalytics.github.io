@@ -346,6 +346,8 @@
             const userId = localStorage.getItem('chat_uid');
             if (!userId) return;
 
+            console.log('[POLLING] Checking replies for user_id:', userId);
+
             try {
                 const res = await fetch(`https://AvinashAnalytics-avinash-chatbot.hf.space/api/check_replies?user_id=${userId}&peek=true`);
                 if (!res.ok) return;
