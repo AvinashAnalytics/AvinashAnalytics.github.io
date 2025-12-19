@@ -201,7 +201,8 @@
                 let userId = localStorage.getItem('chat_uid');
                 if (!userId) return; // No user ID yet
 
-                const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=${userId}`;
+                // v3.13: ACK-based polling
+                const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=${userId}&peek=true`;
 
                 const res = await fetch(checkUrl);
                 if (res.ok) {
@@ -218,35 +219,60 @@
                     }
 
                     if (data.replies && data.replies.length > 0) {
-                        data.replies.forEach(msg => {
-                            let adminHtml = `👨‍💻 <b>${msg.from}:</b><br>`;
+                        const receivedIds = [];
+
+                        // Process messages
+                        for (const msg of data.replies) {
+                            // Dedup: Check if recently received (in current session history)
+                            // We use a loose check on content to prevent message storms on connect
+                            const isDuplicate = conversationHistory.some(m => m.content.includes(msg.text));
+
+                            // If it's a duplicate, we still ACK it to clear it from queue, but don't render
+                            if (isDuplicate) {
+                                receivedIds.push(msg.id);
+                                continue;
+                            }
+
+                            receivedIds.push(msg.id);
+
+                            let adminHtml = `👨‍💻 <b>${msg.from || 'Avinash'}:</b><br>`;
 
                             // Handle rich media
-                            if (msg.media_type && msg.media_url) {
-                                if (msg.media_type === 'photo') {
-                                    adminHtml += `<img src="${msg.media_url}" style="max-width:200px; border-radius:8px; margin:5px 0;"><br>`;
-                                } else if (msg.media_type === 'video') {
-                                    adminHtml += `<video src="${msg.media_url}" controls style="max-width:250px; border-radius:8px; margin:5px 0;"></video><br>`;
-                                } else if (msg.media_type === 'voice') {
-                                    adminHtml += `<audio src="${msg.media_url}" controls style="margin:5px 0;"></audio><br>`;
-                                } else if (msg.media_type === 'sticker') {
-                                    adminHtml += `<img src="${msg.media_url}" style="max-width:120px; margin:5px 0;"><br>`;
+                            if (msg.media && msg.media.media_type) {
+                                const m = msg.media;
+                                if (m.media_type === 'photo') {
+                                    adminHtml += `<img src="${m.media_url || '#'}" style="max-width:200px; border-radius:8px; margin:5px 0;"><br>`;
+                                } else if (m.media_type === 'video') {
+                                    adminHtml += `<video src="${m.media_url || '#'}" controls style="max-width:250px; border-radius:8px; margin:5px 0;"></video><br>`;
+                                } else if (m.media_type === 'voice') {
+                                    adminHtml += `<audio src="${m.media_url || '#'}" controls style="margin:5px 0;"></audio><br>`;
+                                } else if (m.media_type === 'sticker') {
+                                    adminHtml += `<img src="${m.media_url || '#'}" style="max-width:120px; margin:5px 0;"><br>`;
                                 }
                             }
 
                             adminHtml += msg.text;
 
+                            conversationHistory.push({ role: 'assistant', content: `[Admin Reply]: ${msg.text}` });
+                            saveConversationHistory(); // SAVE
+
                             // Create message element
-                            if (!aiChatMessages) return;
+                            if (!aiChatMessages) continue;
                             const bubble = document.createElement('div');
                             bubble.className = 'ai-msg';
                             bubble.innerHTML = adminHtml;
                             aiChatMessages.appendChild(bubble);
                             aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+                        }
 
-                            conversationHistory.push({ role: 'assistant', content: `[Admin Reply]: ${msg.text}` });
-                            saveConversationHistory(); // SAVE
-                        });
+                        // Send ACK
+                        if (receivedIds.length > 0) {
+                            await fetch(API_URL.replace(/\/ask|\/chat/, '/api/ack_replies'), {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ ids: receivedIds })
+                            });
+                        }
                     }
                 }
             } catch (e) {
