@@ -193,6 +193,17 @@
                 const res = await fetch(checkUrl);
                 if (res.ok) {
                     const data = await res.json();
+                    if (data.mode === 'admin') {
+                        const headerTitle = document.querySelector('#ai-chat-header span');
+                        if (headerTitle) headerTitle.innerText = "🔴 Chatting with Avinash (Live)";
+                    } else {
+                        const headerTitle = document.querySelector('#ai-chat-header span');
+                        // Restore default only if it was changed
+                        if (headerTitle && headerTitle.innerText.includes("Live")) {
+                            headerTitle.innerText = "Avinash Rai • AI Twin";
+                        }
+                    }
+
                     if (data.replies && data.replies.length > 0) {
                         data.replies.forEach(msg => {
                             let adminHtml = `👨‍💻 <b>${msg.from}:</b><br>`;
@@ -285,16 +296,22 @@
     }
 
     // v3.9.5: Global function for "Send Me a Message" button
-    window.openChatAndContact = async function () {
+    window.openChatAndNotify = function () {
         // Open the chat window
         const aiChatWindow = document.getElementById('ai-chat-window');
         const aiChatInput = document.getElementById('ai-chat-input');
-        const aiChatMessages = document.getElementById('ai-chat-messages');
 
         if (aiChatWindow) {
             aiChatWindow.style.display = 'flex';
             if (aiChatInput) setTimeout(() => aiChatInput.focus(), 120);
         }
+
+        // Trigger contact
+        sendContactRequest();
+    };
+
+    async function sendContactRequest() {
+        const aiChatMessages = document.getElementById('ai-chat-messages');
 
         // Get or create user ID
         let userId = localStorage.getItem('chat_uid');
@@ -327,5 +344,5 @@
         } catch (error) {
             console.error('Failed to send contact request:', error);
         }
-    };
+    }
 })();
