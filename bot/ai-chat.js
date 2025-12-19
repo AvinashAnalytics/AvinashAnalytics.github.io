@@ -99,7 +99,7 @@
                 // Get dynamic user ID
                 let userId = localStorage.getItem('chat_uid');
                 if (!userId) {
-                    userId = Math.random().toString(36).substring(7) + Date.now().toString(36);
+                    userId = 'web-' + Math.random().toString(36).substring(7) + Date.now().toString(36);
                     localStorage.setItem('chat_uid', userId);
                 }
 
@@ -201,7 +201,7 @@
                 let userId = localStorage.getItem('chat_uid');
                 if (!userId) return; // No user ID yet
 
-                const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=web-${userId}`;
+                const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=${userId}`;
 
                 const res = await fetch(checkUrl);
                 if (res.ok) {
@@ -330,7 +330,7 @@
         // Get or create user ID
         let userId = localStorage.getItem('chat_uid');
         if (!userId) {
-            userId = Math.random().toString(36).substring(7) + Date.now().toString(36);
+            userId = 'web-' + Math.random().toString(36).substring(7) + Date.now().toString(36);
             localStorage.setItem('chat_uid', userId);
         }
 
