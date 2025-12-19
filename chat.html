@@ -542,6 +542,12 @@
                 const data = await response.json();
                 console.log("📥 Response data:", data);
 
+                if (data.mode === 'admin') {
+                    updateStatus('online', '🔴 Live Chat with Avinash');
+                } else if (data.mode === 'ai') {
+                    updateStatus('online', '🟢 Online');
+                }
+
                 removeTyping();
 
                 const reply = (data && (data.response || data.reply || data.output || data.text)) || "Sorry, I couldn't process that request.";
@@ -608,6 +614,20 @@
                 const res = await fetch(checkUrl);
                 if (res.ok) {
                     const data = await res.json();
+
+                    // v3.12: Live Mode Indicator
+                    if (data.mode === 'admin') {
+                        updateStatus('online', '🔴 Live Chat with Avinash');
+                        const avatar = document.querySelector('.avatar');
+                        if (avatar) avatar.style.background = '#ff4757'; // Red avatar
+                    } else if (data.mode === 'ai') {
+                        const avatar = document.querySelector('.avatar');
+                        if (avatar && avatar.style.background === 'rgb(255, 71, 87)') {
+                            avatar.style.background = 'rgba(255, 255, 255, 0.2)'; // Reset
+                            updateStatus('online', '🟢 Online (AI)');
+                        }
+                    }
+
                     if (data.replies && data.replies.length > 0) {
                         data.replies.forEach(msg => {
                             let adminHtml = `👨‍💻 <b>${msg.from}:</b><br>`;
