@@ -399,6 +399,12 @@
         </div>
     </div>
 
+    <div class="footer" style="text-align: center; padding: 20px; color: #666; font-size: 0.9em;">
+        Powered by <a href="https://huggingface.co/spaces/avinashanalystics/avinash-chatbot" target="_blank"
+            style="color: #666; text-decoration: none;">Avinash AI</a> •
+        <a href="index.html" style="color: #666; text-decoration: none;">← Back to Portfolio</a>
+    </div>
+
     <script>
         // ==================== CONFIGURATION ====================
         // ✅ CORRECT URL with capital A and /ask endpoint
@@ -413,6 +419,23 @@
 
         // ==================== STATE ====================
         let conversationHistory = [];
+
+        // Restore history
+        try {
+            const saved = localStorage.getItem('chat_conversation_history');
+            if (saved) {
+                conversationHistory = JSON.parse(saved);
+                conversationHistory.forEach(msg => {
+                    addMessage(msg.content, msg.role === 'user' ? 'user' : 'ai');
+                });
+                console.log(`✅ Restored ${conversationHistory.length} messages`);
+            }
+        } catch (e) { console.error('Failed to restore history:', e); }
+
+        function saveConversationHistory() {
+            try { localStorage.setItem('chat_conversation_history', JSON.stringify(conversationHistory)); }
+            catch (e) { console.error('Failed to save history:', e); }
+        }
         let isLoading = false;
         let retryCount = 0;
 
@@ -512,8 +535,8 @@
             console.log("📤 Sending:", text);
             userInput.value = "";
             addMessage(text, "user");
-
             conversationHistory.push({ role: "user", content: text });
+            saveConversationHistory();
 
             isLoading = true; sendBtn.disabled = true; showTyping();
 
@@ -554,7 +577,8 @@
                 addMessage(reply, "ai");
 
                 conversationHistory.push({ role: "assistant", content: reply });
-                if (conversationHistory.length > 20) conversationHistory = conversationHistory.slice(-20);
+                if (conversationHistory.length > 50) conversationHistory = conversationHistory.slice(-50); // Increased limit
+                saveConversationHistory();
 
                 updateStatus("online", "🟢 Online");
                 retryCount = 0;
@@ -587,7 +611,12 @@
         }
 
         // ==================== UTILITIES ====================
-        window.clearChat = function () { conversationHistory = []; messagesDiv.innerHTML = ''; addMessage("🔄 Chat cleared! How can I help you?", "ai"); };
+        window.clearChat = function () {
+            conversationHistory = [];
+            saveConversationHistory();
+            messagesDiv.innerHTML = '';
+            addMessage("🔄 Chat cleared! How can I help you?", "ai");
+        };
 
         window.testAPI = async function () {
             try {
@@ -655,6 +684,7 @@
                             messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
                             conversationHistory.push({ role: 'assistant', content: `[Admin Reply]: ${msg.text}` });
+                            saveConversationHistory();
                         });
 
                         console.log(`[Poll Replies] Received ${data.replies.length} admin messages`);

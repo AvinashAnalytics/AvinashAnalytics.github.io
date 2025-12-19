@@ -27,9 +27,27 @@
                 const parsed = JSON.parse(savedHistory);
                 conversationHistory = Array.isArray(parsed) ? parsed : [];
                 console.log(`[Chat] Restored ${conversationHistory.length} messages from history`);
+
+                // Restore messages to UI
+                conversationHistory.forEach(msg => {
+                    if (msg.role === 'user') {
+                        addMessage(msg.content, 'user-msg');
+                    } else {
+                        addMessage(msg.content, 'ai-msg');
+                    }
+                });
             }
         } catch (e) {
             console.error('[Chat] Failed to restore history:', e);
+        }
+
+        // Helper to save history
+        function saveConversationHistory() {
+            try {
+                localStorage.setItem('chat_conversation_history', JSON.stringify(conversationHistory));
+            } catch (e) {
+                console.error('[Chat] Failed to save history:', e);
+            }
         }
 
         let isLoading = false;
@@ -72,6 +90,7 @@
             addMessage(text, 'user-msg');
 
             conversationHistory.push({ role: 'user', content: text });
+            saveConversationHistory(); // SAVE
 
             isLoading = true;
             showTyping();
@@ -102,13 +121,7 @@
                 addMessage(reply, 'ai-msg');
 
                 conversationHistory.push({ role: 'assistant', content: reply });
-
-                // v3.10.1: Save to localStorage for sync across pages
-                try {
-                    localStorage.setItem('chat_conversation_history', JSON.stringify(conversationHistory));
-                } catch (e) {
-                    console.error('[Chat] Failed to save history:', e);
-                }
+                saveConversationHistory(); // SAVE
 
             } catch (error) {
                 console.error('❌ Error:', error);
@@ -232,6 +245,7 @@
                             aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
 
                             conversationHistory.push({ role: 'assistant', content: `[Admin Reply]: ${msg.text}` });
+                            saveConversationHistory(); // SAVE
                         });
                     }
                 }
