@@ -384,6 +384,8 @@
         <!-- Input Area -->
         <div class="input-area">
             <input type="text" id="userInput" placeholder="Ask me anything..." autocomplete="off" autofocus>
+            <button id="ai-chat-clear" title="Clear Chat" style="margin-right: 8px;">🗑️</button>
+            <button id="ai-chat-close" title="Close">×</button>
             <button id="sendBtn" onclick="sendMessage()" title="Send message">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
@@ -627,6 +629,19 @@
             } catch (err) { alert("API Test Failed: " + (err.message || err)); return null; }
         };
 
+
+        // v3.14: Clear Chat Button Logic
+        const clearBtn = document.getElementById('ai-chat-clear');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                if (confirm('Clear conversation history?')) {
+                    conversationHistory = [];
+                    saveConversationHistory();
+                    messagesDiv.innerHTML = '';
+                    addMessage("🔄 Chat cleared! How can I help you?", "ai");
+                }
+            });
+        }
 
         // ==================== ADMIN REPLY POLLING ====================
         async function pollReplies() {
