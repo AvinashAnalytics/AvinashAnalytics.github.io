@@ -677,8 +677,8 @@
                         const receivedIds = [];
 
                         for (const msg of data.replies) {
-                            // Dedup
-                            const isDuplicate = conversationHistory.some(m => m.content.includes(msg.text));
+                            // v3.17: Use message ID for duplicate detection instead of text
+                            const isDuplicate = conversationHistory.some(m => m.msg_id === msg.id);
                             if (isDuplicate) {
                                 receivedIds.push(msg.id);
                                 continue;
@@ -711,7 +711,7 @@
                             messagesDiv.appendChild(messageDiv);
                             messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-                            conversationHistory.push({ role: 'assistant', content: `[Admin Reply]: ${msg.text}` });
+                            conversationHistory.push({ role: 'assistant', content: `[Admin Reply]: ${msg.text}`, msg_id: msg.id });
                             saveConversationHistory();
                         }
 
@@ -731,8 +731,8 @@
             }
         }
 
-        // Start polling every 3 seconds
-        setInterval(pollReplies, 3000);
+        // Start polling every 2 seconds (v3.17: Reduced from 3s for faster delivery)
+        setInterval(pollReplies, 2000);
 
         console.log("💡 Debug commands: testAPI() | clearChat()");
     </script>

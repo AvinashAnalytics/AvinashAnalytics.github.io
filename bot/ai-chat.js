@@ -375,11 +375,12 @@
                     const newIds = [];
 
                     data.replies.forEach(msg => {
-                        const exists = conversationHistory.some(h => h.content === msg.text && h.role === 'assistant');
+                        // v3.17: Use message ID for duplicate detection instead of text
+                        const exists = conversationHistory.some(h => h.msg_id === msg.id);
                         if (!exists) {
                             const content = msg.text || (msg.media ? "[Media]" : "...");
                             addMessage(content, 'ai-msg');
-                            conversationHistory.push({ role: 'assistant', content: content, timestamp: msg.timestamp });
+                            conversationHistory.push({ role: 'assistant', content: content, timestamp: msg.timestamp, msg_id: msg.id });
                             saveConversationHistory();
 
                             if (msg.media && msg.media.media_url) {
@@ -401,7 +402,7 @@
             } catch (e) {
                 // Silent fail
             }
-        }, 5000);
+        }, 2000); // v3.17: Reduced from 5s to 2s for faster message delivery
 
     }
 
