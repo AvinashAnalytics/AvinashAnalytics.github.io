@@ -109,8 +109,9 @@ class ParticleDust {
     }
 
     draw() {
-        // v3.21: Minimal fade for visibility without dark buildup
-        this.ctx.fillStyle = 'rgba(15, 23, 42, 0.01)';
+        // v3.22: Higher fade opacity to prevent glow ball + match body background
+        // Body background is rgb(10, 14, 39), not rgb(15, 23, 42)
+        this.ctx.fillStyle = 'rgba(10, 14, 39, 0.08)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Sort by z-depth for 3D effect
