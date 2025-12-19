@@ -314,7 +314,7 @@
         function getUserId() {
             let uid = localStorage.getItem('chat_uid');
             if (!uid) {
-                uid = Math.random().toString(36).substring(7) + Date.now().toString(36);
+                uid = 'web-' + Math.random().toString(36).substring(7) + Date.now().toString(36);
                 localStorage.setItem('chat_uid', uid);
             }
             return uid;
@@ -323,7 +323,7 @@
         async function pollReplies() {
             try {
                 const uid = getUserId();
-                const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=web-${uid}`;
+                const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=${uid}`;
 
                 console.log('[Poll Replies] Checking:', checkUrl); // DEBUG
 
