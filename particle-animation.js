@@ -21,18 +21,19 @@ class ParticleDust {
     init() {
         this.resize();
 
-        // Create particles with circular motion properties
+        // Create particles with distributed motion (no shared center!)
         for (let i = 0; i < this.particleCount; i++) {
             this.particles.push({
                 // Position
                 x: Math.random() * this.canvas.width,
                 y: Math.random() * this.canvas.height,
 
-                // Circular motion
+                // v3.24: Each particle has its OWN random orbit center
+                // This prevents all particles from converging at screen center
                 angle: Math.random() * Math.PI * 2,
-                radius: 100 + Math.random() * 300,
-                centerX: this.canvas.width / 2,
-                centerY: this.canvas.height / 2,
+                radius: 50 + Math.random() * 150,  // Smaller radius for tighter orbits
+                centerX: Math.random() * this.canvas.width,   // Random center X
+                centerY: Math.random() * this.canvas.height,  // Random center Y
 
                 // Movement
                 speed: 0.0005 + Math.random() * 0.002,
