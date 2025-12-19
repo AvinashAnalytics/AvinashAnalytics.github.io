@@ -81,6 +81,21 @@
             });
         }
 
+        // =============== CLEAR CHAT ===============
+        const aiChatClear = document.getElementById('ai-chat-clear-widget');
+        if (aiChatClear) {
+            aiChatClear.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent closing if inside header
+                if (confirm('Clear chat history?')) {
+                    conversationHistory = [];
+                    saveConversationHistory();
+                    if (aiChatMessages) aiChatMessages.innerHTML = '';
+                    addMessage("🔄 Chat cleared!", "ai-msg");
+                }
+            });
+        }
+
         // =============== SEND MESSAGE ===============
         async function sendMessage() {
             const text = aiChatInput ? aiChatInput.value.trim() : '';
