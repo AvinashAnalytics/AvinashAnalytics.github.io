@@ -55,6 +55,8 @@ class ParticleDust {
     resize() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
+        // Full clear on resize to prevent dark buildup
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     bindEvents() {
@@ -107,8 +109,8 @@ class ParticleDust {
     }
 
     draw() {
-        // Clear with fade effect for trails
-        this.ctx.fillStyle = 'rgba(15, 23, 42, 0.05)';
+        // Clear with lighter fade effect to prevent dark buildup
+        this.ctx.fillStyle = 'rgba(15, 23, 42, 0.02)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Sort by z-depth for 3D effect
