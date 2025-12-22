@@ -98,10 +98,9 @@
   transform: scale(0.95);
 }
 
+/* v3.22: Hide legacy emoji span to show clear 3D avatar */
 #ai-chat-button>span {
-  display: inline-block;
-  animation: emojiWave 4s ease-in-out infinite;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  display: none !important;
 }
 
 #ai-chat-button::after {
@@ -401,6 +400,7 @@
 }
 
 /* ========== ANIMATIONS ========== */
+/* Robot Specific Animations */
 @keyframes robotFloat {
 
   0%,
@@ -413,17 +413,40 @@
   }
 }
 
+@keyframes robotRun {
+  0% {
+    transform: scale(0.95) rotate(-5deg);
+  }
+
+  25% {
+    transform: scale(1.05) rotate(5deg);
+  }
+
+  50% {
+    transform: scale(0.95) rotate(-5deg);
+  }
+
+  75% {
+    transform: scale(1.05) rotate(5deg);
+  }
+
+  100% {
+    transform: scale(0.95) rotate(-5deg);
+  }
+}
+
 @keyframes robotJump {
   0% {
     transform: translateY(0) scale(1);
   }
 
   40% {
-    transform: translateY(-20px) scale(1.1);
+    transform: translateY(-25px) scale(1.1);
+    filter: brightness(1.2);
   }
 
   60% {
-    transform: translateY(-10px) scale(1.05);
+    transform: translateY(-12px) scale(1.05);
   }
 
   100% {
@@ -437,15 +460,15 @@
   }
 
   25% {
-    transform: rotate(-10deg);
+    transform: rotate(-12deg);
   }
 
   50% {
-    transform: rotate(10deg);
+    transform: rotate(12deg);
   }
 
   75% {
-    transform: rotate(-5deg);
+    transform: rotate(-6deg);
   }
 
   100% {
@@ -525,24 +548,29 @@
   #ai-chat-window {
     position: fixed;
     right: auto;
-    /* Reset right */
     left: 50%;
-    /* Center horizontally */
-    transform: translateX(-50%) translateY(0) scale(1) !important;
-    /* Force override animation during open */
-    bottom: 90px;
-    width: 92vw;
-    /* Use viewport width */
-    max-height: 75vh;
-    border-radius: 18px;
+    transform: translateX(-50%) translateY(0) !important;
+    bottom: 0;
+    /* Attach to bottom for better mobile feel */
+    width: 100%;
+    /* Full Width */
+    max-width: 100%;
+    height: 85vh;
+    /* Taller on mobile */
+    max-height: 85dvh;
+    border-radius: 20px 20px 0 0;
+    /* Top corners only */
     margin: 0;
+
+    /* Safe Area for iPhone Home Bar */
+    padding-bottom: env(safe-area-inset-bottom, 20px);
   }
 
-  /* Override animation for mobile centering */
+  /* Override animation for mobile slide up */
   @keyframes slideUpFadeMobile {
     from {
       opacity: 0;
-      transform: translateX(-50%) translateY(20px);
+      transform: translateX(-50%) translateY(100%);
     }
 
     to {
@@ -559,13 +587,12 @@
     width: 70px;
     height: 70px;
     right: 20px;
-    bottom: 20px;
+    bottom: 30px;
+    /* Higher to avoid overlap */
   }
 
-  /* Start bubble from further left on mobile to avoid off-screen */
   #ai-chat-button::after {
-    right: 75px;
-    bottom: 60px;
-    font-size: 12px;
+    bottom: 80px;
+    right: 60px;
   }
 }

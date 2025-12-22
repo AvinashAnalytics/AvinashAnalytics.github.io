@@ -87,6 +87,10 @@
             aiChatButton.style.left = `${initialLeft}px`;
             aiChatButton.style.top = `${initialTop}px`;
 
+            // v3.23: Trigger RUN animation
+            aiChatButton.style.animation = 'robotRun 0.4s linear infinite';
+            aiChatButton.style.cursor = 'grabbing';
+
             // Add global move/up listeners
             document.addEventListener('mousemove', handleDragMove);
             document.addEventListener('touchmove', handleDragMove, { passive: false });
@@ -121,6 +125,8 @@
 
                 aiChatButton.style.left = `${newLeft}px`;
                 aiChatButton.style.top = `${newTop}px`;
+
+                // Keep animation running
             }
         }
 
@@ -130,6 +136,10 @@
             document.removeEventListener('touchmove', handleDragMove);
             document.removeEventListener('mouseup', handleDragEnd);
             document.removeEventListener('touchend', handleDragEnd);
+
+            // v3.23: Restore Float Animation
+            aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
+            aiChatButton.style.cursor = 'grab';
 
             // Handle Click (if not dragged)
             const dragDuration = Date.now() - dragStartTime;
