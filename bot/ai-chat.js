@@ -745,7 +745,7 @@
                     return;
                 }
 
-                if (this.state === 'SLEEP' || this.state === 'PETTING' || this.state === 'DIZZY') return; // Don't roam
+                if (this.state === 'SLEEP' || this.state === 'PETTING' || this.state === 'DIZZY' || this.state === 'TESTING') return; // Don't roam
                 if (timeSinceAction < 4000) return; // Cooldown
 
                 const roll = Math.random();
@@ -758,13 +758,33 @@
                 }
             },
 
+            // --- DIAGNOSTIC SUITE ---
+            runDiagnostics() {
+                if (this.state === 'TESTING') return;
+                console.log('🤖 STARTING SELF-DIAGNOSIS...');
+                this.state = 'TESTING';
+
+                const sequence = [
+                    { action: () => { console.log('1. Sound Check'); SoundEngine.play('chirp'); }, delay: 500 },
+                    { action: () => { console.log('2. Happy State'); aiChatButton.classList.add('emotion-happy'); SoundEngine.play('purr'); }, delay: 1500 },
+                    { action: () => { console.log('3. Suspicious'); aiChatButton.className = ''; aiChatButton.classList.add('emotion-suspicious'); SoundEngine.play('boop'); }, delay: 3000 },
+                    { action: () => { console.log('4. Petting'); aiChatButton.className = ''; this.startPetting(); }, delay: 4500 },
+                    { action: () => { console.log('5. Sleep'); this.startSleep(); }, delay: 7000 },
+                    { action: () => { console.log('6. Wake Up'); this.wakeUp(); }, delay: 10000 },
+                    { action: () => { console.log('✅ DIAGNOSIS COMPLETE'); this.state = 'IDLE'; aiChatButton.className = ''; SoundEngine.play('chirp'); }, delay: 11000 }
+                ];
+
+                sequence.forEach(step => setTimeout(step.action, step.delay));
+            },
+
             startSleep() {
+                if (this.state === 'PETTING') return; // Don't sleep if being petted
                 this.state = 'SLEEP';
                 aiChatButton.classList.add('emotion-sleep');
                 aiChatButton.style.animation = 'robotFloat 4s ease-in-out infinite'; // Slow float
                 SoundEngine.play('snore');
 
-                // Zzz Particles
+                if (this.sleepInterval) clearInterval(this.sleepInterval);
                 this.sleepInterval = setInterval(() => {
                     spawnEmoji('Zzz');
                 }, 2000);
@@ -775,7 +795,11 @@
                     clearInterval(this.sleepInterval);
                     aiChatButton.classList.remove('emotion-sleep');
                     this.state = 'IDLE';
-                    this.doTrick(); // Jolt awake
+
+                    // WAKE UP SHAKE
+                    aiChatButton.style.animation = 'robotRun 0.4s ease-in-out';
+                    setTimeout(() => aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite', 400);
+
                     SoundEngine.play('boop'); // Startled noise
                 }
                 this.lastActionTime = Date.now();
@@ -830,7 +854,9 @@
             },
 
             teleportTo(x, y, nextState, targetElement = null) {
-                /* Same Teleport Logic */
+                // Prevent teleport if Sleeping/Petting
+                if (this.state === 'SLEEP' || this.state === 'PETTING') return;
+
                 SoundEngine.play('boop');
                 aiChatButton.classList.add('magic-dust');
                 aiChatButton.style.animation = 'none';
@@ -890,6 +916,23 @@
 
         // Initialize Brain
         robotBrain.init();
+
+        // Listen for Test Command
+        const chatInput = document.getElementById('ai-chat-input');
+        if (chatInput) {
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && chatInput.value.trim() === '/test') {
+                    e.preventDefault();
+                    robotBrain.runDiagnostics();
+                    chatInput.value = '';
+                    // Append system message
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'ai-message-wrapper received';
+                    msgDiv.innerHTML = `<div class="ai-message">🤖 Running Diagnostics... Watch me!</div>`;
+                    document.getElementById('ai-chat-messages').appendChild(msgDiv);
+                }
+            });
+        }
 
         // Wake up listener
         document.addEventListener('mousedown', () => robotBrain.wakeUp()); // Wake on click
