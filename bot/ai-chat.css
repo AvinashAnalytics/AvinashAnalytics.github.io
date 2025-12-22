@@ -127,6 +127,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  /* BLINK ANIMATION MOVING HERE (Fixes tracking conflict) */
+  transform-origin: center;
+  animation: eyeBlink 4s infinite;
 }
 
 .pupil {
@@ -136,8 +140,8 @@
   border-radius: 50%;
   box-shadow: 0 0 6px #06b6d4;
   transition: width 0.1s, height 0.1s;
-  /* Fast dilation */
-  animation: blink 4s infinite;
+  /* Dilation only, NO TRANSFORM */
+  /* Remove animation: blink from here to allow JS tracking */
 
   /* Cyber-Iris Container */
   display: flex;
@@ -256,6 +260,46 @@
   box-shadow: 0 0 15px #3b82f6;
 }
 
+/* Angry: Slanted >_< */
+#ai-chat-button.emotion-angry .robot-eyes {
+  gap: 4px;
+}
+
+#ai-chat-button.emotion-angry .eye {
+  height: 14px;
+  /* Squint */
+  background: #450a0a;
+  /* Dark Red Socket */
+  border-radius: 50% 50% 0 0;
+  /* Flat bottom? No, flat top usually */
+  clip-path: polygon(0 20%, 100% 0, 100% 100%, 0 100%);
+  /* Slant top down */
+  transform: rotate(15deg);
+  /* Inward slant (left eye) check logic below */
+  box-shadow: 0 0 10px #ef4444;
+  animation: none;
+  /* No blinking when angry */
+}
+
+/* Fix rotation for right eye if needed, usually cleaner to just rotate container or clip-path */
+/* Let's used a shared clip path for "Mean Eyes" */
+
+#ai-chat-button.emotion-angry .pupil {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  width: 6px;
+  height: 6px;
+  /* Small pinprick */
+}
+
+#ai-chat-button.emotion-angry .robot-mouth {
+  border-bottom: none;
+  border-top: 2px solid #ef4444;
+  /* Frown */
+  border-radius: 50%;
+  margin-top: 12px;
+}
+
 /* --- BIO STATES (Petting, Sleep, Dizzy) --- */
 
 /* Petting: Happy Arches ^^, Pink */
@@ -350,6 +394,33 @@
   animation-delay: calc(var(--i) * -0.2s);
 }
 
+/* Suggestion Chips */
+.suggestion-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 0 10px;
+}
+
+.suggestion-chip {
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  color: #a5f3fc;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+.suggestion-chip:hover {
+  background: rgba(6, 182, 212, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+}
+
 /* KEYFRAMES */
 
 @keyframes orbitDust {
@@ -366,6 +437,20 @@
   100% {
     transform: rotate(360deg) translateX(45px) scale(0.5);
     opacity: 0;
+  }
+}
+
+@keyframes eyeBlink {
+
+  0%,
+  48%,
+  52%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(0.1);
   }
 }
 

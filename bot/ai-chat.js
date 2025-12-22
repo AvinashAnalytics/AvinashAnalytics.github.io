@@ -1165,6 +1165,51 @@
         document.addEventListener('mousedown', () => robotBrain.wakeUp()); // Wake on click
         document.addEventListener('keydown', () => robotBrain.wakeUp()); // Wake on type
 
+        // Helper: Render Suggestion Chips
+        function renderSuggestions() {
+            const container = document.createElement('div');
+            container.className = 'suggestion-container';
+            const tips = [
+                "Who are you?",
+                "Tell me a joke",
+                "What can you do?",
+                "Roast me!",
+                "Sing a song"
+            ];
+
+            tips.forEach(tip => {
+                const chip = document.createElement('div');
+                chip.className = 'suggestion-chip';
+                chip.textContent = tip;
+                chip.onclick = () => {
+                    aiChatInput.value = tip;
+                    processUserMessage();
+                    container.remove(); // Clear after click
+                };
+                container.appendChild(chip);
+            });
+            return container;
+        }
+
+        // =============== INITIALIZATION ===============
+        function initChatbot() {
+            createChatbotWidget();
+
+            // Initial Suggestions
+            setTimeout(() => {
+                if (aiChatMessages) {
+                    const welcome = document.createElement('div');
+                    welcome.className = 'ai-msg';
+                    welcome.innerHTML = "Hi! I'm Avinash's AI Twin. Ask me anything! 🤖";
+                    aiChatMessages.appendChild(welcome);
+                    aiChatMessages.appendChild(renderSuggestions());
+                }
+            }, 1000);
+
+            EyeController.init();
+            SoundEngine.init(); // Pre-load context
+        }
+
     } // End initChatbot
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initChatbot);
@@ -1172,6 +1217,12 @@
         initChatbot();
     }
 
+    // Expose for debugging
+    window.robotBrain = robotBrain;
+    window.toggleAngryMode = () => {
+        aiChatButton.classList.toggle('emotion-angry');
+        SoundEngine.play('angry');
+    };
     // v3.9.5: Global function for "Send Me a Message" button
     window.openChatAndNotify = function () {
         // Open the chat window
