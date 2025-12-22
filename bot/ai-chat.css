@@ -154,6 +154,71 @@
   box-shadow: 0 0 15px #3b82f6;
 }
 
+/* --- BIO STATES (Petting, Sleep, Dizzy) --- */
+
+/* Petting: Happy Arches ^^, Pink */
+#ai-chat-button.emotion-petting .eye {
+  height: 12px;
+  border-radius: 50% 50% 0 0;
+  /* Arch */
+  background: transparent;
+  border-top: 4px solid #f472b6;
+  box-shadow: 0 -4px 8px rgba(244, 114, 182, 0.4);
+}
+
+#ai-chat-button.emotion-petting .pupil {
+  opacity: 0;
+  /* Hide pupils */
+}
+
+#ai-chat-button.emotion-petting .robot-mouth {
+  border-bottom: 3px solid #f472b6;
+  width: 16px;
+  height: 8px;
+}
+
+/* Sleep: Closed lines --, Purple */
+#ai-chat-button.emotion-sleep .eye {
+  height: 4px;
+  border-radius: 2px;
+  background: #a78bfa;
+  box-shadow: none;
+  width: 18px;
+}
+
+#ai-chat-button.emotion-sleep .pupil {
+  opacity: 0;
+}
+
+#ai-chat-button.emotion-sleep .robot-mouth {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid #a78bfa;
+  background: #000;
+  animation: snoreMouth 2s infinite ease-in-out;
+}
+
+/* Dizzy: Spiral Pupils, Wobble */
+#ai-chat-button.emotion-dizzy .eye {
+  background: #000;
+  height: 22px;
+  width: 22px;
+}
+
+#ai-chat-button.emotion-dizzy .pupil {
+  background: conic-gradient(from 0deg, #fff, #06b6d4, #000, #fff);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: dizzySpin 0.5s linear infinite;
+}
+
+#ai-chat-button.emotion-dizzy .robot-mouth {
+  transform: rotate(15deg) scaleY(0.5);
+  border-bottom-color: #ef4444;
+}
+
 /* 4. The Dust Particles (Orbiting) */
 .robot-particles {
   position: absolute;

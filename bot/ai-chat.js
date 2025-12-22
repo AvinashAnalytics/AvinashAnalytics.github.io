@@ -607,7 +607,6 @@
                 const now = this.ctx.currentTime;
 
                 if (type === 'chirp') {
-                    // Happy high pitch
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(800, now);
                     osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
@@ -615,8 +614,38 @@
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
                     osc.start(now);
                     osc.stop(now + 0.1);
+                } else if (type === 'purr') {
+                    // Low rumble loop
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(50, now);
+                    // Tremolo effect not easy in vanilla osc, simple rumble:
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.linearRampToValueAtTime(0.0, now + 1.0);
+                    osc.start(now);
+                    osc.stop(now + 1.0);
+                } else if (type === 'snore') {
+                    // Breath in/out
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(100, now);
+                    osc.frequency.linearRampToValueAtTime(80, now + 1.5);
+                    gain.gain.setValueAtTime(0.02, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+                    osc.start(now);
+                    osc.stop(now + 1.5);
+                } else if (type === 'dizzy') {
+                    // Wobbly sound
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.linearRampToValueAtTime(300, now + 0.1);
+                    osc.frequency.linearRampToValueAtTime(400, now + 0.2);
+                    osc.frequency.linearRampToValueAtTime(300, now + 0.3);
+                    osc.frequency.linearRampToValueAtTime(400, now + 0.4);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.linearRampToValueAtTime(0.0, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
                 } else if (type === 'boop') {
-                    // Neutral interactions
+                    /* Same boop code... */
                     osc.type = 'triangle';
                     osc.frequency.setValueAtTime(300, now);
                     gain.gain.setValueAtTime(0.1, now);
@@ -633,7 +662,7 @@
                     osc.start(now);
                     osc.stop(now + 0.3);
                 } else if (type === 'cheep') {
-                    // Very quiet chirp
+                    /* Same cheep code... */
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(600, now);
                     osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
@@ -645,17 +674,60 @@
             }
         };
 
-        // =============== EYE TRACKING ===============
+        // Helper: Spawn Emojis (Hearts, Zzz)
+        function spawnEmoji(char) {
+            const el = document.createElement('div');
+            el.textContent = char;
+            el.style.position = 'absolute';
+            el.style.left = '50%';
+            el.style.top = '0';
+            el.style.transform = 'translateX(-50%)';
+            el.style.color = char === '💖' ? '#f472b6' : '#a78bfa';
+            el.style.fontSize = '20px';
+            el.style.animation = 'floatUpFade 1.5s ease-out forwards';
+            el.style.pointerEvents = 'none';
+            el.style.zIndex = '10060';
+            aiChatButton.appendChild(el);
+            setTimeout(() => el.remove(), 1500);
+        }
+
+        // =============== EYE TRACKING & PETTING ===============
+        let petStrokeCount = 0;
+        let lastPetTime = 0;
+
         const EyeController = {
             init() {
                 document.addEventListener('mousemove', (e) => {
+                    robotBrain.lastActionTime = Date.now(); // Interaction wakes robot logic
+
+                    // Check for Petting (Mouse over button)
+                    const rect = aiChatButton.getBoundingClientRect();
+                    if (e.clientX >= rect.left && e.clientX <= rect.right &&
+                        e.clientY >= rect.top && e.clientY <= rect.bottom) {
+
+                        const now = Date.now();
+                        if (now - lastPetTime < 300) {
+                            petStrokeCount++;
+                        } else {
+                            petStrokeCount = 0;
+                        }
+                        lastPetTime = now;
+
+                        if (petStrokeCount > 10) { // Rubbed 5 times back/forth
+                            robotBrain.startPetting();
+                            petStrokeCount = 0; // Reset
+                        }
+                        return; // Don't track eyes if petting logic active (looks crazy)
+                    }
+
+                    // Eye Tracking Logic
                     const eyes = document.querySelectorAll('.pupil');
-                    if (eyes.length === 0) return;
+                    if (eyes.length === 0 || aiChatButton.classList.contains('emotion-sleep')) return;
 
                     eyes.forEach(pupil => {
-                        const rect = pupil.getBoundingClientRect();
-                        const x = (rect.left + rect.width / 2);
-                        const y = (rect.top + rect.height / 2);
+                        const r = pupil.getBoundingClientRect();
+                        const x = (r.left + r.width / 2);
+                        const y = (r.top + r.height / 2);
                         const rad = Math.atan2(e.clientX - x, e.clientY - y);
                         const rot = (rad * (180 / Math.PI) * -1) + 180;
                         pupil.style.transform = `rotate(${rot}deg) translateY(2px)`;
@@ -690,83 +762,83 @@
 
             init() {
                 if (window.innerWidth < 768) return;
-                setInterval(() => this.think(), 5000 + Math.random() * 5000);
+                setInterval(() => this.think(), 2000); // Think faster for sleep check
                 console.log('🤖 Robot Brain: Online');
             },
 
             think() {
-                if (isDragging || aiChatWindow.style.display === 'flex') return;
-                if (Date.now() - this.lastActionTime < 4000) return;
+                if (isDragging || aiChatWindow.style.display === 'flex') {
+                    this.lastActionTime = Date.now(); // Reset sleep timer if busy
+                    return;
+                }
+
+                // Check Sleep
+                const timeSinceAction = Date.now() - this.lastActionTime;
+                if (timeSinceAction > 60000 && this.state !== 'SLEEP') {
+                    this.startSleep();
+                    return;
+                }
+
+                if (this.state === 'SLEEP' || this.state === 'PETTING' || this.state === 'DIZZY') return; // Don't roam
+                if (timeSinceAction < 4000) return; // Cooldown
 
                 const roll = Math.random();
-
-                // Add Sound to behaviors
                 if (this.state === 'IDLE') {
                     if (roll < 0.3) this.roamToText();
-                    else if (roll < 0.4) { this.doTrick(); SoundEngine.play('chirp'); } // Chirp on trick
+                    else if (roll < 0.4) { this.doTrick(); SoundEngine.play('chirp'); }
                     else if (roll < 0.5) showSuggestion();
                 } else if (this.state === 'SITTING') {
                     if (roll < 0.6) this.returnHome();
                 }
             },
 
-            // ... (keep roamToText, returnHome as is but add emotions) ...
+            startSleep() {
+                this.state = 'SLEEP';
+                aiChatButton.classList.add('emotion-sleep');
+                aiChatButton.style.animation = 'robotFloat 4s ease-in-out infinite'; // Slow float
+                SoundEngine.play('snore');
 
-            teleportTo(x, y, nextState, targetElement = null) {
-                // Add Sound on Teleport Start
-                SoundEngine.play('boop');
-
-                aiChatButton.classList.add('magic-dust');
-                aiChatButton.style.animation = 'none';
-                aiChatButton.style.opacity = '0';
-                aiChatButton.style.transition = 'opacity 0.5s';
-
-                this.state = 'MOVING';
-
-                setTimeout(() => {
-                    aiChatButton.style.right = 'auto';
-                    aiChatButton.style.bottom = 'auto';
-                    aiChatButton.style.left = `${x}px`;
-                    aiChatButton.style.top = `${y}px`;
-
-                    // Reset Classes
-                    aiChatButton.className = ''; // wipe flying/sitting/emotions
-                    aiChatButton.id = 'ai-chat-button'; // keep ID
-
-                    if (nextState === 'SITTING') {
-                        aiChatButton.classList.add('robot-sitting');
-                        aiChatButton.classList.add('emotion-happy'); // Happy to read!
-                        SoundEngine.play('chirp');
-                    } else {
-                        aiChatButton.classList.add('robot-flying');
-                        SoundEngine.play('cheep'); // quiet chirp
-                    }
-
-                    aiChatButton.style.opacity = '1';
-                    aiChatButton.classList.remove('magic-dust');
-                    aiChatButton.style.animation = 'magicalForm 0.8s ease-out';
-
-                    setTimeout(() => {
-                        if (nextState === 'SITTING') {
-                            aiChatButton.style.animation = 'robotWobble 4s ease-in-out infinite';
-                            this.state = 'SITTING';
-                            if (targetElement && targetElement.tagName.match(/H[1-6]/)) {
-                                aiChatButton.setAttribute('data-bubble', "Ooh! " + targetElement.innerText.substring(0, 15) + "...");
-                                aiChatButton.classList.add('bubble-visible');
-                                setTimeout(() => aiChatButton.classList.remove('bubble-visible'), 4000);
-                            }
-                        } else {
-                            aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
-                            this.state = 'IDLE';
-                            this.lastActionTime = Date.now();
-                            aiChatButton.style.transform = 'scaleX(1)';
-                        }
-                    }, 800);
-                }, 600);
+                // Zzz Particles
+                this.sleepInterval = setInterval(() => {
+                    spawnEmoji('Zzz');
+                }, 2000);
             },
 
+            wakeUp() {
+                if (this.state === 'SLEEP') {
+                    clearInterval(this.sleepInterval);
+                    aiChatButton.classList.remove('emotion-sleep');
+                    this.state = 'IDLE';
+                    this.doTrick(); // Jolt awake
+                    SoundEngine.play('boop'); // Startled noise
+                }
+                this.lastActionTime = Date.now();
+            },
+
+            startPetting() {
+                if (this.state === 'PETTING' || this.state === 'SLEEP') return;
+                this.state = 'PETTING';
+                aiChatButton.classList.add('emotion-petting');
+                SoundEngine.play('purr');
+
+                // Hearts
+                let hearts = 0;
+                const heartInt = setInterval(() => {
+                    spawnEmoji('💖');
+                    hearts++;
+                    if (hearts > 5) {
+                        clearInterval(heartInt);
+                        aiChatButton.classList.remove('emotion-petting');
+                        this.state = 'IDLE';
+                        this.lastActionTime = Date.now();
+                    }
+                }, 300);
+            },
+
+            // ... (keep ensure roamToText, returnHome, teleportTo, moveTo, doTrick match existing) ...
+
             roamToText() {
-                // ... existing logic ... (just calling teleportTo)
+                // ... existing roaming logic ...
                 const elements = Array.from(document.querySelectorAll('h1, h2, h3, p, button, .nav-link'));
                 const visible = elements.filter(el => {
                     const rect = el.getBoundingClientRect();
@@ -791,6 +863,55 @@
                 this.teleportTo(homeX, homeY, 'IDLE');
             },
 
+            teleportTo(x, y, nextState, targetElement = null) {
+                /* Same Teleport Logic */
+                SoundEngine.play('boop');
+                aiChatButton.classList.add('magic-dust');
+                aiChatButton.style.animation = 'none';
+                aiChatButton.style.opacity = '0';
+                aiChatButton.style.transition = 'opacity 0.5s';
+                this.state = 'MOVING';
+
+                setTimeout(() => {
+                    aiChatButton.style.right = 'auto';
+                    aiChatButton.style.bottom = 'auto';
+                    aiChatButton.style.left = `${x}px`;
+                    aiChatButton.style.top = `${y}px`;
+                    aiChatButton.className = '';
+                    aiChatButton.id = 'ai-chat-button';
+
+                    if (nextState === 'SITTING') {
+                        aiChatButton.classList.add('robot-sitting');
+                        aiChatButton.classList.add('emotion-happy');
+                        SoundEngine.play('chirp');
+                    } else {
+                        aiChatButton.classList.add('robot-flying');
+                        SoundEngine.play('cheep');
+                    }
+                    aiChatButton.style.opacity = '1';
+                    aiChatButton.classList.remove('magic-dust');
+                    aiChatButton.style.animation = 'magicalForm 0.8s ease-out';
+
+                    setTimeout(() => {
+                        if (nextState === 'SITTING') {
+                            aiChatButton.style.animation = 'robotWobble 4s ease-in-out infinite';
+                            this.state = 'SITTING';
+                            /* Text Bubble Logic */
+                            if (targetElement && targetElement.tagName.match(/H[1-6]/)) {
+                                aiChatButton.setAttribute('data-bubble', "Ooh! " + targetElement.innerText.substring(0, 15) + "...");
+                                aiChatButton.classList.add('bubble-visible');
+                                setTimeout(() => aiChatButton.classList.remove('bubble-visible'), 4000);
+                            }
+                        } else {
+                            aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
+                            this.state = 'IDLE';
+                            this.lastActionTime = Date.now();
+                            aiChatButton.style.transform = 'scaleX(1)';
+                        }
+                    }, 800);
+                }, 600);
+            },
+
             moveTo(x, y) { this.teleportTo(x, y, 'ROAMING'); },
 
             doTrick() {
@@ -803,6 +924,10 @@
 
         // Initialize Brain
         robotBrain.init();
+
+        // Wake up listener
+        document.addEventListener('mousedown', () => robotBrain.wakeUp()); // Wake on click
+        document.addEventListener('keydown', () => robotBrain.wakeUp()); // Wake on type
 
     } // End initChatbot
     if (document.readyState === 'loading') {
