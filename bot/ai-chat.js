@@ -39,6 +39,76 @@
         const aiChatInput = document.getElementById('ai-chat-input');
         const aiChatSend = document.getElementById('ai-chat-send');
 
+        // =============== VOICE INTERACTION (Groq) ===============
+        let isVoiceActive = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let aiChatMic = document.getElementById('ai-chat-mic');
+
+        if (!aiChatMic && aiChatSend) {
+            aiChatMic = document.createElement('button');
+            aiChatMic.id = 'ai-chat-mic';
+            aiChatMic.innerHTML = '🎤';
+            aiChatMic.className = 'ai-icon-btn';
+            aiChatMic.style.cssText = "background:none; border:none; font-size:1.5rem; cursor:pointer; margin-right:10px;";
+            aiChatSend.parentNode.insertBefore(aiChatMic, aiChatSend);
+
+            aiChatMic.addEventListener('click', () => {
+                if (!mediaRecorder || mediaRecorder.state === 'inactive') startRecording();
+                else stopRecording();
+            });
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                isVoiceActive = true;
+                aiChatMic.classList.add('recording');
+
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = async () => {
+                    aiChatMic.classList.remove('recording');
+
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const formData = new FormData();
+                    formData.append('file', blob, 'voice.webm');
+
+                    try {
+                        const res = await fetch('https://AvinashAnalytics-avinash-chatbot.hf.space/api/stt', { method: 'POST', body: formData });
+                        const data = await res.json();
+                        if (data.text) {
+                            aiChatInput.value = data.text;
+                            // Trigger sendMessage (assuming it's available in scope or attached to event)
+                            const sendBtn = document.getElementById('ai-chat-send');
+                            if (sendBtn) sendBtn.click();
+                        }
+                    } catch (e) { console.error('STT Error:', e); }
+                };
+                mediaRecorder.start();
+            } catch (e) { alert('Microphone access denied'); }
+        }
+
+        function stopRecording() { if (mediaRecorder) mediaRecorder.stop(); }
+
+        async function playTTS(text) {
+            try {
+                const res = await fetch('https://AvinashAnalytics-avinash-chatbot.hf.space/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const audio = new Audio(URL.createObjectURL(blob));
+                    audio.play();
+                    if (aiChatButton) aiChatButton.classList.add('emotion-happy');
+                    audio.onended = () => { if (aiChatButton) aiChatButton.classList.remove('emotion-happy'); };
+                }
+            } catch (e) { console.error('TTS Error', e); }
+        }
+
         // =============== API URL ===============
         // ✅ Correct HuggingFace Space URL with /ask endpoint
         const API_URL = 'https://AvinashAnalytics-avinash-chatbot.hf.space/ask';
@@ -505,6 +575,9 @@
 
                             // v3.18: Add message to DOM FIRST
                             addMessage(content, 'ai-msg');
+
+                            // v3.26: Voice TTS Hook
+                            if (isVoiceActive) playTTS(content);
 
                             // v3.18: Save to conversation history with msg_id
                             conversationHistory.push({ role: 'assistant', content: content, timestamp: msg.timestamp, msg_id: msg.id });
