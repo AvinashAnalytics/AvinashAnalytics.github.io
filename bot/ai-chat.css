@@ -18,17 +18,16 @@
   bottom: 24px;
   z-index: 10050;
 
-  /* Robot Avatar Background */
-  background: url('../assets/robot_avatar.png') no-repeat center center;
-  background-size: cover;
+  /* Initial State: Flying */
+  background: url('../assets/robot_full_body_fly.png') no-repeat center center;
+  background-size: contain;
   background-color: transparent;
   box-shadow: none;
   border: none;
 
-  width: 80px;
-  /* Larger for character */
-  height: 80px;
-  border-radius: 50%;
+  width: 110px;
+  /* Larger Full Body */
+  height: 110px;
 
   display: flex;
   align-items: center;
@@ -36,12 +35,76 @@
   cursor: grab;
 
   /* Default Idle Animation */
-  animation:
-    robotFloat 3s ease-in-out infinite;
+  animation: robotFloat 3s ease-in-out infinite;
 
   transform-origin: center;
   touch-action: none;
   user-select: none;
+  transition: transform 0.2s, filter 0.5s;
+}
+
+/* Magic Dust Effect Container */
+#ai-chat-button.magic-dust::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 140%;
+  height: 140%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.8) 0%, rgba(6, 182, 212, 0) 70%);
+  border-radius: 50%;
+  animation: dustSwirl 0.8s ease-out forwards;
+  z-index: -1;
+  filter: blur(8px);
+}
+
+/* Robot States */
+#ai-chat-button.robot-flying {
+  background-image: url('../assets/robot_full_body_fly.png');
+  width: 110px;
+  height: 110px;
+}
+
+/* Will be updated when sit image is ready */
+#ai-chat-button.robot-sitting {
+  background-image: url('../assets/robot_full_body_sit.png');
+  width: 110px;
+  height: 110px;
+  animation: robotWobble 4s ease-in-out infinite;
+  /* Slower wobble for sitting */
+}
+
+/* Magic Appear Animation */
+@keyframes magicalForm {
+  0% {
+    filter: blur(12px) brightness(2);
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+    filter: blur(6px) brightness(1.5);
+  }
+
+  100% {
+    filter: blur(0) brightness(1);
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes dustSwirl {
+  0% {
+    transform: translate(-50%, -50%) scale(0) rotate(0deg);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(2) rotate(180deg);
+    opacity: 0;
+  }
 }
 
 @keyframes messageSlideIn {

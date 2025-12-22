@@ -142,8 +142,8 @@
             aiChatButton.style.cursor = 'grab';
 
             // Handle Click (if not dragged)
-            const dragDuration = Date.now() - dragStartTime;
-            if (!isDragging && dragDuration < 200) {
+            // v3.24: Click if movement was minimal (<5px), regardless of time
+            if (!isDragging) {
                 toggleChat(e);
             }
         }
@@ -612,70 +612,89 @@
                 const rect = target.getBoundingClientRect();
 
                 // Calculate "Perch" position (sitting on top-left of text)
-                const targetX = rect.left + 20;
-                const targetY = rect.top - 60; // Sit above text
+                // Adjust for full body size (110px) - sit needs to align bottom with element top
+                const targetX = rect.left - 20;
+                const targetY = rect.top - 85; // Sit mostly above
 
-                this.moveTo(targetX, targetY);
-                this.state = 'ROAMING';
-
-                // Interaction upon arrival
-                setTimeout(() => {
-                    this.state = 'SITTING';
-                    aiChatButton.style.animation = 'robotWobble 2s ease-in-out infinite'; // Sit animation
-                    // Maybe scan text?
-                    if (target.tagName.match(/H[1-6]/)) {
-                        aiChatButton.setAttribute('data-bubble', "Interesting header! 🤔");
-                        aiChatButton.classList.add('bubble-visible');
-                        setTimeout(() => aiChatButton.classList.remove('bubble-visible'), 3000);
-                    }
-                }, 1000);
+                this.teleportTo(targetX, targetY, 'SITTING', target);
             },
 
             returnHome() {
-                // Reset to fixed CSS position (bottom-right)
-                aiChatButton.style.transition = 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                aiChatButton.style.left = '';
-                aiChatButton.style.top = '';
-                aiChatButton.style.bottom = '24px';
-                aiChatButton.style.right = '24px';
-                aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite'; // Back to float
+                // Reset to fixed CSS position
+                // We need to calculate where 'bottom: 24px, right: 24px' is in absolute coords for the teleport
+                const homeX = window.innerWidth - 134; // 24px margin + 110px width
+                const homeY = window.innerHeight - 134;
 
-                this.state = 'IDLE';
-                this.lastActionTime = Date.now();
+                this.teleportTo(homeX, homeY, 'IDLE');
+            },
+
+            teleportTo(x, y, nextState, targetElement = null) {
+                // 1. Magic Dust Dissolve
+                aiChatButton.classList.add('magic-dust');
+                aiChatButton.style.animation = 'none'; // Stop floating
+                aiChatButton.style.opacity = '0'; // Fade out body
+                aiChatButton.style.transition = 'opacity 0.5s';
+
+                this.state = 'MOVING';
 
                 setTimeout(() => {
-                    aiChatButton.style.transition = ''; // clear transition for drag
-                }, 1000);
+                    // 2. Teleport (Hidden)
+                    aiChatButton.style.right = 'auto';
+                    aiChatButton.style.bottom = 'auto';
+                    aiChatButton.style.left = `${x}px`;
+                    aiChatButton.style.top = `${y}px`;
+
+                    // 3. Swap Pose
+                    if (nextState === 'SITTING') {
+                        aiChatButton.classList.remove('robot-flying');
+                        aiChatButton.classList.add('robot-sitting');
+                    } else {
+                        aiChatButton.classList.remove('robot-sitting');
+                        aiChatButton.classList.add('robot-flying');
+                    }
+
+                    // 4. Re-Form
+                    aiChatButton.style.opacity = '1';
+                    aiChatButton.classList.remove('magic-dust'); // Remove dust
+
+                    // Trigger Appear Animation
+                    aiChatButton.style.animation = 'magicalForm 0.8s ease-out';
+
+                    setTimeout(() => {
+                        // 5. Final State Animation
+                        if (nextState === 'SITTING') {
+                            aiChatButton.style.animation = 'robotWobble 4s ease-in-out infinite';
+                            this.state = 'SITTING';
+
+                            // Read text if applicable
+                            if (targetElement && targetElement.tagName.match(/H[1-6]/)) {
+                                aiChatButton.setAttribute('data-bubble', "Ooh! " + targetElement.innerText.substring(0, 15) + "...");
+                                aiChatButton.classList.add('bubble-visible');
+                                setTimeout(() => aiChatButton.classList.remove('bubble-visible'), 4000);
+                            }
+                        } else {
+                            aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
+                            this.state = 'IDLE';
+                            this.lastActionTime = Date.now();
+
+                            // Reset flip
+                            aiChatButton.style.transform = 'scaleX(1)';
+                        }
+                    }, 800);
+
+                }, 600); // Wait for dust dissolve
             },
 
             moveTo(x, y) {
-                // Use fixed positioning relative to viewport
-                aiChatButton.style.transition = 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                aiChatButton.style.right = 'auto';
-                aiChatButton.style.bottom = 'auto';
-                aiChatButton.style.left = `${x}px`;
-                aiChatButton.style.top = `${y}px`;
-
-                // Flip if moving left
-                const currentX = aiChatButton.getBoundingClientRect().left;
-                if (x < currentX) aiChatButton.style.transform = 'scaleX(-1)';
-                else aiChatButton.style.transform = 'scaleX(1)';
-
-                // Run animation during move
-                aiChatButton.style.animation = 'robotRun 0.4s linear infinite';
-                this.lastActionTime = Date.now();
-
-                setTimeout(() => {
-                    aiChatButton.style.transition = ''; // Clear for drag
-                    aiChatButton.style.transform = 'scaleX(1)'; // Reset flip
-                }, 1000);
+                // Legacy slide method (kept for drag fallback or manual moves)
+                this.teleportTo(x, y, 'ROAMING');
             },
 
             doTrick() {
-                aiChatButton.style.animation = 'robotJump 0.5s ease-in-out';
+                aiChatButton.style.animation = 'robotJump 0.6s ease-in-out';
                 setTimeout(() => {
-                    aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
-                }, 500);
+                    if (this.state === 'IDLE') aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
+                }, 600);
             }
         };
 
