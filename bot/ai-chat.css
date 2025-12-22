@@ -490,25 +490,24 @@
   position: fixed;
   right: 24px;
   bottom: 96px;
-  width: 420px;
-  max-height: 680px;
+  width: 400px;
+  max-height: 700px;
   display: none;
   flex-direction: column;
   z-index: 10050;
 
-  /* Glassmorphism effect */
-  /* Premium Glass Chat Window */
-  background: rgba(15, 23, 42, 0.85);
-  /* Slightly more transparent */
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  /* DEEP GLASS */
+  background: rgba(15, 23, 42, 0.65);
+  /* High transparency */
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
 
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
 
-  /* Hyper-Real Shadows */
+  /* Triple-Layer Shadows */
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 24px 72px rgba(0, 0, 0, 0.55),
     0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 

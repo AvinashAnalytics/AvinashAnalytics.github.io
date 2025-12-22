@@ -657,105 +657,113 @@
             // No, let's keep it simple: Jump when bubble appears or clicked.
         }
 
-        // =============== SOUND ENGINE (R2D2 FM Synthesis) ===============
+        // =============== SOUND ENGINE (Cinematic Reverb + Organic Tones) ===============
         const SoundEngine = {
             ctx: null,
+            masterGain: null,
+            reverb: null,
+
             init() {
+                if (this.ctx) return;
                 try {
                     const AudioContext = window.AudioContext || window.webkitAudioContext;
                     this.ctx = new AudioContext();
+
+                    this.masterGain = this.ctx.createGain();
+                    this.masterGain.gain.value = 0.5; // Master volume
+
+                    // CINEMATIC REVERB (Simulate Glass Orb Physics)
+                    this.reverb = this.ctx.createConvolver();
+                    this.generateImpulseResponse();
+
+                    // Wet signal (Reverb)
+                    this.masterGain.connect(this.reverb);
+                    this.reverb.connect(this.ctx.destination);
+
+                    // Dry signal (Direct clarity)
+                    this.masterGain.connect(this.ctx.destination);
+
                     const resume = () => {
                         if (this.ctx.state === 'suspended') this.ctx.resume();
                         ['click', 'touchstart', 'keydown'].forEach(evt => document.removeEventListener(evt, resume));
                     };
                     ['click', 'touchstart', 'keydown'].forEach(evt => document.addEventListener(evt, resume));
-                } catch (e) { console.warn('Audio err', e); }
+                } catch (e) { console.warn("Audio Init Error", e); }
             },
 
-            // FM Synthesis Core
-            // Carrier: Main Tone
-            // Modulator: Vibrato/Warble speed
-            generateTone(freq, duration, type = 'sine', modFreq = 0, modDepth = 0) {
-                if (!this.ctx) this.init();
-                if (this.ctx.state === 'suspended') this.ctx.resume();
+            generateImpulseResponse() {
+                // Short, metallic decay (Glass effect)
+                const duration = 1.2;
+                const decay = 3.5;
+                const rate = this.ctx.sampleRate;
+                const length = rate * duration;
+                const impulse = this.ctx.createBuffer(2, length, rate);
+                const left = impulse.getChannelData(0);
+                const right = impulse.getChannelData(1);
 
+                for (let i = 0; i < length; i++) {
+                    const n = i / length;
+                    // White noise * exponential decay
+                    left[i] = (Math.random() * 2 - 1) * Math.pow(1 - n, decay);
+                    right[i] = (Math.random() * 2 - 1) * Math.pow(1 - n, decay);
+                }
+                this.reverb.buffer = impulse;
+            },
+
+            // Soft "Glass Chime" generator (Sine/Triangle with Envelope)
+            playTone(freq, duration, type = 'sine') {
+                if (!this.ctx) this.init();
                 const t = this.ctx.currentTime;
 
-                // Carrier Oscillator (The Voice)
-                const carrier = this.ctx.createOscillator();
-                carrier.type = type;
-                carrier.frequency.setValueAtTime(freq, t);
+                const osc = this.ctx.createOscillator();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, t);
 
-                // FM Modulator (The Warble)
-                if (modDepth > 0) {
-                    const modulator = this.ctx.createOscillator();
-                    modulator.frequency.value = modFreq;
-                    const modGain = this.ctx.createGain();
-                    modGain.gain.value = modDepth;
-                    modulator.connect(modGain);
-                    modGain.connect(carrier.frequency);
-                    modulator.start(t);
-                    modulator.stop(t + duration);
-                }
-
-                // Amplitude Envelope (ADSR - Sharp Attack)
                 const gain = this.ctx.createGain();
                 gain.gain.setValueAtTime(0, t);
-                gain.gain.linearRampToValueAtTime(0.2, t + 0.05); // Attack
-                gain.gain.exponentialRampToValueAtTime(0.01, t + duration); // Decay
-
-                carrier.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                carrier.start(t);
-                carrier.stop(t + duration);
-            },
-
-            // R2D2 Whistle Slide
-            whistle(startFreq, endFreq, duration) {
-                if (!this.ctx) this.init();
-                const t = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(startFreq, t);
-                osc.frequency.exponentialRampToValueAtTime(endFreq, t + duration);
-
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.1, t);
-                gain.gain.linearRampToValueAtTime(0, t + duration);
+                gain.gain.linearRampToValueAtTime(0.2, t + 0.02); // Fast attack
+                gain.gain.exponentialRampToValueAtTime(0.001, t + duration); // Long elegant tail
 
                 osc.connect(gain);
-                gain.connect(this.ctx.destination);
+                gain.connect(this.masterGain);
+
                 osc.start(t);
-                osc.stop(t + duration);
+                osc.stop(t + duration + 0.1);
             },
 
             play(type) {
                 if (!this.ctx) this.init();
 
-                // Softer, "Cute" R2D2 Library (Less Irritating)
+                // NEW: Organic Glass Sound Library
                 if (type === 'chirp') {
-                    // Soft Bleep (Sine)
-                    this.generateTone(800, 0.1, 'sine');
-                    setTimeout(() => this.generateTone(1200, 0.1, 'sine'), 100);
+                    // Major Chord (Happy)
+                    this.playTone(523.25, 0.3, 'sine'); // C5
+                    setTimeout(() => this.playTone(659.25, 0.3, 'sine'), 80); // E5
                 } else if (type === 'happy') {
-                    // Soft Slide
-                    this.whistle(600, 1200, 0.2);
-                    setTimeout(() => this.whistle(1200, 1800, 0.2), 200);
-                } else if (type === 'shocked') {
-                    // Less chaotic, more "Whoa"
-                    this.whistle(500, 200, 0.3);
-                } else if (type === 'angry') {
-                    // Low hum instead of buzz
-                    this.generateTone(120, 0.4, 'triangle', 20, 20);
-                } else if (type === 'cute') {
-                    // High pitch ping
-                    this.generateTone(1400, 0.05, 'sine');
-                    setTimeout(() => this.generateTone(1800, 0.05, 'sine'), 100);
-                } else if (type === 'snore') {
-                    this.generateTone(100, 1.0, 'sine', 2, 2); // Soft snore
-                } else if (type === 'purr') {
-                    for (let i = 0; i < 6; i++) setTimeout(() => this.generateTone(50, 0.05, 'triangle'), i * 80);
+                    // Excitement Slide
+                    this.playTone(783.99, 0.2, 'triangle'); // G5
+                    setTimeout(() => this.playTone(1046.50, 0.2, 'sine'), 100); // C6
+                    setTimeout(() => this.playTone(1318.51, 0.3, 'sine'), 200); // E6
+                } else if (type === 'confused') {
+                    // Dissonant low
+                    this.playTone(330, 0.3, 'triangle');
+                    setTimeout(() => this.playTone(311, 0.3, 'triangle'), 150);
+                } else if (type === 'suspicious') {
+                    // Quick low hum
+                    this.playTone(110, 0.4, 'sawtooth');
+                } else if (type === 'excited') {
+                    // Fast chiming
+                    this.playTone(880, 0.1, 'sine');
+                    setTimeout(() => this.playTone(1100, 0.1, 'sine'), 80);
+                    setTimeout(() => this.playTone(1320, 0.1, 'sine'), 160);
+                } else if (type === 'love') {
+                    // Harp-like Ethereal
+                    this.playTone(440, 0.6, 'sine');
+                    setTimeout(() => this.playTone(554, 0.6, 'sine'), 150);
+                    setTimeout(() => this.playTone(659, 0.6, 'sine'), 300);
+                } else {
+                    // Default Bleep
+                    this.playTone(800, 0.1, 'sine');
                 }
             }
         };
