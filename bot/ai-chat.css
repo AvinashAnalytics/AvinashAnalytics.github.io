@@ -19,10 +19,12 @@
   bottom: 24px;
   z-index: 10050;
 
-  /* Reset Background */
-  background: none;
-  box-shadow: none;
-  border: none;
+  /* STRICT RESET: No Box! */
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 
   width: 100px;
   height: 100px;

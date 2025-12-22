@@ -583,90 +583,56 @@
             // No, let's keep it simple: Jump when bubble appears or clicked.
         }
 
-        // =============== SOUND ENGINE (Web Audio API) ===============
+        // =============== SOUND ENGINE (Web Audio API - Emo Style) ===============
         const SoundEngine = {
             ctx: null,
             init() {
                 try {
                     const AudioContext = window.AudioContext || window.webkitAudioContext;
                     this.ctx = new AudioContext();
-                } catch (e) {
-                    console.warn('Web Audio API not supported');
-                }
+                } catch (e) { console.warn('Audio err', e); }
             },
-            play(type) {
+            playTone(freq, type, duration, vol, delay = 0) {
                 if (!this.ctx) this.init();
                 if (this.ctx.state === 'suspended') this.ctx.resume();
 
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
-
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
 
-                const now = this.ctx.currentTime;
+                const now = this.ctx.currentTime + delay;
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, now);
 
+                gain.gain.setValueAtTime(vol, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+                osc.start(now);
+                osc.stop(now + duration);
+            },
+            play(type) {
+                if (!this.ctx) this.init();
+
+                // Polymorphic Cute Sounds
                 if (type === 'chirp') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(800, now);
-                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                    osc.start(now);
-                    osc.stop(now + 0.1);
+                    // "Bi-dip!" - Dual tone harmony
+                    this.playTone(800, 'sine', 0.1, 0.1, 0);
+                    this.playTone(1200, 'sine', 0.2, 0.1, 0.08);
                 } else if (type === 'purr') {
-                    // Low rumble loop
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(50, now);
-                    // Tremolo effect not easy in vanilla osc, simple rumble:
-                    gain.gain.setValueAtTime(0.05, now);
-                    gain.gain.linearRampToValueAtTime(0.0, now + 1.0);
-                    osc.start(now);
-                    osc.stop(now + 1.0);
+                    // Fluttering low saw
+                    for (let i = 0; i < 10; i++) {
+                        this.playTone(60, 'sawtooth', 0.1, 0.05, i * 0.08);
+                    }
                 } else if (type === 'snore') {
-                    // Breath in/out
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(100, now);
-                    osc.frequency.linearRampToValueAtTime(80, now + 1.5);
-                    gain.gain.setValueAtTime(0.02, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
-                    osc.start(now);
-                    osc.stop(now + 1.5);
-                } else if (type === 'dizzy') {
-                    // Wobbly sound
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(400, now);
-                    osc.frequency.linearRampToValueAtTime(300, now + 0.1);
-                    osc.frequency.linearRampToValueAtTime(400, now + 0.2);
-                    osc.frequency.linearRampToValueAtTime(300, now + 0.3);
-                    osc.frequency.linearRampToValueAtTime(400, now + 0.4);
-                    gain.gain.setValueAtTime(0.05, now);
-                    gain.gain.linearRampToValueAtTime(0.0, now + 0.5);
-                    osc.start(now);
-                    osc.stop(now + 0.5);
+                    // Filtered noise simulation via low tri
+                    this.playTone(100, 'triangle', 1.0, 0.05);
+                    this.playTone(98, 'triangle', 1.0, 0.05); // slight beat freq
                 } else if (type === 'boop') {
-                    /* Same boop code... */
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(300, now);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                    osc.start(now);
-                    osc.stop(now + 0.1);
-                } else if (type === 'grumble') {
-                    // Suspicious/Low
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(150, now);
-                    osc.frequency.linearRampToValueAtTime(100, now + 0.3);
-                    gain.gain.setValueAtTime(0.05, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
+                    // "Boop!"
+                    this.playTone(400, 'sine', 0.15, 0.1);
+                    this.playTone(400, 'triangle', 0.15, 0.05); // texture
                 } else if (type === 'cheep') {
-                    /* Same cheep code... */
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(600, now);
-                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
-                    gain.gain.setValueAtTime(0.02, now);
                     gain.gain.exponentialRampToValueAtTime(0.005, now + 0.05);
                     osc.start(now);
                     osc.stop(now + 0.05);
