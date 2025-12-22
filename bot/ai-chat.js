@@ -10,13 +10,18 @@
         if (!document.getElementById('ai-chat-button')) {
             const btn = document.createElement('div');
             btn.id = 'ai-chat-button';
+            // Critical CSS fallback
+            btn.style.cssText = "position:Fixed; bottom:20px; right:20px; width:100px; height:100px; z-index:10060; cursor:pointer;";
+            // Force Click Listener
+            btn.onclick = function (e) {
+                if (!window.isDragging) window.openChatAndNotify();
+            };
             document.body.appendChild(btn);
         }
         if (!document.getElementById('ai-chat-window')) {
             const win = document.createElement('div');
             win.id = 'ai-chat-window';
             win.style.display = 'none';
-            // Default Structure
             win.innerHTML = `
                 <div id="ai-chat-header">
                     <span>Avinash Rai • AI Twin</span>
@@ -192,7 +197,8 @@
 
         // Mouse Down / Touch Start
         function handleDragStart(e) {
-            isDragging = false; // Assume click initially
+            isDragging = false;
+            window.isDragging = false; // Sync global
             dragStartTime = Date.now();
 
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -233,6 +239,7 @@
             // Threshold to consider it a drag
             if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
                 isDragging = true;
+                window.isDragging = true; // Sync global
                 e.preventDefault(); // Prevent scrolling
             }
 
