@@ -61,8 +61,84 @@
             return;
         }
 
-        // =============== TOGGLE CHAT ===============
-        aiChatButton.addEventListener('click', function (e) {
+        // =============== TOGGLE CHAT & DRAG LOGIC ===============
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+        let dragStartTime;
+
+        // Mouse Down / Touch Start
+        function handleDragStart(e) {
+            isDragging = false; // Assume click initially
+            dragStartTime = Date.now();
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            startX = clientX;
+            startY = clientY;
+
+            const rect = aiChatButton.getBoundingClientRect();
+            initialLeft = rect.left;
+            initialTop = rect.top;
+
+            // Remove right/bottom positioning to switch to left/top for dragging
+            aiChatButton.style.right = 'auto';
+            aiChatButton.style.bottom = 'auto';
+            aiChatButton.style.left = `${initialLeft}px`;
+            aiChatButton.style.top = `${initialTop}px`;
+
+            // Add global move/up listeners
+            document.addEventListener('mousemove', handleDragMove);
+            document.addEventListener('touchmove', handleDragMove, { passive: false });
+            document.addEventListener('mouseup', handleDragEnd);
+            document.addEventListener('touchend', handleDragEnd);
+        }
+
+        // Mouse Move / Touch Move
+        function handleDragMove(e) {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const deltaX = clientX - startX;
+            const deltaY = clientY - startY;
+
+            // Threshold to consider it a drag
+            if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+                isDragging = true;
+                e.preventDefault(); // Prevent scrolling
+            }
+
+            if (isDragging) {
+                let newLeft = initialLeft + deltaX;
+                let newTop = initialTop + deltaY;
+
+                // Boundary Check
+                const maxLeft = window.innerWidth - aiChatButton.offsetWidth;
+                const maxTop = window.innerHeight - aiChatButton.offsetHeight;
+
+                newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                newTop = Math.max(0, Math.min(newTop, maxTop));
+
+                aiChatButton.style.left = `${newLeft}px`;
+                aiChatButton.style.top = `${newTop}px`;
+            }
+        }
+
+        // Mouse Up / Touch End
+        function handleDragEnd(e) {
+            document.removeEventListener('mousemove', handleDragMove);
+            document.removeEventListener('touchmove', handleDragMove);
+            document.removeEventListener('mouseup', handleDragEnd);
+            document.removeEventListener('touchend', handleDragEnd);
+
+            // Handle Click (if not dragged)
+            const dragDuration = Date.now() - dragStartTime;
+            if (!isDragging && dragDuration < 200) {
+                toggleChat(e);
+            }
+        }
+
+        function toggleChat(e) {
             e.preventDefault();
             e.stopPropagation();
             if (aiChatWindow.style.display === 'flex') {
@@ -71,7 +147,11 @@
                 aiChatWindow.style.display = 'flex';
                 if (aiChatInput) setTimeout(() => aiChatInput.focus(), 120);
             }
-        });
+        }
+
+        // Attach Listeners to Button
+        aiChatButton.addEventListener('mousedown', handleDragStart);
+        aiChatButton.addEventListener('touchstart', handleDragStart, { passive: false });
 
         // =============== CLOSE ===============
         if (aiChatClose) {
