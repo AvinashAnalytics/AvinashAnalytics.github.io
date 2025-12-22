@@ -560,9 +560,129 @@
             // No, let's keep it simple: Jump when bubble appears or clicked.
         }
 
-    }
+        // =============== ROBOT BRAIN (Autonomous Behavior) ===============
+        const robotBrain = {
+            state: 'IDLE', // IDLE, ROAMING, SITTING, RETURNING
+            lastActionTime: Date.now(),
+            homePos: { bottom: '24px', right: '24px' },
+            idleTimer: null,
 
-    // Init when DOM ready
+            init() {
+                // Only enable on Desktop to avoid mobile annoyance
+                if (window.innerWidth < 768) return;
+
+                // Start thinking loop
+                setInterval(() => this.think(), 5000 + Math.random() * 5000); // Check every 5-10s
+                console.log('🤖 Robot Brain: Online');
+            },
+
+            think() {
+                if (isDragging || aiChatWindow.style.display === 'flex') return; // Busy
+                if (Date.now() - this.lastActionTime < 4000) return; // Cooldown
+
+                const roll = Math.random();
+
+                if (this.state === 'IDLE') {
+                    if (roll < 0.3) this.roamToText();
+                    else if (roll < 0.4) this.doTrick();
+                    else if (roll < 0.5) showSuggestion();
+                }
+                else if (this.state === 'SITTING' || this.state === 'ROAMING') {
+                    if (roll < 0.6) this.returnHome(); // Most likely return
+                    else this.roamToText(); // Or move to another spot
+                }
+            },
+
+            roamToText() {
+                // Find visible text elements
+                const elements = Array.from(document.querySelectorAll('h1, h2, h3, p, button, .nav-link'));
+                const visible = elements.filter(el => {
+                    const rect = el.getBoundingClientRect();
+                    return (
+                        rect.top > 100 &&
+                        rect.bottom < window.innerHeight - 100 &&
+                        rect.left > 50 &&
+                        rect.right < window.innerWidth - 50
+                    );
+                });
+
+                if (visible.length === 0) return;
+
+                const target = visible[Math.floor(Math.random() * visible.length)];
+                const rect = target.getBoundingClientRect();
+
+                // Calculate "Perch" position (sitting on top-left of text)
+                const targetX = rect.left + 20;
+                const targetY = rect.top - 60; // Sit above text
+
+                this.moveTo(targetX, targetY);
+                this.state = 'ROAMING';
+
+                // Interaction upon arrival
+                setTimeout(() => {
+                    this.state = 'SITTING';
+                    aiChatButton.style.animation = 'robotWobble 2s ease-in-out infinite'; // Sit animation
+                    // Maybe scan text?
+                    if (target.tagName.match(/H[1-6]/)) {
+                        aiChatButton.setAttribute('data-bubble', "Interesting header! 🤔");
+                        aiChatButton.classList.add('bubble-visible');
+                        setTimeout(() => aiChatButton.classList.remove('bubble-visible'), 3000);
+                    }
+                }, 1000);
+            },
+
+            returnHome() {
+                // Reset to fixed CSS position (bottom-right)
+                aiChatButton.style.transition = 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                aiChatButton.style.left = '';
+                aiChatButton.style.top = '';
+                aiChatButton.style.bottom = '24px';
+                aiChatButton.style.right = '24px';
+                aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite'; // Back to float
+
+                this.state = 'IDLE';
+                this.lastActionTime = Date.now();
+
+                setTimeout(() => {
+                    aiChatButton.style.transition = ''; // clear transition for drag
+                }, 1000);
+            },
+
+            moveTo(x, y) {
+                // Use fixed positioning relative to viewport
+                aiChatButton.style.transition = 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                aiChatButton.style.right = 'auto';
+                aiChatButton.style.bottom = 'auto';
+                aiChatButton.style.left = `${x}px`;
+                aiChatButton.style.top = `${y}px`;
+
+                // Flip if moving left
+                const currentX = aiChatButton.getBoundingClientRect().left;
+                if (x < currentX) aiChatButton.style.transform = 'scaleX(-1)';
+                else aiChatButton.style.transform = 'scaleX(1)';
+
+                // Run animation during move
+                aiChatButton.style.animation = 'robotRun 0.4s linear infinite';
+                this.lastActionTime = Date.now();
+
+                setTimeout(() => {
+                    aiChatButton.style.transition = ''; // Clear for drag
+                    aiChatButton.style.transform = 'scaleX(1)'; // Reset flip
+                }, 1000);
+            },
+
+            doTrick() {
+                aiChatButton.style.animation = 'robotJump 0.5s ease-in-out';
+                setTimeout(() => {
+                    aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
+                }, 500);
+            }
+        };
+
+        // Initialize Brain
+        robotBrain.init();
+
+    } // End initChatbot
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initChatbot);
     } else {
