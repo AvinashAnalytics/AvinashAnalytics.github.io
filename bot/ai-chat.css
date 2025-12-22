@@ -64,26 +64,94 @@
 /* 2. The Eyes (Glowing) */
 .robot-eyes {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   margin-top: -5px;
+  perspective: 20px;
 }
 
 .eye {
-  width: 14px;
-  height: 18px;
+  width: 16px;
+  height: 22px;
+  background: #0f172a;
+  /* Dark socket */
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pupil {
+  width: 10px;
+  height: 12px;
   background: #06b6d4;
   border-radius: 50%;
-  box-shadow: 0 0 12px #06b6d4;
-  animation: blink 4s infinite, lookAround 8s infinite;
+  box-shadow: 0 0 6px #06b6d4;
+  transition: transform 0.1s;
+  /* Fast tracking */
+  animation: blink 4s infinite;
 }
 
 /* 3. The Mouth */
 .robot-mouth {
-  width: 12px;
+  width: 14px;
   height: 6px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.8);
   border-radius: 50%;
-  margin-top: 6px;
+  margin-top: 8px;
+  transition: all 0.3s;
+}
+
+/* --- EMOTIONS --- */
+
+/* Happy: Eyes curve up (inverted border radius), color Gold */
+#ai-chat-button.emotion-happy .eye {
+  border-radius: 50% 50% 40% 40%;
+  height: 18px;
+  background: #1e1100;
+}
+
+#ai-chat-button.emotion-happy .pupil {
+  background: #fbbf24;
+  box-shadow: 0 0 10px #fbbf24;
+  height: 10px;
+  width: 14px;
+}
+
+#ai-chat-button.emotion-happy .robot-mouth {
+  border-bottom-color: #fbbf24;
+  width: 18px;
+  height: 10px;
+}
+
+/* Suspicious: Eyes narrow, color Orange */
+#ai-chat-button.emotion-suspicious .eye {
+  height: 14px;
+  border-radius: 40% 40% 50% 50%;
+  background: #2a0f00;
+}
+
+#ai-chat-button.emotion-suspicious .pupil {
+  background: #fb923c;
+  box-shadow: 0 0 8px #fb923c;
+  width: 6px;
+}
+
+#ai-chat-button.emotion-suspicious .robot-mouth {
+  border-bottom: 2px solid #fb923c;
+  width: 10px;
+  border-radius: 0;
+  transform: rotate(-5deg);
+}
+
+/* Processing: Eyes pulse Blue fast */
+#ai-chat-button.emotion-processing .pupil {
+  animation: blink 0.2s infinite alternate;
+  background: #3b82f6;
+  box-shadow: 0 0 15px #3b82f6;
 }
 
 /* 4. The Dust Particles (Orbiting) */

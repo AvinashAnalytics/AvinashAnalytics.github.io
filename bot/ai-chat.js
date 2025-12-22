@@ -14,8 +14,8 @@
             aiChatButton.innerHTML = `
                 <div class="robot-face">
                     <div class="robot-eyes">
-                        <div class="eye left"></div>
-                        <div class="eye right"></div>
+                        <div class="eye left"><div class="pupil"></div></div>
+                        <div class="eye right"><div class="pupil"></div></div>
                     </div>
                     <div class="robot-mouth"></div>
                 </div>
@@ -583,41 +583,190 @@
             // No, let's keep it simple: Jump when bubble appears or clicked.
         }
 
+        // =============== SOUND ENGINE (Web Audio API) ===============
+        const SoundEngine = {
+            ctx: null,
+            init() {
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                } catch (e) {
+                    console.warn('Web Audio API not supported');
+                }
+            },
+            play(type) {
+                if (!this.ctx) this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                const now = this.ctx.currentTime;
+
+                if (type === 'chirp') {
+                    // Happy high pitch
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'boop') {
+                    // Neutral interactions
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'grumble') {
+                    // Suspicious/Low
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'cheep') {
+                    // Very quiet chirp
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+                    gain.gain.setValueAtTime(0.02, now);
+                    gain.gain.exponentialRampToValueAtTime(0.005, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                }
+            }
+        };
+
+        // =============== EYE TRACKING ===============
+        const EyeController = {
+            init() {
+                document.addEventListener('mousemove', (e) => {
+                    const eyes = document.querySelectorAll('.pupil');
+                    if (eyes.length === 0) return;
+
+                    eyes.forEach(pupil => {
+                        const rect = pupil.getBoundingClientRect();
+                        const x = (rect.left + rect.width / 2);
+                        const y = (rect.top + rect.height / 2);
+                        const rad = Math.atan2(e.clientX - x, e.clientY - y);
+                        const rot = (rad * (180 / Math.PI) * -1) + 180;
+                        pupil.style.transform = `rotate(${rot}deg) translateY(2px)`;
+                    });
+                });
+            }
+        };
+        EyeController.init();
+
+        // =============== AI SENSES (Listeners) ===============
+        // 1. Typing Sense
+        document.addEventListener('input', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                aiChatButton.classList.add('emotion-processing');
+                clearTimeout(window.typeTimer);
+                window.typeTimer = setTimeout(() => {
+                    aiChatButton.classList.remove('emotion-processing');
+                }, 500);
+            }
+        });
+
+        // 2. Click/Interact Sense
+        document.addEventListener('mousedown', () => {
+            // 10% chance to chirp on any click
+            if (Math.random() < 0.1) SoundEngine.play('chirp');
+        });
+
         // =============== ROBOT BRAIN (Autonomous Behavior) ===============
         const robotBrain = {
-            state: 'IDLE', // IDLE, ROAMING, SITTING, RETURNING
+            state: 'IDLE',
             lastActionTime: Date.now(),
-            homePos: { bottom: '24px', right: '24px' },
-            idleTimer: null,
 
             init() {
-                // Only enable on Desktop to avoid mobile annoyance
                 if (window.innerWidth < 768) return;
-
-                // Start thinking loop
-                setInterval(() => this.think(), 5000 + Math.random() * 5000); // Check every 5-10s
+                setInterval(() => this.think(), 5000 + Math.random() * 5000);
                 console.log('🤖 Robot Brain: Online');
             },
 
             think() {
-                if (isDragging || aiChatWindow.style.display === 'flex') return; // Busy
-                if (Date.now() - this.lastActionTime < 4000) return; // Cooldown
+                if (isDragging || aiChatWindow.style.display === 'flex') return;
+                if (Date.now() - this.lastActionTime < 4000) return;
 
                 const roll = Math.random();
 
+                // Add Sound to behaviors
                 if (this.state === 'IDLE') {
                     if (roll < 0.3) this.roamToText();
-                    else if (roll < 0.4) this.doTrick();
+                    else if (roll < 0.4) { this.doTrick(); SoundEngine.play('chirp'); } // Chirp on trick
                     else if (roll < 0.5) showSuggestion();
-                }
-                else if (this.state === 'SITTING' || this.state === 'ROAMING') {
-                    if (roll < 0.6) this.returnHome(); // Most likely return
-                    else this.roamToText(); // Or move to another spot
+                } else if (this.state === 'SITTING') {
+                    if (roll < 0.6) this.returnHome();
                 }
             },
 
+            // ... (keep roamToText, returnHome as is but add emotions) ...
+
+            teleportTo(x, y, nextState, targetElement = null) {
+                // Add Sound on Teleport Start
+                SoundEngine.play('boop');
+
+                aiChatButton.classList.add('magic-dust');
+                aiChatButton.style.animation = 'none';
+                aiChatButton.style.opacity = '0';
+                aiChatButton.style.transition = 'opacity 0.5s';
+
+                this.state = 'MOVING';
+
+                setTimeout(() => {
+                    aiChatButton.style.right = 'auto';
+                    aiChatButton.style.bottom = 'auto';
+                    aiChatButton.style.left = `${x}px`;
+                    aiChatButton.style.top = `${y}px`;
+
+                    // Reset Classes
+                    aiChatButton.className = ''; // wipe flying/sitting/emotions
+                    aiChatButton.id = 'ai-chat-button'; // keep ID
+
+                    if (nextState === 'SITTING') {
+                        aiChatButton.classList.add('robot-sitting');
+                        aiChatButton.classList.add('emotion-happy'); // Happy to read!
+                        SoundEngine.play('chirp');
+                    } else {
+                        aiChatButton.classList.add('robot-flying');
+                        SoundEngine.play('cheep'); // quiet chirp
+                    }
+
+                    aiChatButton.style.opacity = '1';
+                    aiChatButton.classList.remove('magic-dust');
+                    aiChatButton.style.animation = 'magicalForm 0.8s ease-out';
+
+                    setTimeout(() => {
+                        if (nextState === 'SITTING') {
+                            aiChatButton.style.animation = 'robotWobble 4s ease-in-out infinite';
+                            this.state = 'SITTING';
+                            if (targetElement && targetElement.tagName.match(/H[1-6]/)) {
+                                aiChatButton.setAttribute('data-bubble', "Ooh! " + targetElement.innerText.substring(0, 15) + "...");
+                                aiChatButton.classList.add('bubble-visible');
+                                setTimeout(() => aiChatButton.classList.remove('bubble-visible'), 4000);
+                            }
+                        } else {
+                            aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
+                            this.state = 'IDLE';
+                            this.lastActionTime = Date.now();
+                            aiChatButton.style.transform = 'scaleX(1)';
+                        }
+                    }, 800);
+                }, 600);
+            },
+
             roamToText() {
-                // Find visible text elements
+                // ... existing logic ... (just calling teleportTo)
                 const elements = Array.from(document.querySelectorAll('h1, h2, h3, p, button, .nav-link'));
                 const visible = elements.filter(el => {
                     const rect = el.getBoundingClientRect();
@@ -628,96 +777,27 @@
                         rect.right < window.innerWidth - 50
                     );
                 });
-
                 if (visible.length === 0) return;
-
                 const target = visible[Math.floor(Math.random() * visible.length)];
                 const rect = target.getBoundingClientRect();
-
-                // Calculate "Perch" position (sitting on top-left of text)
-                // Adjust for full body size (110px) - sit needs to align bottom with element top
                 const targetX = rect.left - 20;
-                const targetY = rect.top - 85; // Sit mostly above
-
+                const targetY = rect.top - 85;
                 this.teleportTo(targetX, targetY, 'SITTING', target);
             },
 
             returnHome() {
-                // Reset to fixed CSS position
-                // We need to calculate where 'bottom: 24px, right: 24px' is in absolute coords for the teleport
-                const homeX = window.innerWidth - 134; // 24px margin + 110px width
+                const homeX = window.innerWidth - 134;
                 const homeY = window.innerHeight - 134;
-
                 this.teleportTo(homeX, homeY, 'IDLE');
             },
 
-            teleportTo(x, y, nextState, targetElement = null) {
-                // 1. Magic Dust Dissolve
-                aiChatButton.classList.add('magic-dust');
-                aiChatButton.style.animation = 'none'; // Stop floating
-                aiChatButton.style.opacity = '0'; // Fade out body
-                aiChatButton.style.transition = 'opacity 0.5s';
-
-                this.state = 'MOVING';
-
-                setTimeout(() => {
-                    // 2. Teleport (Hidden)
-                    aiChatButton.style.right = 'auto';
-                    aiChatButton.style.bottom = 'auto';
-                    aiChatButton.style.left = `${x}px`;
-                    aiChatButton.style.top = `${y}px`;
-
-                    // 3. Swap Pose
-                    if (nextState === 'SITTING') {
-                        aiChatButton.classList.remove('robot-flying');
-                        aiChatButton.classList.add('robot-sitting');
-                    } else {
-                        aiChatButton.classList.remove('robot-sitting');
-                        aiChatButton.classList.add('robot-flying');
-                    }
-
-                    // 4. Re-Form
-                    aiChatButton.style.opacity = '1';
-                    aiChatButton.classList.remove('magic-dust'); // Remove dust
-
-                    // Trigger Appear Animation
-                    aiChatButton.style.animation = 'magicalForm 0.8s ease-out';
-
-                    setTimeout(() => {
-                        // 5. Final State Animation
-                        if (nextState === 'SITTING') {
-                            aiChatButton.style.animation = 'robotWobble 4s ease-in-out infinite';
-                            this.state = 'SITTING';
-
-                            // Read text if applicable
-                            if (targetElement && targetElement.tagName.match(/H[1-6]/)) {
-                                aiChatButton.setAttribute('data-bubble', "Ooh! " + targetElement.innerText.substring(0, 15) + "...");
-                                aiChatButton.classList.add('bubble-visible');
-                                setTimeout(() => aiChatButton.classList.remove('bubble-visible'), 4000);
-                            }
-                        } else {
-                            aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
-                            this.state = 'IDLE';
-                            this.lastActionTime = Date.now();
-
-                            // Reset flip
-                            aiChatButton.style.transform = 'scaleX(1)';
-                        }
-                    }, 800);
-
-                }, 600); // Wait for dust dissolve
-            },
-
-            moveTo(x, y) {
-                // Legacy slide method (kept for drag fallback or manual moves)
-                this.teleportTo(x, y, 'ROAMING');
-            },
+            moveTo(x, y) { this.teleportTo(x, y, 'ROAMING'); },
 
             doTrick() {
-                aiChatButton.style.animation = 'robotJump 0.6s ease-in-out';
+                aiChatButton.style.animation = 'robotJump 0.5s ease-in-out';
                 setTimeout(() => {
                     if (this.state === 'IDLE') aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
-                }, 600);
+                }, 500);
             }
         };
 
