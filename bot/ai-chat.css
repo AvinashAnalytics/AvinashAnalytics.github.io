@@ -1309,3 +1309,50 @@
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
   }
 }
+/* THOUGHT BUBBLE (Context Aware) */
+.thought-bubble {
+  position: absolute;
+  bottom: 110px;
+  right: 0px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+  padding: 12px 18px;
+  border-radius: 18px 18px 2px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  width: max-content;
+  max-width: 220px;
+  z-index: 10055;
+  
+  opacity: 0;
+  transform: translateY(15px) scale(0.8);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none; /* Initially none */
+  cursor: pointer;
+}
+
+.thought-bubble.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  animation: floatBubble 3s ease-in-out infinite;
+}
+
+.thought-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  right: 15px;
+  width: 15px;
+  height: 15px;
+  background: inherit;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+@keyframes floatBubble {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+

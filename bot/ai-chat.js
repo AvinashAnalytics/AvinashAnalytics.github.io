@@ -1247,12 +1247,14 @@
             init() {
                 this.startExpressionEngine();
                 this.stalkLoop();
+                this.observeCursor(); // NEW: Start Watching
 
                 // Track mouse global
                 document.addEventListener('mousemove', (e) => {
                     mouseX = e.clientX;
                     mouseY = e.clientY;
                     this.lastActionTime = Date.now();
+                    this.checkHover(e.target); // Check what we are hovering
                 });
             },
 
@@ -1367,6 +1369,115 @@
 
                         setTimeout(() => aiChatButton.classList.remove(`emotion-${pick}`), 3000);
                     }
+                }, 5000);
+            },
+
+            // --- CONTEXT AWARENESS ENGINE ---
+            hoverTimer: null,
+            lastHovered: null,
+
+            contextMap: {
+                'snowflake': "I'm a Snowflake Expert! Ask about Snowpipe. ❄️",
+                'dbt': "Transformation time! Ask about dbt models. 🧱",
+                'python': "I love Python! Need a script? 🐍",
+                'matillion': "ETL Wizardry! Ask about orchestration. ⚙️",
+                'azure': "Cloud Native! Ask about ADF pipeline. ☁️",
+                'sql': "Select * From Expertise! Ask for a query. 💾",
+                'ai': "That's me! Ask how I was built. 🤖",
+                'ml': "Machine Learning? I can explain models. 🧠",
+                'avinash': "That's the boss! (Avinash Rai) 😎",
+                'contact': "Want to hire him? Click here!",
+                'resume': "I can summarize his resume for you. 📄"
+            },
+
+            observeCursor() {
+                console.log('👁️ Robot Eye: Scanning for keywords...');
+            },
+
+            checkHover(target) {
+                if (!target || this.state === 'SLEEP' || aiChatWindow.style.display === 'flex') return;
+
+                // Stop if hovering robot itself
+                if (target.closest('#ai-chat-button') || target.closest('#ai-chat-window')) return;
+
+                // Simple keyword check in text content or class
+                const text = (target.innerText || "").toLowerCase();
+                const classes = (target.className || "").toString().toLowerCase();
+
+                let foundKey = null;
+
+                // Check Map
+                for (const key in this.contextMap) {
+                    if (text.includes(key) || classes.includes(key)) {
+                        foundKey = key;
+                        break;
+                    }
+                }
+
+                // If found interesting thing
+                if (foundKey) {
+                    if (this.lastHovered === foundKey) return; // Already thinking about it
+
+                    this.lastHovered = foundKey;
+                    clearTimeout(this.hoverTimer);
+
+                    // Wait 0.6s before "Thinking" (Debounce)
+                    this.hoverTimer = setTimeout(() => {
+                        this.showThinking(this.contextMap[foundKey]);
+                    }, 600);
+                } else {
+                    this.lastHovered = null;
+                    clearTimeout(this.hoverTimer);
+                }
+            },
+
+            showThinking(text) {
+                // remove old bubble
+                const old = document.querySelector('.thought-bubble');
+                if (old) old.remove();
+
+                const bubble = document.createElement('div');
+                bubble.className = 'thought-bubble';
+                bubble.innerText = text;
+
+                // Click to ask
+                bubble.onclick = (e) => {
+                    e.stopPropagation();
+                    const question = "Tell me about " + text.split('!')[0].replace("I'm a ", "").replace("That's ", ""); // Extract topic roughly
+
+                    // Open Chat
+                    if (aiChatWindow.style.display !== 'flex') {
+                        // Trigger toggle logic
+                        const btn = document.getElementById('ai-chat-button');
+                        if (btn) btn.click();
+                    }
+
+                    setTimeout(() => {
+                        if (aiChatInput) {
+                            aiChatInput.value = question;
+                            // processUserMessage() is not global, need to trigger send button or similar
+                            const sendBtn = document.getElementById('ai-chat-send');
+                            if (sendBtn) sendBtn.click();
+                        }
+                    }, 500);
+
+                    bubble.remove();
+                };
+
+                document.body.appendChild(bubble);
+
+                // Position follows robot (but above)
+                const btnRect = aiChatButton.getBoundingClientRect();
+                bubble.style.left = (btnRect.left - 180) + 'px'; // Left of robot
+                bubble.style.top = (btnRect.top - 60) + 'px';
+
+                // Animate In
+                requestAnimationFrame(() => bubble.classList.add('visible'));
+
+                // Auto hide after 5s
+                setTimeout(() => {
+                    bubble.classList.remove('visible');
+                    setTimeout(() => bubble.remove(), 400);
                 }, 5000);
             }
         };
