@@ -789,59 +789,122 @@
         let petStrokeCount = 0;
         let lastPetTime = 0;
 
+        // =============== SPEECH RECOGNITION (Real-Time) ===============
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        let isListening = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+            recognition.interimResults = true; // Crucial for "Visible when speaking"
+
+            recognition.onstart = () => {
+                isListening = true;
+                aiChatMic.classList.add('listening');
+                addMessage('Listening...', 'ai-msg', 'temp-listening');
+                SoundEngine.play('chirp');
+                aiChatButton.classList.add('emotion-processing');
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                aiChatMic.classList.remove('listening');
+                const temp = document.getElementById('temp-listening');
+                if (temp) temp.remove();
+                aiChatButton.classList.remove('emotion-processing');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = Array.from(event.results)
+                    .map(result => result[0].transcript)
+                    .join('');
+
+                // Real-time Visual Feedback
+                let liveMsg = document.getElementById('ai-chat-live-text');
+                if (!liveMsg) {
+                    // Create if not exists
+                    const msgDiv = document.createElement('div');
+                    msgDiv.id = 'ai-chat-live-text';
+                    msgDiv.className = 'user-msg live-text';
+                    aiChatMessages.appendChild(msgDiv);
+                    liveMsg = msgDiv;
+                }
+                liveMsg.textContent = transcript + (event.results[0].isFinal ? '' : ' ...');
+                aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
+                if (event.results[0].isFinal) {
+                    liveMsg.removeAttribute('id'); // Solidify
+                    liveMsg.classList.remove('live-text');
+                    aiChatInput.value = transcript; // Sync with input
+                    processUserMessage(); // Auto-send
+                }
+            };
+
+            recognition.onerror = (e) => {
+                console.error("Speech Error:", e.error);
+                recognition.stop();
+            };
+        }
+
+        if (aiChatMic) {
+            aiChatMic.addEventListener('click', () => {
+                if (!recognition) {
+                    alert("Voice not supported in this browser.");
+                    return;
+                }
+                if (isListening) recognition.stop();
+                else recognition.start();
+            });
+        }
+
+        // =============== EYE TRACKING (Vector Math) ===============
         const EyeController = {
             init() {
-                // Immediate Hover Reaction (Fix "One Expression" request)
-                if (aiChatButton) {
-                    aiChatButton.addEventListener('mouseenter', () => {
-                        if (robotBrain.state === 'IDLE' || robotBrain.state === 'SITTING') {
-                            aiChatButton.classList.add('emotion-happy');
-                            SoundEngine.play('cute'); // Changed from 'cheep'
-                        }
-                    });
-                    aiChatButton.addEventListener('mouseleave', () => {
-                        if (robotBrain.state === 'IDLE' || robotBrain.state === 'SITTING') {
-                            aiChatButton.classList.remove('emotion-happy');
-                        }
-                    });
-                }
+                // Add Iris & Glint to existing pupils via JS if not in HTML
+                document.querySelectorAll('.pupil').forEach(p => {
+                    if (!p.querySelector('.iris')) {
+                        p.innerHTML = '<div class="iris"><div class="glint"></div></div>';
+                    }
+                });
 
                 document.addEventListener('mousemove', (e) => {
                     robotBrain.lastActionTime = Date.now();
 
-                    // Check for Petting (Rubbing)
-                    const rect = aiChatButton.getBoundingClientRect();
-                    if (e.clientX >= rect.left && e.clientX <= rect.right &&
-                        e.clientY >= rect.top && e.clientY <= rect.bottom) {
-
-                        const now = Date.now();
-                        if (now - lastPetTime < 300) {
-                            petStrokeCount++;
-                        } else {
-                            petStrokeCount = 0;
-                        }
-                        lastPetTime = now;
-
-                        if (petStrokeCount > 10) {
-                            robotBrain.startPetting();
-                            petStrokeCount = 0;
-                        }
-                        return;
-                    }
-
-                    // Eye Tracking Logic
-                    const eyes = document.querySelectorAll('.pupil');
+                    const eyes = document.querySelectorAll('.eye'); // Target the socket
                     if (eyes.length === 0 || aiChatButton.classList.contains('emotion-sleep')) return;
 
-                    eyes.forEach(pupil => {
-                        const r = pupil.getBoundingClientRect();
-                        const x = (r.left + r.width / 2);
-                        const y = (r.top + r.height / 2);
-                        const rad = Math.atan2(e.clientX - x, e.clientY - y);
-                        const rot = (rad * (180 / Math.PI) * -1) + 180;
-                        // Increased movement to 6px for highly visible tracking
-                        pupil.style.transform = `rotate(${rot}deg) translateY(6px)`;
+                    eyes.forEach(eye => {
+                        const pupil = eye.querySelector('.pupil');
+                        if (!pupil) return;
+
+                        // Get eye center
+                        const rect = eye.getBoundingClientRect();
+                        const eyeCenterX = rect.left + rect.width / 2;
+                        const eyeCenterY = rect.top + rect.height / 2;
+
+                        // Vector to mouse
+                        const dx = e.clientX - eyeCenterX;
+                        const dy = e.clientY - eyeCenterY;
+                        const angle = Math.atan2(dy, dx);
+
+                        // Clamp distance (Radius) - Keep pupil inside eye
+                        const maxRadius = (rect.width / 2) - 4; // Margin
+                        const dist = Math.min(Math.hypot(dx, dy), maxRadius + 15); // Add range for "looking far"
+
+                        // Map distance to movement (max 6px)
+                        const moveDist = Math.min(dist / 10, 6);
+
+                        const moveX = Math.cos(angle) * moveDist;
+                        const moveY = Math.sin(angle) * moveDist;
+
+                        pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
                     });
+
+                    // "Clever" Squint on fast movement
+                    // (Simple heuristic: if mouse moved far since last frame? - skipped for performance usually, 
+                    // but we can add random "scan" states in RobotBrain)
                 });
             }
         };
