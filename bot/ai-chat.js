@@ -6,7 +6,37 @@
 (function () {
     'use strict';
 
+    function createChatbotWidget() {
+        if (!document.getElementById('ai-chat-button')) {
+            const btn = document.createElement('div');
+            btn.id = 'ai-chat-button';
+            document.body.appendChild(btn);
+        }
+        if (!document.getElementById('ai-chat-window')) {
+            const win = document.createElement('div');
+            win.id = 'ai-chat-window';
+            win.style.display = 'none';
+            // Default Structure
+            win.innerHTML = `
+                <div id="ai-chat-header">
+                    <span>Avinash Rai • AI Twin</span>
+                    <button id="ai-chat-close">×</button>
+                </div>
+                <div id="ai-chat-messages"></div>
+                <div id="ai-chat-input-box">
+                    <div id="ai-chat-mic">🎤</div>
+                    <input type="text" id="ai-chat-input" placeholder="Type a message...">
+                    <button id="ai-chat-send">➤</button>
+                    <button id="ai-chat-attach" class="ai-icon-btn" style="margin-left:5px">📎</button>
+                    <input type="file" id="ai-chat-file" hidden>
+                </div>
+            `;
+            document.body.appendChild(win);
+        }
+    }
+
     function initChatbot() {
+        createChatbotWidget();
         // =============== DOM ELEMENTS ===============
         const aiChatButton = document.getElementById('ai-chat-button');
         // v3.25: Build Live CSS Robot Structure (No Image)
@@ -243,13 +273,35 @@
         }
 
         function toggleChat(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (aiChatWindow.style.display === 'flex') {
-                aiChatWindow.style.display = 'none';
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+
+            // GENIE EFFECT (Glass Opening)
+            if (aiChatWindow.style.display === 'flex' && !aiChatWindow.classList.contains('closing')) {
+                aiChatWindow.classList.add('closing');
+                aiChatWindow.style.opacity = '0';
+                aiChatWindow.style.transform = 'scale(0) translateY(100px)';
+                // Reset origin to button
+                const btnRect = aiChatButton.getBoundingClientRect();
+                // We can't easily change transform-origin dynamically effectively without glitching, 
+                // but default CSS origin (bottom right) works well for "returning into button".
+
+                setTimeout(() => {
+                    aiChatWindow.style.display = 'none';
+                    aiChatWindow.classList.remove('closing');
+                }, 300);
             } else {
                 aiChatWindow.style.display = 'flex';
-                if (aiChatInput) setTimeout(() => aiChatInput.focus(), 120);
+                aiChatWindow.style.opacity = '0';
+                aiChatWindow.style.transform = 'scale(0) translateY(100px)';
+
+                // Force reflow
+                aiChatWindow.offsetHeight;
+
+                aiChatWindow.style.transition = 'all 0.4s cubic-bezier(0.19, 1, 0.22, 1)'; // Genie Curve
+                aiChatWindow.style.opacity = '1';
+                aiChatWindow.style.transform = 'scale(1) translateY(0)';
+
+                if (aiChatInput) setTimeout(() => aiChatInput.focus(), 150);
             }
         }
 
@@ -1375,6 +1427,39 @@
             aiChatButton.classList.toggle('emotion-angry');
             SoundEngine.play('angry');
         };
+
+        function toggleChat(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+
+            // GENIE EFFECT (Glass Opening)
+            if (aiChatWindow.style.display === 'flex' && !aiChatWindow.classList.contains('closing')) {
+                aiChatWindow.classList.add('closing');
+                aiChatWindow.style.opacity = '0';
+                aiChatWindow.style.transform = 'scale(0) translateY(100px)';
+                // Reset origin to button
+                const btnRect = aiChatButton.getBoundingClientRect();
+                // We can't easily change transform-origin dynamically effectively without glitching, 
+                // but default CSS origin (bottom right) works well for "returning into button".
+
+                setTimeout(() => {
+                    aiChatWindow.style.display = 'none';
+                    aiChatWindow.classList.remove('closing');
+                }, 300);
+            } else {
+                aiChatWindow.style.display = 'flex';
+                aiChatWindow.style.opacity = '0';
+                aiChatWindow.style.transform = 'scale(0) translateY(100px)';
+
+                // Force reflow
+                aiChatWindow.offsetHeight;
+
+                aiChatWindow.style.transition = 'all 0.4s cubic-bezier(0.19, 1, 0.22, 1)'; // Genie Curve
+                aiChatWindow.style.opacity = '1';
+                aiChatWindow.style.transform = 'scale(1) translateY(0)';
+
+                if (aiChatInput) setTimeout(() => aiChatInput.focus(), 150);
+            }
+        }
         // v3.9.5: Global function for "Send Me a Message" button
         window.openChatAndNotify = function () {
             // Open the chat window
