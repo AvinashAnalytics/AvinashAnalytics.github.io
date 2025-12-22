@@ -1403,30 +1403,24 @@
         }
 
         // =============== INITIALIZATION ===============
-        function initChatbot() {
-            createChatbotWidget();
+        // Initializing Components
+        createChatbotWidget();
 
-            // Initial Suggestions
-            setTimeout(() => {
-                if (aiChatMessages) {
-                    const welcome = document.createElement('div');
-                    welcome.className = 'ai-msg';
-                    welcome.innerHTML = "Hi! I'm Avinash's AI Twin. Ask me anything! 🤖";
-                    aiChatMessages.appendChild(welcome);
-                    aiChatMessages.appendChild(renderSuggestions());
-                }
-            }, 1000);
+        // Initial Suggestions
+        setTimeout(() => {
+            if (aiChatMessages) {
+                const welcome = document.createElement('div');
+                welcome.className = 'ai-msg';
+                welcome.innerHTML = "Hi! I'm Avinash's AI Twin. Ask me anything! 🤖";
+                aiChatMessages.appendChild(welcome);
+                aiChatMessages.appendChild(renderSuggestions());
+            }
+        }, 1000);
 
-            EyeController.init();
-            SoundEngine.init();
-            RobotBrain.init(); // Start Brain
-        }
+        EyeController.init();
+        SoundEngine.init();
+        RobotBrain.init(); // Start Brain
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initChatbot);
-        } else {
-            initChatbot();
-        }
 
         // Expose for debugging
         window.robotBrain = RobotBrain;
@@ -1517,4 +1511,12 @@
                 console.error('Failed to send contact request:', error);
             }
         };
-    }) (window);
+    } // End of initChatbot
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initChatbot);
+    } else {
+        initChatbot();
+    }
+
+})(window);

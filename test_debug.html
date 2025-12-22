@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Debug Helper</title>
+    <link rel="stylesheet" href="bot/ai-chat.css">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            font-family: sans-serif;
+            height: 200vh;
+            /* Force scroll */
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Chatbot Debug Page</h1>
+    <div class="content">
+        <p>This page loads the chatbot script and CSS.</p>
+        <p>If the robot appears bottom-right, visibility is solved.</p>
+        <p>If clicking opens the window, interaction is solved.</p>
+        <button onclick="window.location.reload()">Refresh Page</button>
+    </div>
+
+    <!-- Load the script -->
+    <script src="bot/ai-chat.js"></script>
+</body>
+
+</html>
