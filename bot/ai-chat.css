@@ -12,67 +12,182 @@
 }
 
 /* ========== FLOATING ROBOT AVATAR ========== */
+/* ========== FLOATING ROBOT AVATAR (Pure CSS) ========== */
 #ai-chat-button {
   position: fixed;
   right: 24px;
   bottom: 24px;
   z-index: 10050;
 
-  /* Initial State: Flying */
-  background: url('../assets/robot_full_body_fly.png') no-repeat center center;
-  background-size: contain;
-  background-color: transparent;
+  /* Reset Background */
+  background: none;
   box-shadow: none;
   border: none;
 
-  width: 110px;
-  /* Larger Full Body */
-  height: 110px;
+  width: 100px;
+  height: 100px;
 
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: grab;
 
-  /* Default Idle Animation */
-  animation: robotFloat 3s ease-in-out infinite;
-
   transform-origin: center;
   touch-action: none;
   user-select: none;
-  transition: transform 0.2s, filter 0.5s;
+  transition: transform 0.2s;
 }
 
-/* Magic Dust Effect Container */
-#ai-chat-button.magic-dust::before {
-  content: '';
+/* --- THE ROBOT STRUCTURE --- */
+
+/* 1. The Head (Glass Sphere) */
+.robot-face {
+  width: 70px;
+  height: 65px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15), rgba(6, 182, 212, 0.2));
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 45% 45% 50% 50%;
+  /* Slightly squared bottom */
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 20px rgba(6, 182, 212, 0.3),
+    inset 0 0 10px rgba(139, 92, 246, 0.2);
+  animation: robotFloat 3s ease-in-out infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+/* 2. The Eyes (Glowing) */
+.robot-eyes {
+  display: flex;
+  gap: 12px;
+  margin-top: -5px;
+}
+
+.eye {
+  width: 14px;
+  height: 18px;
+  background: #06b6d4;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #06b6d4;
+  animation: blink 4s infinite, lookAround 8s infinite;
+}
+
+/* 3. The Mouth */
+.robot-mouth {
+  width: 12px;
+  height: 6px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  margin-top: 6px;
+}
+
+/* 4. The Dust Particles (Orbiting) */
+.robot-particles {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 140%;
-  height: 140%;
+  width: 100%;
+  height: 100%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.8) 0%, rgba(6, 182, 212, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.robot-particles span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: #06b6d4;
   border-radius: 50%;
-  animation: dustSwirl 0.8s ease-out forwards;
-  z-index: -1;
-  filter: blur(8px);
+  box-shadow: 0 0 4px #8b5cf6;
+  opacity: 0.6;
+
+  /* Circular Orbit Math via CSS Variables */
+  /* transform: rotate(calc(var(--i) * 18deg)) translateX(50px); THIS IS TOO STATIC */
+  animation: orbitDust 4s linear infinite;
+  animation-delay: calc(var(--i) * -0.2s);
 }
 
-/* Robot States */
-#ai-chat-button.robot-flying {
-  background-image: url('../assets/robot_full_body_fly.png');
-  width: 110px;
-  height: 110px;
+/* KEYFRAMES */
+
+@keyframes orbitDust {
+  0% {
+    transform: rotate(0deg) translateX(45px) scale(0.5);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: rotate(180deg) translateX(40px) scale(1);
+  }
+
+  100% {
+    transform: rotate(360deg) translateX(45px) scale(0.5);
+    opacity: 0;
+  }
 }
 
-/* Will be updated when sit image is ready */
-#ai-chat-button.robot-sitting {
-  background-image: url('../assets/robot_full_body_sit.png');
-  width: 110px;
-  height: 110px;
+@keyframes blink {
+
+  0%,
+  48%,
+  52%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes lookAround {
+
+  0%,
+  40% {
+    transform: translateX(0);
+  }
+
+  45% {
+    transform: translateX(2px);
+  }
+
+  50% {
+    transform: translateX(2px);
+  }
+
+  55% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Reset states for CSS-based robot */
+#ai-chat-button.robot-flying .robot-face {
+  animation: robotFloat 3s ease-in-out infinite;
+}
+
+#ai-chat-button.robot-sitting .robot-face {
+  transform: translateY(10px);
+  border-radius: 40% 40% 45% 45%;
+  /* Squish slightly */
   animation: robotWobble 4s ease-in-out infinite;
-  /* Slower wobble for sitting */
+}
+
+/* Remove old PNG classes styling collision */
+#ai-chat-button.robot-flying,
+#ai-chat-button.robot-sitting {
+  background-image: none !important;
 }
 
 /* Magic Appear Animation */

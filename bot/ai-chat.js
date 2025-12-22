@@ -9,6 +9,29 @@
     function initChatbot() {
         // =============== DOM ELEMENTS ===============
         const aiChatButton = document.getElementById('ai-chat-button');
+        // v3.25: Build Live CSS Robot Structure (No Image)
+        if (aiChatButton) {
+            aiChatButton.innerHTML = `
+                <div class="robot-face">
+                    <div class="robot-eyes">
+                        <div class="eye left"></div>
+                        <div class="eye right"></div>
+                    </div>
+                    <div class="robot-mouth"></div>
+                </div>
+                <div class="robot-particles"></div>
+            `;
+
+            // Generate Dust Particles
+            const particleContainer = aiChatButton.querySelector('.robot-particles');
+            for (let i = 0; i < 20; i++) {
+                const p = document.createElement('span');
+                p.style.setProperty('--i', i);
+                p.style.animationDelay = `${Math.random() * 2}s`;
+                particleContainer.appendChild(p);
+            }
+        }
+
         const aiChatWindow = document.getElementById('ai-chat-window');
         const aiChatClose = document.getElementById('ai-chat-close');
         const aiChatMessages = document.getElementById('ai-chat-messages');
