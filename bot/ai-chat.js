@@ -657,11 +657,12 @@
             // No, let's keep it simple: Jump when bubble appears or clicked.
         }
 
-        // =============== SOUND ENGINE (Cinematic Reverb + Organic Tones) ===============
+        // =============== SOUND ENGINE (Organic Tech) ===============
         const SoundEngine = {
             ctx: null,
             masterGain: null,
             reverb: null,
+            noiseBuffer: null,
 
             init() {
                 if (this.ctx) return;
@@ -670,103 +671,103 @@
                     this.ctx = new AudioContext();
 
                     this.masterGain = this.ctx.createGain();
-                    this.masterGain.gain.value = 0.5; // Master volume
+                    this.masterGain.gain.value = 0.6;
 
-                    // CINEMATIC REVERB (Simulate Glass Orb Physics)
+                    // CINEMATIC REVERB (Glass Orb Physics)
                     this.reverb = this.ctx.createConvolver();
                     this.generateImpulseResponse();
 
-                    // Wet signal (Reverb)
+                    // GENERATE PINK NOISE (For Breath/Wind texture)
+                    const bufferSize = this.ctx.sampleRate * 2; // 2 seconds
+                    this.noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                    const output = this.noiseBuffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        output[i] = (lastOut + (0.02 * white)) / 1.02;
+                        lastOut = output[i];
+                        output[i] *= 3.5; // Compensate for gain
+                    }
+
                     this.masterGain.connect(this.reverb);
                     this.reverb.connect(this.ctx.destination);
-
-                    // Dry signal (Direct clarity)
                     this.masterGain.connect(this.ctx.destination);
 
-                    const resume = () => {
-                        if (this.ctx.state === 'suspended') this.ctx.resume();
-                        ['click', 'touchstart', 'keydown'].forEach(evt => document.removeEventListener(evt, resume));
-                    };
+                    const resume = () => { if (this.ctx.state === 'suspended') this.ctx.resume(); };
                     ['click', 'touchstart', 'keydown'].forEach(evt => document.addEventListener(evt, resume));
                 } catch (e) { console.warn("Audio Init Error", e); }
             },
 
             generateImpulseResponse() {
-                // Short, metallic decay (Glass effect)
-                const duration = 1.2;
-                const decay = 3.5;
+                // Glass Decay
+                const duration = 1.0;
                 const rate = this.ctx.sampleRate;
                 const length = rate * duration;
                 const impulse = this.ctx.createBuffer(2, length, rate);
-                const left = impulse.getChannelData(0);
-                const right = impulse.getChannelData(1);
-
+                const l = impulse.getChannelData(0), r = impulse.getChannelData(1);
                 for (let i = 0; i < length; i++) {
                     const n = i / length;
-                    // White noise * exponential decay
-                    left[i] = (Math.random() * 2 - 1) * Math.pow(1 - n, decay);
-                    right[i] = (Math.random() * 2 - 1) * Math.pow(1 - n, decay);
+                    l[i] = (Math.random() * 2 - 1) * Math.pow(1 - n, 3);
+                    r[i] = (Math.random() * 2 - 1) * Math.pow(1 - n, 3);
                 }
                 this.reverb.buffer = impulse;
             },
 
-            // Soft "Glass Chime" generator (Sine/Triangle with Envelope)
+            // ORGANIC TONE: Oscillator + Breath Noise
             playTone(freq, duration, type = 'sine') {
                 if (!this.ctx) this.init();
                 const t = this.ctx.currentTime;
 
+                // 1. Tonal Core
                 const osc = this.ctx.createOscillator();
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq, t);
 
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0, t);
-                gain.gain.linearRampToValueAtTime(0.2, t + 0.02); // Fast attack
-                gain.gain.exponentialRampToValueAtTime(0.001, t + duration); // Long elegant tail
+                const oscGain = this.ctx.createGain();
+                oscGain.gain.setValueAtTime(0, t);
+                oscGain.gain.linearRampToValueAtTime(0.2, t + 0.05);
+                oscGain.gain.exponentialRampToValueAtTime(0.001, t + duration);
 
-                osc.connect(gain);
-                gain.connect(this.masterGain);
+                // 2. Breath/Wind Texture (Pink Noise)
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = this.noiseBuffer;
+                noise.loop = true;
+
+                const noiseGain = this.ctx.createGain();
+                noiseGain.gain.setValueAtTime(0, t);
+                noiseGain.gain.linearRampToValueAtTime(0.05, t + 0.02); // Subtle breath
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, t + duration * 0.8);
+
+                // Connect
+                osc.connect(oscGain);
+                oscGain.connect(this.masterGain);
+
+                noise.connect(noiseGain);
+                noiseGain.connect(this.masterGain);
 
                 osc.start(t);
                 osc.stop(t + duration + 0.1);
+                noise.start(t);
+                noise.stop(t + duration + 0.1);
             },
 
             play(type) {
                 if (!this.ctx) this.init();
-
-                // NEW: Organic Glass Sound Library
                 if (type === 'chirp') {
-                    // Major Chord (Happy)
-                    this.playTone(523.25, 0.3, 'sine'); // C5
-                    setTimeout(() => this.playTone(659.25, 0.3, 'sine'), 80); // E5
-                } else if (type === 'happy') {
-                    // Excitement Slide
-                    this.playTone(783.99, 0.2, 'triangle'); // G5
-                    setTimeout(() => this.playTone(1046.50, 0.2, 'sine'), 100); // C6
-                    setTimeout(() => this.playTone(1318.51, 0.3, 'sine'), 200); // E6
-                } else if (type === 'confused') {
-                    // Dissonant low
-                    this.playTone(330, 0.3, 'triangle');
-                    setTimeout(() => this.playTone(311, 0.3, 'triangle'), 150);
-                } else if (type === 'suspicious') {
-                    // Quick low hum
-                    this.playTone(110, 0.4, 'sawtooth');
-                } else if (type === 'excited') {
-                    // Fast chiming
-                    this.playTone(880, 0.1, 'sine');
-                    setTimeout(() => this.playTone(1100, 0.1, 'sine'), 80);
-                    setTimeout(() => this.playTone(1320, 0.1, 'sine'), 160);
-                } else if (type === 'love') {
-                    // Harp-like Ethereal
-                    this.playTone(440, 0.6, 'sine');
-                    setTimeout(() => this.playTone(554, 0.6, 'sine'), 150);
-                    setTimeout(() => this.playTone(659, 0.6, 'sine'), 300);
+                    this.playTone(523.25, 0.3, 'sine');
+                    setTimeout(() => this.playTone(659, 0.3, 'sine'), 80);
+                } else if (type === 'laugh') {
+                    // Laugh: Rapid burst of modulations
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(() => this.playTone(400 + (Math.random() * 200), 0.15, 'triangle'), i * 120);
+                    }
+                } else if (type === 'angry') {
+                    this.playTone(100, 0.5, 'sawtooth');
                 } else {
-                    // Default Bleep
-                    this.playTone(800, 0.1, 'sine');
+                    this.playTone(880, 0.1, 'sine');
                 }
             }
         };
+        let lastOut = 0; // For Pink Noise
 
         // Helper: Spawn Emojis (Hearts, Zzz)
         function spawnEmoji(char) {
@@ -789,62 +790,68 @@
         let petStrokeCount = 0;
         let lastPetTime = 0;
 
-        // =============== SPEECH RECOGNITION (Real-Time) ===============
+        // =============== SPEECH RECOGNITION (Auto-Send) ===============
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition = null;
         let isListening = false;
+        let silenceTimer = null;
 
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
             recognition.continuous = false;
-            recognition.lang = 'en-US';
-            recognition.interimResults = true; // Crucial for "Visible when speaking"
+            recognition.interimResults = true;
 
             recognition.onstart = () => {
                 isListening = true;
                 aiChatMic.classList.add('listening');
                 addMessage('Listening...', 'ai-msg', 'temp-listening');
                 SoundEngine.play('chirp');
-                aiChatButton.classList.add('emotion-processing');
             };
 
             recognition.onend = () => {
                 isListening = false;
                 aiChatMic.classList.remove('listening');
-                const temp = document.getElementById('temp-listening');
-                if (temp) temp.remove();
-                aiChatButton.classList.remove('emotion-processing');
+                document.getElementById('temp-listening')?.remove();
             };
 
             recognition.onresult = (event) => {
-                const transcript = Array.from(event.results)
-                    .map(result => result[0].transcript)
-                    .join('');
-
-                // Real-time Visual Feedback
+                const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
                 let liveMsg = document.getElementById('ai-chat-live-text');
+
                 if (!liveMsg) {
-                    // Create if not exists
-                    const msgDiv = document.createElement('div');
-                    msgDiv.id = 'ai-chat-live-text';
-                    msgDiv.className = 'user-msg live-text';
-                    aiChatMessages.appendChild(msgDiv);
-                    liveMsg = msgDiv;
+                    liveMsg = document.createElement('div');
+                    liveMsg.id = 'ai-chat-live-text';
+                    liveMsg.className = 'user-msg live-text';
+                    aiChatMessages.appendChild(liveMsg);
                 }
-                liveMsg.textContent = transcript + (event.results[0].isFinal ? '' : ' ...');
+                liveMsg.textContent = transcript + '...';
                 aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
 
-                if (event.results[0].isFinal) {
-                    liveMsg.removeAttribute('id'); // Solidify
-                    liveMsg.classList.remove('live-text');
-                    aiChatInput.value = transcript; // Sync with input
-                    processUserMessage(); // Auto-send
+                // AUTO-SEND LOGIC (Silence Detection)
+                clearTimeout(silenceTimer);
+                if (!event.results[0].isFinal) {
+                    silenceTimer = setTimeout(() => {
+                        recognition.stop(); // Stops listening, triggering 'final' ideally or just taking what we have
+                        // Actually, stopping might not trigger final on all browsers for interim.
+                        // Force send:
+                        if (liveMsg.textContent.trim().length > 3) {
+                            liveMsg.removeAttribute('id');
+                            liveMsg.classList.remove('live-text');
+                            liveMsg.textContent = transcript;
+                            aiChatInput.value = transcript;
+                            processUserMessage();
+                        }
+                    }, 1500); // 1.5s Silence
                 }
-            };
 
-            recognition.onerror = (e) => {
-                console.error("Speech Error:", e.error);
-                recognition.stop();
+                if (event.results[0].isFinal) {
+                    clearTimeout(silenceTimer);
+                    liveMsg.removeAttribute('id');
+                    liveMsg.classList.remove('live-text');
+                    liveMsg.textContent = transcript;
+                    aiChatInput.value = transcript;
+                    processUserMessage();
+                }
             };
         }
 
@@ -1165,6 +1172,151 @@
         document.addEventListener('mousedown', () => robotBrain.wakeUp()); // Wake on click
         document.addEventListener('keydown', () => robotBrain.wakeUp()); // Wake on type
 
+        // =============== ROBOT BRAIN (Autonomous Behavior) ===============
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+
+        const RobotBrain = {
+            state: 'IDLE',
+            lastActionTime: Date.now(),
+
+            // Stalking Logic
+            isStalking: true,
+            currentX: window.innerWidth - 120, // Initial estimate
+            currentY: window.innerHeight - 120,
+
+            init() {
+                this.startExpressionEngine();
+                this.stalkLoop();
+
+                // Track mouse global
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                    this.lastActionTime = Date.now();
+                });
+            },
+
+            stalkLoop() {
+                requestAnimationFrame(() => this.stalkLoop());
+
+                // Conditions to STOP stalking
+                if (!this.isStalking ||
+                    this.state === 'SLEEP' ||
+                    isDragging ||
+                    aiChatWindow.style.display === 'flex') {
+                    return;
+                }
+
+                // Get current button position
+                const rect = aiChatButton.getBoundingClientRect();
+                const btnX = rect.left + rect.width / 2;
+                const btnY = rect.top + rect.height / 2;
+
+                // Calculate distance to mouse
+                const dx = mouseX - btnX;
+                const dy = mouseY - btnY;
+                const dist = Math.hypot(dx, dy);
+
+                // Logic: Follow if far, Stop if close
+                const targetDist = 200; // Personal space
+                const activationDist = 350; // Start following if this far
+
+                if (dist > activationDist) {
+                    // Update internal coordinates (Lerp)
+                    // We need to convert fixed position "right/bottom" to "left/top" for movement
+                    // Or just stick to left/top once moved.
+
+                    // Simple Lerp (Very Slow Drift)
+                    const speed = 0.005;
+
+                    // Update our internal tracking if CSS moved it (e.g. initial load)
+                    this.currentX = lerp(this.currentX, mouseX - 100, speed); // Offset slightly
+                    this.currentY = lerp(this.currentY, mouseY, speed);
+
+                    // Apply
+                    aiChatButton.style.right = 'auto';
+                    aiChatButton.style.bottom = 'auto';
+                    aiChatButton.style.left = `${this.currentX}px`;
+                    aiChatButton.style.top = `${this.currentY}px`;
+
+                    // Add "Flying" class for tilt effect
+                    aiChatButton.classList.add('robot-flying');
+                } else if (dist < targetDist + 50) {
+                    aiChatButton.classList.remove('robot-flying');
+                    // Settle
+                }
+            },
+
+            wakeUp() {
+                if (this.state === 'SLEEP') {
+                    this.state = 'IDLE';
+                    aiChatButton.classList.remove('emotion-sleep');
+                    SoundEngine.play('chirp');
+                    document.title = "Avinash's Portfolio";
+                }
+                this.lastActionTime = Date.now();
+            },
+
+            startPetting() {
+                if (this.state === 'PURRING') return;
+                this.state = 'PURRING';
+                aiChatButton.classList.add('emotion-petting');
+                SoundEngine.play('purr');
+                spawnEmoji('💖'); spawnEmoji('💖');
+
+                setTimeout(() => {
+                    this.state = 'IDLE';
+                    aiChatButton.classList.remove('emotion-petting');
+                }, 4000);
+            },
+
+            laugh() {
+                aiChatButton.classList.add('emotion-happy');
+                aiChatButton.style.animation = 'robotJump 0.5s ease-in-out infinite';
+                SoundEngine.play('laugh');
+                spawnEmoji('😂');
+
+                setTimeout(() => {
+                    aiChatButton.style.animation = ''; // Reset
+                    aiChatButton.classList.remove('emotion-happy');
+                    // Restore float
+                    aiChatButton.offsetHeight;
+                    aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
+                }, 2000);
+            },
+
+            startExpressionEngine() {
+                setInterval(() => {
+                    if (this.state === 'SLEEP' || isDragging) return;
+
+                    // Check for sleep
+                    if (Date.now() - this.lastActionTime > 60000) {
+                        this.state = 'SLEEP';
+                        aiChatButton.classList.add('emotion-sleep');
+                        SoundEngine.play('snore');
+                        document.title = "Zzz... Robot Sleeping";
+                        return;
+                    }
+
+                    // Random Expressions
+                    if (Math.random() < 0.2) {
+                        const emotions = ['suspicious', 'confused', 'love', 'shocked', 'bored'];
+                        const pick = emotions[Math.floor(Math.random() * emotions.length)];
+                        aiChatButton.classList.add(`emotion-${pick}`);
+                        SoundEngine.play('chirp'); // Subtle
+
+                        setTimeout(() => aiChatButton.classList.remove(`emotion-${pick}`), 3000);
+                    }
+                }, 5000);
+            }
+        };
+
+        // Utils
+        function lerp(start, end, amt) {
+            return (1 - amt) * start + amt * end;
+        }
+
         // Helper: Render Suggestion Chips
         function renderSuggestions() {
             const container = document.createElement('div');
@@ -1172,9 +1324,9 @@
             const tips = [
                 "Who are you?",
                 "Tell me a joke",
-                "What can you do?",
                 "Roast me!",
-                "Sing a song"
+                "Sing a song",
+                "Verify Systems"
             ];
 
             tips.forEach(tip => {
@@ -1184,7 +1336,7 @@
                 chip.onclick = () => {
                     aiChatInput.value = tip;
                     processUserMessage();
-                    container.remove(); // Clear after click
+                    container.remove();
                 };
                 container.appendChild(chip);
             });
@@ -1207,70 +1359,70 @@
             }, 1000);
 
             EyeController.init();
-            SoundEngine.init(); // Pre-load context
+            SoundEngine.init();
+            RobotBrain.init(); // Start Brain
         }
 
-    } // End initChatbot
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initChatbot);
-    } else {
-        initChatbot();
-    }
-
-    // Expose for debugging
-    window.robotBrain = robotBrain;
-    window.toggleAngryMode = () => {
-        aiChatButton.classList.toggle('emotion-angry');
-        SoundEngine.play('angry');
-    };
-    // v3.9.5: Global function for "Send Me a Message" button
-    window.openChatAndNotify = function () {
-        // Open the chat window
-        const aiChatWindow = document.getElementById('ai-chat-window');
-        const aiChatInput = document.getElementById('ai-chat-input');
-
-        if (aiChatWindow) {
-            aiChatWindow.style.display = 'flex';
-            if (aiChatInput) setTimeout(() => aiChatInput.focus(), 120);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initChatbot);
+        } else {
+            initChatbot();
         }
 
-        // Trigger contact
-        sendContactRequest();
-    };
+        // Expose for debugging
+        window.robotBrain = RobotBrain;
+        window.toggleAngryMode = () => {
+            aiChatButton.classList.toggle('emotion-angry');
+            SoundEngine.play('angry');
+        };
+        // v3.9.5: Global function for "Send Me a Message" button
+        window.openChatAndNotify = function () {
+            // Open the chat window
+            const aiChatWindow = document.getElementById('ai-chat-window');
+            const aiChatInput = document.getElementById('ai-chat-input');
 
-    async function sendContactRequest() {
-        const aiChatMessages = document.getElementById('ai-chat-messages');
-
-        // Get or create user ID
-        let userId = localStorage.getItem('chat_uid');
-        if (!userId) {
-            userId = 'web-' + Math.random().toString(36).substring(7) + Date.now().toString(36);
-            localStorage.setItem('chat_uid', userId);
-        }
-
-        // Send contact request to backend
-        try {
-            const API_URL = 'https://AvinashAnalytics-avinash-chatbot.hf.space/ask';
-            await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    question: "🔔 User clicked 'Send Me a Message' - wants to contact Avinash directly",
-                    user_id: userId,
-                    contact_request: true
-                })
-            });
-
-            // Add welcome message to chat
-            if (aiChatMessages) {
-                const bubble = document.createElement('div');
-                bubble.className = 'ai-msg';
-                bubble.innerHTML = '📧 <b>Avinash has been notified!</b><br>He\'ll respond shortly. Feel free to describe what you\'d like to discuss.';
-                aiChatMessages.appendChild(bubble);
-                aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+            if (aiChatWindow) {
+                aiChatWindow.style.display = 'flex';
+                if (aiChatInput) setTimeout(() => aiChatInput.focus(), 120);
             }
-        } catch (error) {
-            console.error('Failed to send contact request:', error);
-        }
-    }
-})();
+
+            // Trigger contact
+            sendContactRequest();
+        };
+
+        async function sendContactRequest() {
+            const aiChatMessages = document.getElementById('ai-chat-messages');
+
+            // Get or create user ID
+            let userId = localStorage.getItem('chat_uid');
+            if (!userId) {
+                userId = 'web-' + Math.random().toString(36).substring(7) + Date.now().toString(36);
+                localStorage.setItem('chat_uid', userId);
+            }
+
+            // Send contact request to backend
+            try {
+                const API_URL = 'https://AvinashAnalytics-avinash-chatbot.hf.space/ask';
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: "🔔 User clicked 'Send Me a Message' - wants to contact Avinash directly",
+                        user_id: userId,
+                        contact_request: true
+                    })
+                });
+
+                // Add welcome message to chat
+                if (aiChatMessages) {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'ai-msg';
+                    bubble.innerHTML = '📧 <b>Avinash has been notified!</b><br>He\'ll respond shortly. Feel free to describe what you\'d like to discuss.';
+                    aiChatMessages.appendChild(bubble);
+                    aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+                }
+            } catch (error) {
+                console.error('Failed to send contact request:', error);
+            }
+        };
+    }) (window);

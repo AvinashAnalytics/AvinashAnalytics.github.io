@@ -394,6 +394,18 @@
   animation-delay: calc(var(--i) * -0.2s);
 }
 
+/* Stalking / Flying Mode */
+#ai-chat-button.robot-flying {
+  transition: top 0.1s linear, left 0.1s linear, transform 0.3s;
+  transform: rotate(8deg) scale(1.05);
+  /* Lean forward */
+  box-shadow:
+    -10px 10px 20px rgba(0, 0, 0, 0.3),
+    /* Lagging shadow */
+    0 0 30px rgba(6, 182, 212, 0.4);
+  /* Thruster glow */
+}
+
 /* Suggestion Chips */
 .suggestion-container {
   display: flex;
