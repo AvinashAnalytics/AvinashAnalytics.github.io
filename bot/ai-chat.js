@@ -733,29 +733,29 @@
             play(type) {
                 if (!this.ctx) this.init();
 
-                // R2D2 Sound Library
+                // Softer, "Cute" R2D2 Library (Less Irritating)
                 if (type === 'chirp') {
-                    // Classic "BEEP-boop"
-                    this.generateTone(1200, 0.1, 'square');
-                    setTimeout(() => this.generateTone(800, 0.15, 'sine'), 100);
+                    // Soft Bleep (Sine)
+                    this.generateTone(800, 0.1, 'sine');
+                    setTimeout(() => this.generateTone(1200, 0.1, 'sine'), 100);
                 } else if (type === 'happy') {
-                    // Slide Up Whistle
-                    this.whistle(800, 2000, 0.3);
-                    setTimeout(() => this.generateTone(2000, 0.1, 'sine', 50, 500), 100); // Vibrato finish
+                    // Soft Slide
+                    this.whistle(600, 1200, 0.2);
+                    setTimeout(() => this.whistle(1200, 1800, 0.2), 200);
                 } else if (type === 'shocked') {
-                    // "Bwaaah" - Fast FM chaos
-                    this.generateTone(500, 0.4, 'sawtooth', 30, 200);
+                    // Less chaotic, more "Whoa"
+                    this.whistle(500, 200, 0.3);
                 } else if (type === 'angry') {
-                    // "Grr" - Low FM
-                    this.generateTone(150, 0.5, 'sawtooth', 80, 50);
+                    // Low hum instead of buzz
+                    this.generateTone(120, 0.4, 'triangle', 20, 20);
                 } else if (type === 'cute') {
-                    // "Wee!"
-                    this.whistle(1500, 2500, 0.15);
+                    // High pitch ping
+                    this.generateTone(1400, 0.05, 'sine');
+                    setTimeout(() => this.generateTone(1800, 0.05, 'sine'), 100);
                 } else if (type === 'snore') {
-                    this.generateTone(100, 1.0, 'triangle', 5, 20); // Low warble
+                    this.generateTone(100, 1.0, 'sine', 2, 2); // Soft snore
                 } else if (type === 'purr') {
-                    // Fast low pulses
-                    for (let i = 0; i < 10; i++) setTimeout(() => this.generateTone(60, 0.05, 'sawtooth'), i * 60);
+                    for (let i = 0; i < 6; i++) setTimeout(() => this.generateTone(50, 0.05, 'triangle'), i * 80);
                 }
             }
         };
@@ -831,7 +831,8 @@
                         const y = (r.top + r.height / 2);
                         const rad = Math.atan2(e.clientX - x, e.clientY - y);
                         const rot = (rad * (180 / Math.PI) * -1) + 180;
-                        pupil.style.transform = `rotate(${rot}deg) translateY(2px)`;
+                        // Increased movement to 6px for highly visible tracking
+                        pupil.style.transform = `rotate(${rot}deg) translateY(6px)`;
                     });
                 });
             }
