@@ -590,10 +590,19 @@
                 try {
                     const AudioContext = window.AudioContext || window.webkitAudioContext;
                     this.ctx = new AudioContext();
+                    // Resume on any interaction
+                    const resume = () => {
+                        if (this.ctx.state === 'suspended') {
+                            this.ctx.resume().then(() => console.log('🔊 Audio Resumed'));
+                        }
+                        ['click', 'touchstart', 'keydown'].forEach(evt => document.removeEventListener(evt, resume));
+                    };
+                    ['click', 'touchstart', 'keydown'].forEach(evt => document.addEventListener(evt, resume));
                 } catch (e) { console.warn('Audio err', e); }
             },
             playTone(freq, type, duration, vol, delay = 0) {
                 if (!this.ctx) this.init();
+                // Force Resume if needed
                 if (this.ctx.state === 'suspended') this.ctx.resume();
 
                 const osc = this.ctx.createOscillator();
@@ -605,7 +614,9 @@
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq, now);
 
-                gain.gain.setValueAtTime(vol, now);
+                // Volume Boost (User said "Not Working" - might be too quiet)
+                const v = vol * 2.5;
+                gain.gain.setValueAtTime(v, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
 
                 osc.start(now);
@@ -616,26 +627,22 @@
 
                 // Polymorphic Cute Sounds
                 if (type === 'chirp') {
-                    // "Bi-dip!" - Dual tone harmony
-                    this.playTone(800, 'sine', 0.1, 0.1, 0);
-                    this.playTone(1200, 'sine', 0.2, 0.1, 0.08);
+                    // "Bi-dip!"
+                    this.playTone(800, 'sine', 0.1, 0.2, 0);
+                    this.playTone(1200, 'sine', 0.2, 0.2, 0.08);
                 } else if (type === 'purr') {
-                    // Fluttering low saw
+                    // Fluttering
                     for (let i = 0; i < 10; i++) {
-                        this.playTone(60, 'sawtooth', 0.1, 0.05, i * 0.08);
+                        this.playTone(60, 'sawtooth', 0.1, 0.1, i * 0.08);
                     }
                 } else if (type === 'snore') {
-                    // Filtered noise simulation via low tri
-                    this.playTone(100, 'triangle', 1.0, 0.05);
-                    this.playTone(98, 'triangle', 1.0, 0.05); // slight beat freq
+                    this.playTone(100, 'triangle', 1.0, 0.1);
+                    this.playTone(98, 'triangle', 1.0, 0.1);
                 } else if (type === 'boop') {
-                    // "Boop!"
-                    this.playTone(400, 'sine', 0.15, 0.1);
-                    this.playTone(400, 'triangle', 0.15, 0.05); // texture
+                    this.playTone(400, 'sine', 0.15, 0.2);
+                    this.playTone(400, 'triangle', 0.15, 0.1);
                 } else if (type === 'cheep') {
-                    gain.gain.exponentialRampToValueAtTime(0.005, now + 0.05);
-                    osc.start(now);
-                    osc.stop(now + 0.05);
+                    this.playTone(1500, 'sine', 0.05, 0.1);
                 }
             }
         };
@@ -657,16 +664,31 @@
             setTimeout(() => el.remove(), 1500);
         }
 
-        // =============== EYE TRACKING & PETTING ===============
+        // =============== EYE TRACKING & INTERACTION ===============
         let petStrokeCount = 0;
         let lastPetTime = 0;
 
         const EyeController = {
             init() {
-                document.addEventListener('mousemove', (e) => {
-                    robotBrain.lastActionTime = Date.now(); // Interaction wakes robot logic
+                // Immediate Hover Reaction (Fix "One Expression" request)
+                if (aiChatButton) {
+                    aiChatButton.addEventListener('mouseenter', () => {
+                        if (robotBrain.state === 'IDLE' || robotBrain.state === 'SITTING') {
+                            aiChatButton.classList.add('emotion-happy');
+                            SoundEngine.play('cheep');
+                        }
+                    });
+                    aiChatButton.addEventListener('mouseleave', () => {
+                        if (robotBrain.state === 'IDLE' || robotBrain.state === 'SITTING') {
+                            aiChatButton.classList.remove('emotion-happy');
+                        }
+                    });
+                }
 
-                    // Check for Petting (Mouse over button)
+                document.addEventListener('mousemove', (e) => {
+                    robotBrain.lastActionTime = Date.now();
+
+                    // Check for Petting (Rubbing)
                     const rect = aiChatButton.getBoundingClientRect();
                     if (e.clientX >= rect.left && e.clientX <= rect.right &&
                         e.clientY >= rect.top && e.clientY <= rect.bottom) {
@@ -679,11 +701,11 @@
                         }
                         lastPetTime = now;
 
-                        if (petStrokeCount > 10) { // Rubbed 5 times back/forth
+                        if (petStrokeCount > 10) {
                             robotBrain.startPetting();
-                            petStrokeCount = 0; // Reset
+                            petStrokeCount = 0;
                         }
-                        return; // Don't track eyes if petting logic active (looks crazy)
+                        return;
                     }
 
                     // Eye Tracking Logic
