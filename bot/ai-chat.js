@@ -507,6 +507,49 @@
             }
         }, 2000); // v3.17: Reduced from 5s to 2s for faster message delivery
 
+        // =============== ROBOT INTERACTIONS ===============
+        const suggestions = [
+            "Need help with Snowflake? ❄️",
+            "Ask about my resume! 📄",
+            "I know dbt & Matillion! 🛠️",
+            "Check out my projects! 🚀",
+            "Say 'Hi' to start! 👋",
+            "Looking for a Data Engineer? 👨‍💻"
+        ];
+
+        function showSuggestion() {
+            if (aiChatWindow.style.display === 'flex') return; // Don't show if chat open
+
+            const randomText = suggestions[Math.floor(Math.random() * suggestions.length)];
+            aiChatButton.setAttribute('data-bubble', randomText);
+            aiChatButton.classList.add('bubble-visible');
+
+            // Trigger Wobble Animation
+            aiChatButton.style.animation = 'none';
+            aiChatButton.offsetHeight; /* trigger reflow */
+            aiChatButton.style.animation = 'robotWobble 0.6s ease-in-out, robotFloat 3s ease-in-out infinite';
+
+            // Hide after 4 seconds
+            setTimeout(() => {
+                aiChatButton.classList.remove('bubble-visible');
+            }, 4000);
+        }
+
+        // Show suggestion every 10-15 seconds
+        setInterval(showSuggestion, 12000);
+
+        // Click to Jump (Interactive)
+        // We hook into the existing toggleChat or allow separate click logic
+        // Since toggleChat handles the click, we can add a visual pop there too
+        const originalToggle = toggleChat;
+        if (typeof toggleChat === 'function') {
+            // Redefine toggleChat locally if needed, but it's defined in scope
+            // The previous logic used addEventListener('click', ...). We need to intercept that?
+            // Actually, the drag logic calls `toggleChat(e)`.
+            // We can just add a separate listener for 'mousedown' to trigger jump instantly?
+            // No, let's keep it simple: Jump when bubble appears or clicked.
+        }
+
     }
 
     // Init when DOM ready
