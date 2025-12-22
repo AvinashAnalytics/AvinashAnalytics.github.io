@@ -12,6 +12,7 @@
         // v3.25: Build Live CSS Robot Structure (No Image)
         if (aiChatButton) {
             aiChatButton.innerHTML = `
+                <div class="glass-reflection"></div>
                 <div class="robot-face">
                     <div class="robot-eyes">
                         <div class="eye left"><div class="pupil"></div></div>
@@ -583,7 +584,7 @@
             // No, let's keep it simple: Jump when bubble appears or clicked.
         }
 
-        // =============== SOUND ENGINE (Formant Voice Synthesis) ===============
+        // =============== SOUND ENGINE (R2D2 FM Synthesis) ===============
         const SoundEngine = {
             ctx: null,
             init() {
@@ -598,49 +599,60 @@
                 } catch (e) { console.warn('Audio err', e); }
             },
 
-            // Core Voice Synthesizer
-            speak(vowel, pitch, duration, vol = 0.1) {
+            // FM Synthesis Core
+            // Carrier: Main Tone
+            // Modulator: Vibrato/Warble speed
+            generateTone(freq, duration, type = 'sine', modFreq = 0, modDepth = 0) {
                 if (!this.ctx) this.init();
                 if (this.ctx.state === 'suspended') this.ctx.resume();
 
                 const t = this.ctx.currentTime;
 
-                // Source: Sawtooth for robotic buzz
-                const osc = this.ctx.createOscillator();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(pitch, t);
-                osc.frequency.exponentialRampToValueAtTime(pitch * 0.8, t + duration); // Pitch drop
+                // Carrier Oscillator (The Voice)
+                const carrier = this.ctx.createOscillator();
+                carrier.type = type;
+                carrier.frequency.setValueAtTime(freq, t);
 
-                // Formant Filters (Vocal Tract)
-                // Vowel Formants (Approx): 
-                // A: 730, 1090 | E: 270, 2290 | I: 390, 1990 | O: 500, 1000 | U: 300, 870
-                const formants = {
-                    'a': [730, 1090], 'e': [270, 2290], 'i': [390, 1990],
-                    'o': [500, 1000], 'u': [300, 870]
-                };
-                const fFreqs = formants[vowel] || formants['o'];
+                // FM Modulator (The Warble)
+                if (modDepth > 0) {
+                    const modulator = this.ctx.createOscillator();
+                    modulator.frequency.value = modFreq;
+                    const modGain = this.ctx.createGain();
+                    modGain.gain.value = modDepth;
+                    modulator.connect(modGain);
+                    modGain.connect(carrier.frequency);
+                    modulator.start(t);
+                    modulator.stop(t + duration);
+                }
 
-                const f1 = this.ctx.createBiquadFilter();
-                f1.type = 'bandpass';
-                f1.Q.value = 5;
-                f1.frequency.setValueAtTime(fFreqs[0], t);
-
-                const f2 = this.ctx.createBiquadFilter();
-                f2.type = 'bandpass';
-                f2.Q.value = 10;
-                f2.frequency.setValueAtTime(fFreqs[1], t);
-
-                // Routing
-                // osc -> f1 -> gain
-                // osc -> f2 -> gain
+                // Amplitude Envelope (ADSR - Sharp Attack)
                 const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(vol, t);
-                gain.gain.exponentialRampToValueAtTime(0.01, t + duration);
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.2, t + 0.05); // Attack
+                gain.gain.exponentialRampToValueAtTime(0.01, t + duration); // Decay
 
-                osc.connect(f1); f1.connect(gain);
-                osc.connect(f2); f2.connect(gain);
+                carrier.connect(gain);
                 gain.connect(this.ctx.destination);
 
+                carrier.start(t);
+                carrier.stop(t + duration);
+            },
+
+            // R2D2 Whistle Slide
+            whistle(startFreq, endFreq, duration) {
+                if (!this.ctx) this.init();
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(startFreq, t);
+                osc.frequency.exponentialRampToValueAtTime(endFreq, t + duration);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.linearRampToValueAtTime(0, t + duration);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
                 osc.start(t);
                 osc.stop(t + duration);
             },
@@ -648,30 +660,29 @@
             play(type) {
                 if (!this.ctx) this.init();
 
-                // Polymorphic Funny Sounds
+                // R2D2 Sound Library
                 if (type === 'chirp') {
-                    // "Wee-Woo!"
-                    this.speak('e', 400, 0.15);
-                    setTimeout(() => this.speak('u', 300, 0.15), 150);
+                    // Classic "BEEP-boop"
+                    this.generateTone(1200, 0.1, 'square');
+                    setTimeout(() => this.generateTone(800, 0.15, 'sine'), 100);
                 } else if (type === 'happy') {
-                    // "Wa-Hoo!"
-                    this.speak('a', 500, 0.2);
-                    setTimeout(() => this.speak('u', 600, 0.2), 200);
+                    // Slide Up Whistle
+                    this.whistle(800, 2000, 0.3);
+                    setTimeout(() => this.generateTone(2000, 0.1, 'sine', 50, 500), 100); // Vibrato finish
                 } else if (type === 'shocked') {
-                    // "Ooooo!"
-                    this.speak('o', 350, 0.4);
+                    // "Bwaaah" - Fast FM chaos
+                    this.generateTone(500, 0.4, 'sawtooth', 30, 200);
                 } else if (type === 'angry') {
-                    // "Meh!"
-                    this.speak('e', 150, 0.3);
+                    // "Grr" - Low FM
+                    this.generateTone(150, 0.5, 'sawtooth', 80, 50);
                 } else if (type === 'cute') {
-                    // "Bee-Bo?"
-                    this.speak('i', 800, 0.1);
-                    setTimeout(() => this.speak('o', 500, 0.1), 120);
+                    // "Wee!"
+                    this.whistle(1500, 2500, 0.15);
                 } else if (type === 'snore') {
-                    this.speak('o', 100, 1.0, 0.05); // Low rumble
+                    this.generateTone(100, 1.0, 'triangle', 5, 20); // Low warble
                 } else if (type === 'purr') {
-                    // Fast loop
-                    for (let i = 0; i < 8; i++) setTimeout(() => this.speak('u', 60, 0.05, 0.05), i * 80);
+                    // Fast low pulses
+                    for (let i = 0; i < 10; i++) setTimeout(() => this.generateTone(60, 0.05, 'sawtooth'), i * 60);
                 }
             }
         };
