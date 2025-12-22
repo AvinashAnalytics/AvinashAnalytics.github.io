@@ -472,6 +472,161 @@
   color: var(--chat-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
+  /* Particles (Zzz, Heart) */
+  .bio-particle {
+    position: absolute;
+    pointer-events: none;
+    animation: floatUpFade 1.5s ease-out forwards;
+    font-weight: bold;
+    z-index: 10;
+  }
+
+  /* --- EXPANSION PACK EMOTIONS --- */
+
+  /* Shocked: Wide Eyes 0_0 */
+  #ai-chat-button.emotion-shocked .eye {
+    height: 24px;
+    width: 18px;
+    background: #0f172a;
+    border-radius: 50%;
+    transform: scale(1.2);
+  }
+
+  #ai-chat-button.emotion-shocked .pupil {
+    width: 6px;
+    height: 6px;
+    background: #06b6d4;
+    box-shadow: 0 0 15px #06b6d4;
+    animation: jitter 0.2s infinite;
+  }
+
+  #ai-chat-button.emotion-shocked .robot-mouth {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    /* Circle mouth */
+  }
+
+  /* Bored: Half-lidded -_- */
+  #ai-chat-button.emotion-bored .eye {
+    height: 12px;
+    border-top: 6px solid #334155;
+    /* Heavy eyelid */
+    border-radius: 0 0 50% 50%;
+  }
+
+  #ai-chat-button.emotion-bored .pupil {
+    transform: translateY(2px);
+  }
+
+  #ai-chat-button.emotion-bored .robot-mouth {
+    width: 12px;
+    border-bottom: 2px solid #94a3b8;
+    border-radius: 0;
+  }
+
+  /* Love: Pink Hearts <3 */
+  #ai-chat-button.emotion-love .eye {
+    background: #ec4899;
+    /* Pink */
+    box-shadow: 0 0 10px #ec4899;
+    height: 18px;
+    /* Heart approximation via clip-path or simple radius */
+    clip-path: polygon(50% 15%, 100% 0, 100% 50%, 50% 100%, 0 50%, 0 0);
+  }
+
+  #ai-chat-button.emotion-love .pupil {
+    opacity: 0;
+  }
+
+  #ai-chat-button.emotion-love .robot-mouth {
+    border-bottom-color: #ec4899;
+    width: 10px;
+  }
+
+  /* Angry: Slanted >_< */
+  #ai-chat-button.emotion-angry .robot-eyes {
+    gap: 10px;
+  }
+
+  #ai-chat-button.emotion-angry .eye {
+    background: #7f1d1d;
+    height: 16px;
+    border-radius: 50%;
+  }
+
+  #ai-chat-button.emotion-angry .eye.left {
+    transform: rotate(20deg);
+  }
+
+  #ai-chat-button.emotion-angry .eye.right {
+    transform: rotate(-20deg);
+  }
+
+  #ai-chat-button.emotion-angry .pupil {
+    background: #ef4444;
+    box-shadow: 0 0 10px #ef4444;
+  }
+
+  #ai-chat-button.emotion-angry .robot-mouth {
+    border-bottom: none;
+    border-top: 2px solid #ef4444;
+    /* Frown */
+    margin-top: 10px;
+  }
+
+  /* Wink: ;) */
+  #ai-chat-button.emotion-wink .eye.left {
+    height: 4px;
+    transform: scaleY(0.1);
+    background: #06b6d4;
+  }
+
+  #ai-chat-button.emotion-wink .eye.right {
+    height: 18px;
+  }
+
+  #ai-chat-button.emotion-wink .robot-mouth {
+    transform: rotate(-5deg) translateX(2px);
+    /* Smirk */
+    width: 12px;
+  }
+
+  @keyframes jitter {
+
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+
+    25% {
+      transform: translate(1px, 1px);
+    }
+
+    75% {
+      transform: translate(-1px, -1px);
+    }
+  }
+
+  @keyframes floatUpFade {
+    0% {
+      transform: translateY(0) scale(0.5);
+      opacity: 0;
+    }
+
+    20% {
+      opacity: 1;
+      transform: translateY(-10px) scale(1.2);
+    }
+
+    100% {
+      transform: translateY(-40px) scale(1);
+      opacity: 0;
+    }
+  }
+
   /* Smooth entrance animation */
   animation: slideUpFade 400ms cubic-bezier(.34, 1.56, .64, 1);
 }

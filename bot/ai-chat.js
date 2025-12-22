@@ -583,66 +583,95 @@
             // No, let's keep it simple: Jump when bubble appears or clicked.
         }
 
-        // =============== SOUND ENGINE (Web Audio API - Emo Style) ===============
+        // =============== SOUND ENGINE (Formant Voice Synthesis) ===============
         const SoundEngine = {
             ctx: null,
             init() {
                 try {
                     const AudioContext = window.AudioContext || window.webkitAudioContext;
                     this.ctx = new AudioContext();
-                    // Resume on any interaction
                     const resume = () => {
-                        if (this.ctx.state === 'suspended') {
-                            this.ctx.resume().then(() => console.log('🔊 Audio Resumed'));
-                        }
+                        if (this.ctx.state === 'suspended') this.ctx.resume();
                         ['click', 'touchstart', 'keydown'].forEach(evt => document.removeEventListener(evt, resume));
                     };
                     ['click', 'touchstart', 'keydown'].forEach(evt => document.addEventListener(evt, resume));
                 } catch (e) { console.warn('Audio err', e); }
             },
-            playTone(freq, type, duration, vol, delay = 0) {
+
+            // Core Voice Synthesizer
+            speak(vowel, pitch, duration, vol = 0.1) {
                 if (!this.ctx) this.init();
-                // Force Resume if needed
                 if (this.ctx.state === 'suspended') this.ctx.resume();
 
+                const t = this.ctx.currentTime;
+
+                // Source: Sawtooth for robotic buzz
                 const osc = this.ctx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(pitch, t);
+                osc.frequency.exponentialRampToValueAtTime(pitch * 0.8, t + duration); // Pitch drop
+
+                // Formant Filters (Vocal Tract)
+                // Vowel Formants (Approx): 
+                // A: 730, 1090 | E: 270, 2290 | I: 390, 1990 | O: 500, 1000 | U: 300, 870
+                const formants = {
+                    'a': [730, 1090], 'e': [270, 2290], 'i': [390, 1990],
+                    'o': [500, 1000], 'u': [300, 870]
+                };
+                const fFreqs = formants[vowel] || formants['o'];
+
+                const f1 = this.ctx.createBiquadFilter();
+                f1.type = 'bandpass';
+                f1.Q.value = 5;
+                f1.frequency.setValueAtTime(fFreqs[0], t);
+
+                const f2 = this.ctx.createBiquadFilter();
+                f2.type = 'bandpass';
+                f2.Q.value = 10;
+                f2.frequency.setValueAtTime(fFreqs[1], t);
+
+                // Routing
+                // osc -> f1 -> gain
+                // osc -> f2 -> gain
                 const gain = this.ctx.createGain();
-                osc.connect(gain);
+                gain.gain.setValueAtTime(vol, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + duration);
+
+                osc.connect(f1); f1.connect(gain);
+                osc.connect(f2); f2.connect(gain);
                 gain.connect(this.ctx.destination);
 
-                const now = this.ctx.currentTime + delay;
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, now);
-
-                // Volume Boost (User said "Not Working" - might be too quiet)
-                const v = vol * 2.5;
-                gain.gain.setValueAtTime(v, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-
-                osc.start(now);
-                osc.stop(now + duration);
+                osc.start(t);
+                osc.stop(t + duration);
             },
+
             play(type) {
                 if (!this.ctx) this.init();
 
-                // Polymorphic Cute Sounds
+                // Polymorphic Funny Sounds
                 if (type === 'chirp') {
-                    // "Bi-dip!"
-                    this.playTone(800, 'sine', 0.1, 0.2, 0);
-                    this.playTone(1200, 'sine', 0.2, 0.2, 0.08);
-                } else if (type === 'purr') {
-                    // Fluttering
-                    for (let i = 0; i < 10; i++) {
-                        this.playTone(60, 'sawtooth', 0.1, 0.1, i * 0.08);
-                    }
+                    // "Wee-Woo!"
+                    this.speak('e', 400, 0.15);
+                    setTimeout(() => this.speak('u', 300, 0.15), 150);
+                } else if (type === 'happy') {
+                    // "Wa-Hoo!"
+                    this.speak('a', 500, 0.2);
+                    setTimeout(() => this.speak('u', 600, 0.2), 200);
+                } else if (type === 'shocked') {
+                    // "Ooooo!"
+                    this.speak('o', 350, 0.4);
+                } else if (type === 'angry') {
+                    // "Meh!"
+                    this.speak('e', 150, 0.3);
+                } else if (type === 'cute') {
+                    // "Bee-Bo?"
+                    this.speak('i', 800, 0.1);
+                    setTimeout(() => this.speak('o', 500, 0.1), 120);
                 } else if (type === 'snore') {
-                    this.playTone(100, 'triangle', 1.0, 0.1);
-                    this.playTone(98, 'triangle', 1.0, 0.1);
-                } else if (type === 'boop') {
-                    this.playTone(400, 'sine', 0.15, 0.2);
-                    this.playTone(400, 'triangle', 0.15, 0.1);
-                } else if (type === 'cheep') {
-                    this.playTone(1500, 'sine', 0.05, 0.1);
+                    this.speak('o', 100, 1.0, 0.05); // Low rumble
+                } else if (type === 'purr') {
+                    // Fast loop
+                    for (let i = 0; i < 8; i++) setTimeout(() => this.speak('u', 60, 0.05, 0.05), i * 80);
                 }
             }
         };
@@ -675,7 +704,7 @@
                     aiChatButton.addEventListener('mouseenter', () => {
                         if (robotBrain.state === 'IDLE' || robotBrain.state === 'SITTING') {
                             aiChatButton.classList.add('emotion-happy');
-                            SoundEngine.play('cheep');
+                            SoundEngine.play('cute'); // Changed from 'cheep'
                         }
                     });
                     aiChatButton.addEventListener('mouseleave', () => {
@@ -750,33 +779,53 @@
 
             init() {
                 if (window.innerWidth < 768) return;
-                setInterval(() => this.think(), 2000); // Think faster for sleep check
-                console.log('🤖 Robot Brain: Online');
+                setInterval(() => this.think(), 2500); // Think faster for sleep check
+                console.log('🤖 Robot Brain: Online (Personality V2)');
             },
 
             think() {
                 if (isDragging || aiChatWindow.style.display === 'flex') {
-                    this.lastActionTime = Date.now(); // Reset sleep timer if busy
+                    this.lastActionTime = Date.now();
                     return;
                 }
 
-                // Check Sleep
                 const timeSinceAction = Date.now() - this.lastActionTime;
                 if (timeSinceAction > 60000 && this.state !== 'SLEEP') {
                     this.startSleep();
                     return;
                 }
 
-                if (this.state === 'SLEEP' || this.state === 'PETTING' || this.state === 'DIZZY' || this.state === 'TESTING') return; // Don't roam
-                if (timeSinceAction < 4000) return; // Cooldown
+                // Don't interrupt these states
+                if (['SLEEP', 'PETTING', 'DIZZY', 'TESTING'].includes(this.state)) return;
 
                 const roll = Math.random();
-                if (this.state === 'IDLE') {
-                    if (roll < 0.3) this.roamToText();
-                    else if (roll < 0.4) { this.doTrick(); SoundEngine.play('chirp'); }
-                    else if (roll < 0.5) showSuggestion();
-                } else if (this.state === 'SITTING') {
-                    if (roll < 0.6) this.returnHome();
+
+                // Clear old emotions (except Sleep/Petting which are handled separately)
+                aiChatButton.classList.remove('emotion-shocked', 'emotion-bored', 'emotion-love', 'emotion-angry', 'emotion-wink', 'emotion-happy');
+
+                // 40% Chance to Change Expression/Sound
+                if (roll < 0.4) {
+                    const emotions = ['emotion-shocked', 'emotion-bored', 'emotion-love', 'emotion-angry', 'emotion-wink', 'emotion-happy'];
+                    const emotion = emotions[Math.floor(Math.random() * emotions.length)];
+
+                    aiChatButton.classList.add(emotion);
+                    this.state = 'IDLE'; // Technically idle but expressive
+
+                    // Voice Result
+                    if (emotion === 'emotion-shocked') SoundEngine.play('shocked');
+                    else if (emotion === 'emotion-love') { SoundEngine.play('happy'); spawnEmoji('💖'); }
+                    else if (emotion === 'emotion-angry') SoundEngine.play('angry');
+                    else if (emotion === 'emotion-wink') SoundEngine.play('cute');
+                    else if (emotion === 'emotion-happy') SoundEngine.play('happy');
+
+                    // Stay like this for 2s then clear
+                    setTimeout(() => {
+                        if (this.state === 'IDLE') aiChatButton.classList.remove(emotion);
+                    }, 2000);
+                }
+                // 10% Chance to actually Move
+                else if (roll < 0.5) {
+                    this.roamToText();
                 }
             },
 
