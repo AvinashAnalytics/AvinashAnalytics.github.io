@@ -1047,6 +1047,9 @@
                 this.observeCursor();
                 this.checkOfficeHours(); // Real World Awareness
 
+                // Scroll Humor
+                window.addEventListener('scroll', () => this.handleScroll());
+
                 // Visibility API (Tab Focus)
                 document.addEventListener('visibilitychange', () => {
                     if (document.hidden) {
@@ -1076,6 +1079,54 @@
                 } else {
                     this.contextMap['avinash'] = "He's probably resting or gaming. 🎮";
                 }
+            },
+
+            // --- SCROLL HUMOR ENGINE ---
+            lastScrollY: 0,
+            scrollTimer: null,
+            isScrollCool: true,
+
+            handleScroll() {
+                if (!this.isScrollCool || this.state === 'SLEEP') return;
+
+                const currentY = window.scrollY;
+                const delta = currentY - this.lastScrollY;
+                const speed = Math.abs(delta);
+
+                // Fast Scroll Detection (Threshold: 100px difference per event check)
+                if (speed > 100) {
+                    // Debounce
+                    clearTimeout(this.scrollTimer);
+                    this.scrollTimer = setTimeout(() => this.triggerScrollReaction(), 200);
+                }
+                this.lastScrollY = currentY;
+            },
+
+            triggerScrollReaction() {
+                if (!this.isScrollCool) return;
+                this.isScrollCool = false;
+
+                // 30% Chance to react
+                if (Math.random() < 0.3) {
+                    const comments = [
+                        "Weeeee! 🎢",
+                        "Slow down! I'm getting dizzy! 😵",
+                        "Whoa! Too fast! 🚀",
+                        "Reading speed: 1000 WPM! ⚡",
+                        "Wait for me! 🏃‍♂️",
+                        "Scanning content... 👁️"
+                    ];
+                    const pick = comments[Math.floor(Math.random() * comments.length)];
+
+                    this.showThinking(pick);
+                    aiChatButton.classList.add('robot-shake'); // Reuse shake animation
+                    setTimeout(() => aiChatButton.classList.remove('robot-shake'), 1000);
+
+                    if (this.voiceEnabled) this.speak(pick);
+                }
+
+                // Cooldown 4s
+                setTimeout(() => { this.isScrollCool = true; }, 4000);
             },
 
             // --- PETTING LOGIC (Rubbing Detection) ---
