@@ -836,6 +836,8 @@
 
             play(type) {
                 if (!this.ctx) this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume(); // Fix browser policy
+
                 if (type === 'chirp') {
                     this.playTone(523.25, 0.3, 'sine');
                     setTimeout(() => this.playTone(659, 0.3, 'sine'), 80);
@@ -1042,15 +1044,63 @@
             init() {
                 this.startExpressionEngine();
                 this.stalkLoop();
-                this.observeCursor(); // NEW: Start Watching
+                this.observeCursor();
+                this.checkOfficeHours(); // Real World Awareness
+
+                // Visibility API (Tab Focus)
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        this.startSleep();
+                    } else {
+                        this.wakeUp();
+                        this.speak("Welcome back!");
+                    }
+                });
 
                 // Track mouse global
                 document.addEventListener('mousemove', (e) => {
                     mouseX = e.clientX;
                     mouseY = e.clientY;
                     this.lastActionTime = Date.now();
-                    this.checkHover(e.target); // Check what we are hovering
+                    this.checkHover(e.target);
+                    this.handlePetting(e); // Check for rubbing
                 });
+            },
+
+            // --- REAL WORLD AWARENESS ---
+            checkOfficeHours() {
+                const hour = new Date().getHours();
+                const isWorkTime = hour >= 9 && hour <= 18;
+                if (isWorkTime) {
+                    this.contextMap['avinash'] = "He's likely coding right now! 👨‍💻";
+                } else {
+                    this.contextMap['avinash'] = "He's probably resting or gaming. 🎮";
+                }
+            },
+
+            // --- PETTING LOGIC (Rubbing Detection) ---
+            lastMouseX: 0,
+            lastMouseY: 0,
+            rubDistance: 0,
+
+            handlePetting(e) {
+                // Only if hovering robot
+                const rect = aiChatButton.getBoundingClientRect();
+                if (e.clientX >= rect.left && e.clientX <= rect.right &&
+                    e.clientY >= rect.top && e.clientY <= rect.bottom) {
+
+                    const delta = Math.hypot(e.clientX - this.lastMouseX, e.clientY - this.lastMouseY);
+                    this.rubDistance += delta;
+
+                    if (this.rubDistance > 500) { // Threshold
+                        this.startPetting();
+                        this.rubDistance = 0;
+                    }
+                } else {
+                    this.rubDistance = 0; // Reset if left robot
+                }
+                this.lastMouseX = e.clientX;
+                this.lastMouseY = e.clientY;
             },
 
             stalkLoop() {
@@ -1507,8 +1557,11 @@
                     clearInterval(this.sleepInterval);
                     aiChatButton.classList.remove('emotion-sleep');
                     this.state = 'IDLE';
-                    aiChatButton.style.animation = 'robotRun 0.4s ease-in-out';
-                    setTimeout(() => aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite', 400);
+
+                    // New Pop Animation
+                    aiChatButton.style.animation = 'robotWakeShake 0.6s ease-out';
+                    setTimeout(() => aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite', 600);
+
                     SoundEngine.play('boop');
                 }
                 this.lastActionTime = Date.now();
