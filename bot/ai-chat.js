@@ -1338,6 +1338,14 @@
 
             observeCursor() {
                 console.log('👁️ Robot Eye: Scanning for keywords...');
+
+                // Active Scan Interval
+                setInterval(() => {
+                    if (this.state === 'IDLE' && !this.isThinking) {
+                        const el = document.elementFromPoint(mouseX, mouseY);
+                        if (el) this.checkHover(el);
+                    }
+                }, 600);
             },
 
             // Dictionary of Contexts
