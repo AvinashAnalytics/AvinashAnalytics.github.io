@@ -1463,6 +1463,36 @@
   transform: scale(1.1);
 }
 
+#ai-chat-send {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #38B6FF 0%, #8B5CF6 100%);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(56, 182, 255, 0.2);
+}
+
+#ai-chat-send:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(56, 182, 255, 0.4);
+}
+
+#ai-chat-send:active {
+  transform: translateY(1px);
+}
+
+#ai-chat-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 #ai-chat-mic.recording {
   background: rgba(239, 68, 68, 0.2);
   color: #ef4444;
