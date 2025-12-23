@@ -599,60 +599,129 @@
             }
         }
 
-        // --- Groq STT (Backend) ---
+        // --- Groq STT (Backend) with Silence Detection ---
         let mediaRecorder = null;
         let audioChunks = [];
+        let audioContext = null;
+        let analyser = null;
+        let silenceTimer = null;
+        let isRecording = false;
 
         if (micBtn) {
             micBtn.addEventListener('click', async () => {
-                if (micBtn.classList.contains('recording')) {
-                    mediaRecorder.stop();
+                if (isRecording) {
+                    stopRecording();
                     return;
                 }
-
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-
-                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                    mediaRecorder.onstart = () => {
-                        micBtn.classList.add('recording');
-                        micBtn.style.color = '#ef4444';
-                        userInput.placeholder = "Listening (Groq)...";
-                    };
-                    mediaRecorder.onstop = async () => {
-                        micBtn.classList.remove('recording');
-                        micBtn.style.color = '';
-                        userInput.placeholder = "Processing Audio...";
-
-                        const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                        const formData = new FormData();
-                        formData.append('file', blob, 'voice.webm');
-
-                        try {
-                            const res = await fetch('https://avinashanalytics-avinash-chatbot.hf.space/api/stt', {
-                                method: 'POST',
-                                body: formData
-                            });
-                            const data = await res.json();
-                            if (data.text) {
-                                userInput.value = data.text;
-                                userInput.placeholder = "Ask me anything...";
-                                sendMessage();
-                            }
-                        } catch (e) {
-                            console.error('STT Error:', e);
-                            userInput.placeholder = "Error processing audio.";
-                        }
-                    };
-                    mediaRecorder.start();
-
-                } catch (e) {
-                    alert('Microphone access denied or not supported.');
-                    console.error(e);
-                }
+                startRecording();
             });
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                isRecording = true;
+
+                // UI Feedback
+                micBtn.classList.add('recording');
+                micBtn.innerHTML = '🛑'; // Stop Icon
+                micBtn.style.color = '#ef4444';
+                micBtn.style.animation = 'pulse 1.5s infinite';
+                userInput.placeholder = "Listening... (Speak now)";
+                userInput.value = ""; // Clear input
+
+                // Silence Detection Setup
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(stream);
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                source.connect(analyser);
+
+                detectSilence(dataArray);
+
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = async () => {
+                    processAudio();
+                };
+                mediaRecorder.start();
+
+            } catch (e) {
+                alert('Microphone access denied or not supported.');
+                console.error(e);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                isRecording = false;
+                // Cleanup UI
+                micBtn.classList.remove('recording');
+                micBtn.innerHTML = '🎤'; // Reset Icon
+                micBtn.style.animation = '';
+                micBtn.style.color = '';
+                userInput.placeholder = "Processing...";
+
+                // Cleanup Audio
+                if (audioContext) audioContext.close();
+                clearTimeout(silenceTimer);
+            }
+        }
+
+        function detectSilence(dataArray) {
+            if (!isRecording) return;
+            analyser.getByteFrequencyData(dataArray);
+
+            // Calculate Volume
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+            let average = sum / dataArray.length;
+
+            // Threshold for silence (adjustable)
+            if (average < 10) {
+                if (!silenceTimer) {
+                    silenceTimer = setTimeout(() => {
+                        console.log("Silence detected, auto-stopping...");
+                        stopRecording();
+                    }, 2000); // 2 seconds of silence -> Stop
+                }
+            } else {
+                clearTimeout(silenceTimer);
+                silenceTimer = null;
+                userInput.placeholder = "Listening... 🎤"; // Visual feedback of sound
+            }
+            requestAnimationFrame(() => detectSilence(dataArray));
+        }
+
+        async function processAudio() {
+            const blob = new Blob(audioChunks, { type: 'audio/webm' });
+            const formData = new FormData();
+            formData.append('file', blob, 'voice.webm');
+
+            try {
+                // Show "Typing..." effect while processing
+                userInput.value = "Transcribing...";
+
+                const res = await fetch('https://avinashanalytics-avinash-chatbot.hf.space/api/stt', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (data.text && data.text.trim()) {
+                    userInput.value = data.text;
+                    sendMessage(); // Auto Send
+                } else {
+                    userInput.value = '';
+                    userInput.placeholder = "No speech detected.";
+                }
+            } catch (e) {
+                console.error('STT Error:', e);
+                userInput.value = '';
+                userInput.placeholder = "Error processing audio.";
+            }
         }
 
         // --- Messaging ---
