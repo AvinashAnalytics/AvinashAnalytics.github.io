@@ -587,15 +587,22 @@
                 const res = await fetch('https://avinashanalytics-avinash-chatbot.hf.space/api/tts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: text }) // Uses backend default voice (Mitch-PlayAI)
+                    body: JSON.stringify({ text: text })
                 });
                 if (res.ok) {
                     const blob = await res.blob();
                     const audio = new Audio(URL.createObjectURL(blob));
-                    audio.play();
+                    audio.play().catch(e => {
+                        console.error("Playback failed:", e);
+                        appendMessage("⚠️ Audio blocked by browser. Click page to enable.", 'bot', false);
+                    });
+                } else {
+                    console.error("TTS API Error:", res.status);
+                    appendMessage("⚠️ TTS Error: " + res.status, 'bot', false);
                 }
             } catch (e) {
                 console.error("TTS Error:", e);
+                appendMessage("⚠️ TTS Network Error", 'bot', false);
             }
         }
 

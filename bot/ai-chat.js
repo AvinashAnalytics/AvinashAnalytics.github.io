@@ -133,7 +133,8 @@
             if (!RobotBrain.voiceEnabled) return;
 
             try {
-                const res = await fetch('https://AvinashAnalytics-avinash-chatbot.hf.space/api/tts', {
+                // Fixed URL casing to lowercase
+                const res = await fetch('https://avinashanalytics-avinash-chatbot.hf.space/api/tts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ text: text })
@@ -141,11 +142,18 @@
                 if (res.ok) {
                     const blob = await res.blob();
                     const audio = new Audio(URL.createObjectURL(blob));
-                    audio.play();
+                    // Handle Autoplay promise
+                    audio.play().catch(e => {
+                        console.warn("Autoplay blocked:", e);
+                        addMessage("⚠️ Audio playback blocked. Please interact with the page.", 'ai-msg');
+                    });
+
                     if (aiChatButton) aiChatButton.classList.add('emotion-happy');
                     audio.onended = () => { if (aiChatButton) aiChatButton.classList.remove('emotion-happy'); };
+                } else {
+                    console.error("TTS API Error:", res.status);
                 }
-            } catch (e) { console.error('TTS Error', e); }
+            } catch (e) { console.error('TTS Network Error', e); }
         }
 
         // =============== API URL ===============
