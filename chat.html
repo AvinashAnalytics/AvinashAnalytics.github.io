@@ -19,15 +19,22 @@
         /* ==================== BODY ==================== */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1224 100%);
-            min-height: 100vh;
-            /* Fallback */
-            min-height: 100dvh;
-            /* v3.21: Dynamic Viewport Height for Mobile */
+            background-color: #050711;
+            /* Cyber Grid Background */
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(56, 182, 255, 0.1) 0%, transparent 50%),
+                linear-gradient(rgba(56, 182, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 182, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+
+            height: 100vh;
+            height: 100dvh;
+            margin: 0;
+            overflow: hidden;
+            /* Prevent body scroll, container handles it */
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
             color: #e6eef3;
         }
 
@@ -35,92 +42,88 @@
         .chat-container {
             width: 100%;
             max-width: 450px;
-            background: rgba(13, 18, 36, 0.95);
+            /* Fit Screen Logic */
+            height: 85vh;
+            max-height: 800px;
+            display: flex;
+            flex-direction: column;
+
+            background: rgba(13, 18, 36, 0.85);
+            /* More transparent for blur */
             border-radius: 24px;
             border: 1px solid rgba(56, 182, 255, 0.3);
             box-shadow:
-                0 25px 80px rgba(0, 0, 0, 0.5),
-                0 0 40px rgba(56, 182, 255, 0.1);
+                0 0 50px rgba(56, 182, 255, 0.15),
+                0 0 20px rgba(139, 92, 246, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             overflow: hidden;
-            backdrop-filter: blur(10px);
+            position: relative;
         }
 
-        /* ==================== HEADER ==================== */
+        /* ==================== HEADER (BANNER) ==================== */
         .chat-header {
-            background: linear-gradient(135deg, #38B6FF 0%, #8B5CF6 100%);
+            background: linear-gradient(135deg, #1a1f3a 0%, #0d1224 100%);
             padding: 20px 24px;
             display: flex;
             align-items: center;
             gap: 15px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(56, 182, 255, 0.2);
         }
 
-        .avatar {
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+        /* AI Banner Effect */
+        .chat-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 90% 10%, rgba(56, 182, 255, 0.2) 0%, transparent 40%),
+                linear-gradient(45deg, transparent 48%, rgba(56, 182, 255, 0.1) 50%, transparent 52%);
+            background-size: 200% 200%;
+            animation: bannerShimmer 5s infinite linear;
+            z-index: 0;
         }
 
-        .header-info h1 {
-            color: white;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 2px;
+        .chat-header>* {
+            z-index: 1;
         }
 
-        .header-info p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.85rem;
-        }
+        /* Bring content above banner bg */
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #00D9A3;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 6px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
+        @keyframes bannerShimmer {
+            0% {
+                background-position: 0% 0%;
             }
 
-            50% {
-                opacity: 0.5;
+            100% {
+                background-position: 100% 100%;
             }
         }
 
         /* ==================== STATUS BAR ==================== */
         .status-bar {
-            padding: 10px 20px;
+            padding: 8px 20px;
             text-align: center;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             border-bottom: 1px solid rgba(56, 182, 255, 0.1);
-        }
-
-        .status-bar.online {
-            background: rgba(0, 217, 163, 0.06);
-            color: #00D9A3;
-        }
-
-        .status-bar.offline {
-            background: rgba(255, 107, 157, 0.06);
-            color: #FF6B9D;
+            background: rgba(0, 0, 0, 0.2);
         }
 
         .status-bar.checking {
-            background: rgba(56, 182, 255, 0.06);
-            color: #38B6FF;
+            color: #38b6ff;
+        }
+
+        .status-bar.online {
+            color: #00d9a3;
+        }
+
+        .status-bar.offline {
+            color: #ff4757;
         }
 
         /* ==================== MESSAGES ==================== */
