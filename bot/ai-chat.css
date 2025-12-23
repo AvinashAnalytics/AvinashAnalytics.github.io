@@ -58,7 +58,33 @@
   touch-action: none;
   user-select: none;
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  /* Bouncy */
+}
+
+/* Radar Pulse Effect */
+#ai-chat-button::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border-radius: 50%;
+  border: 1px solid rgba(56, 182, 255, 0.4);
+  opacity: 0;
+  z-index: -1;
+  animation: pulseRing 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 
 /* THE SPECULAR HIGHLIGHT (Reflection) */

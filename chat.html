@@ -59,11 +59,28 @@
             -webkit-backdrop-filter: blur(20px);
             overflow: hidden;
             position: relative;
+            z-index: 2;
         }
 
-        /* ==================== HEADER (BANNER) ==================== */
+        /* Scanline Overlay */
+        .chat-container::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* ==================== HEADER (HOLOGRAPHIC) ==================== */
         .chat-header {
-            background: linear-gradient(135deg, #1a1f3a 0%, #0d1224 100%);
+            background: linear-gradient(135deg, rgba(26, 31, 58, 0.95), rgba(13, 18, 36, 0.98));
             padding: 20px 24px;
             display: flex;
             align-items: center;
@@ -71,37 +88,34 @@
             position: relative;
             overflow: hidden;
             border-bottom: 1px solid rgba(56, 182, 255, 0.2);
+            z-index: 11;
+            /* Above scanline */
         }
 
-        /* AI Banner Effect */
+        /* Holographic Shimmer */
         .chat-header::before {
             content: '';
             position: absolute;
             top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                radial-gradient(circle at 90% 10%, rgba(56, 182, 255, 0.2) 0%, transparent 40%),
-                linear-gradient(45deg, transparent 48%, rgba(56, 182, 255, 0.1) 50%, transparent 52%);
-            background-size: 200% 200%;
-            animation: bannerShimmer 5s infinite linear;
-            z-index: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(56, 182, 255, 0.1), transparent);
+            transform: skewX(-25deg);
+            animation: holoShine 6s infinite;
         }
 
-        .chat-header>* {
-            z-index: 1;
-        }
-
-        /* Bring content above banner bg */
-
-        @keyframes bannerShimmer {
+        @keyframes holoShine {
             0% {
-                background-position: 0% 0%;
+                left: -100%;
+            }
+
+            20% {
+                left: 200%;
             }
 
             100% {
-                background-position: 100% 100%;
+                left: 200%;
             }
         }
 
@@ -211,31 +225,40 @@
             }
         }
 
-        /* ==================== QUICK BUTTONS ==================== */
+        /* ==================== QUICK BUTTONS (AI CHIPS) ==================== */
         .quick-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            padding: 12px 20px;
-            background: rgba(0, 0, 0, 0.06);
-            border-top: 1px solid rgba(56, 182, 255, 0.06);
+            gap: 10px;
+            padding: 15px 20px;
+            background: rgba(13, 18, 36, 0.6);
+            border-top: 1px solid rgba(56, 182, 255, 0.1);
+            position: relative;
+            z-index: 11;
         }
 
         .quick-btn {
-            padding: 8px 14px;
-            background: rgba(56, 182, 255, 0.08);
-            border: 1px solid rgba(56, 182, 255, 0.12);
-            border-radius: 20px;
+            padding: 8px 16px;
+            background: rgba(56, 182, 255, 0.05);
+            border: 1px solid rgba(56, 182, 255, 0.2);
+            border-radius: 50px;
+            /* Capsule */
             color: #38B6FF;
             font-size: 0.8rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .quick-btn:hover {
-            background: rgba(56, 182, 255, 0.14);
+            background: rgba(56, 182, 255, 0.15);
+            border-color: #38B6FF;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(56, 182, 255, 0.08);
+            box-shadow: 0 0 15px rgba(56, 182, 255, 0.3);
+            color: white;
         }
 
         /* ==================== INPUT AREA ==================== */
