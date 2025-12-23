@@ -581,25 +581,79 @@
             });
         }
 
-        function speak(text) {
-            if (!voiceEnabled || !window.speechSynthesis) return;
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g, ''));
-            u.pitch = 1.4; u.rate = 1.1;
-            const voices = window.speechSynthesis.getVoices();
-            const preferred = voices.find(v => v.name.includes("Google US English") || v.name.includes("Samantha"));
-            if (preferred) u.voice = preferred;
-            window.speechSynthesis.speak(u);
+        async function speak(text) {
+            if (!voiceEnabled) return;
+            try {
+                const res = await fetch('https://avinashanalytics-avinash-chatbot.hf.space/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text }) // Uses backend default voice (Mitch-PlayAI)
+                });
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const audio = new Audio(URL.createObjectURL(blob));
+                    audio.play();
+                }
+            } catch (e) {
+                console.error("TTS Error:", e);
+            }
         }
 
-        if ('webkitSpeechRecognition' in window) {
-            recognition = new webkitSpeechRecognition();
-            recognition.continuous = false; recognition.interimResults = false; recognition.lang = 'en-US';
-            recognition.onstart = () => { micBtn.style.color = '#ef4444'; userInput.placeholder = "Listening..."; };
-            recognition.onend = () => { micBtn.style.color = ''; userInput.placeholder = "Ask me anything..."; };
-            recognition.onresult = (e) => { userInput.value = e.results[0][0].transcript; sendMessage(); };
-            micBtn.addEventListener('click', () => recognition.start());
-        } else if (micBtn) micBtn.style.display = 'none';
+        // --- Groq STT (Backend) ---
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        if (micBtn) {
+            micBtn.addEventListener('click', async () => {
+                if (micBtn.classList.contains('recording')) {
+                    mediaRecorder.stop();
+                    return;
+                }
+
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstart = () => {
+                        micBtn.classList.add('recording');
+                        micBtn.style.color = '#ef4444';
+                        userInput.placeholder = "Listening (Groq)...";
+                    };
+                    mediaRecorder.onstop = async () => {
+                        micBtn.classList.remove('recording');
+                        micBtn.style.color = '';
+                        userInput.placeholder = "Processing Audio...";
+
+                        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const formData = new FormData();
+                        formData.append('file', blob, 'voice.webm');
+
+                        try {
+                            const res = await fetch('https://avinashanalytics-avinash-chatbot.hf.space/api/stt', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            const data = await res.json();
+                            if (data.text) {
+                                userInput.value = data.text;
+                                userInput.placeholder = "Ask me anything...";
+                                sendMessage();
+                            }
+                        } catch (e) {
+                            console.error('STT Error:', e);
+                            userInput.placeholder = "Error processing audio.";
+                        }
+                    };
+                    mediaRecorder.start();
+
+                } catch (e) {
+                    alert('Microphone access denied or not supported.');
+                    console.error(e);
+                }
+            });
+        }
 
         // --- Messaging ---
         function appendMessage(text, type, save = true) {
