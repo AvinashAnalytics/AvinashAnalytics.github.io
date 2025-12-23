@@ -1031,49 +1031,124 @@
             },
 
             think() {
+                this.isThinking = true;
+                aiChatButton.classList.add('robot-thinking');
+
+                // Existing logic for idle state checks
                 if (isDragging || aiChatWindow.style.display === 'flex') {
                     this.lastActionTime = Date.now();
                     return;
                 }
-
                 const timeSinceAction = Date.now() - this.lastActionTime;
                 if (timeSinceAction > 60000 && this.state !== 'SLEEP') {
                     this.startSleep();
                     return;
                 }
-
                 // Don't interrupt these states
                 if (['SLEEP', 'PETTING', 'DIZZY', 'TESTING'].includes(this.state)) return;
 
                 const roll = Math.random();
-
-                // Clear old emotions (except Sleep/Petting which are handled separately)
+                // Clear old emotions
                 aiChatButton.classList.remove('emotion-shocked', 'emotion-bored', 'emotion-love', 'emotion-angry', 'emotion-wink', 'emotion-happy');
 
                 // 40% Chance to Change Expression/Sound
                 if (roll < 0.4) {
-                    const emotions = ['emotion-shocked', 'emotion-bored', 'emotion-love', 'emotion-angry', 'emotion-wink', 'emotion-happy'];
-                    const emotion = emotions[Math.floor(Math.random() * emotions.length)];
-
-                    aiChatButton.classList.add(emotion);
-                    this.state = 'IDLE'; // Technically idle but expressive
-
-                    // Voice Result
-                    if (emotion === 'emotion-shocked') SoundEngine.play('shocked');
-                    else if (emotion === 'emotion-love') { SoundEngine.play('happy'); spawnEmoji('💖'); }
-                    else if (emotion === 'emotion-angry') SoundEngine.play('angry');
-                    else if (emotion === 'emotion-wink') SoundEngine.play('cute');
-                    else if (emotion === 'emotion-happy') SoundEngine.play('happy');
-
-                    // Stay like this for 2s then clear
-                    setTimeout(() => {
-                        if (this.state === 'IDLE') aiChatButton.classList.remove(emotion);
-                    }, 2000);
+                    this.doFunnyAct();
                 }
                 // 10% Chance to actually Move
                 else if (roll < 0.5) {
                     this.roamToText();
                 }
+            },
+
+            stopThinking() {
+                this.isThinking = false;
+                aiChatButton.classList.remove('robot-thinking');
+            },
+
+            doFunnyAct() {
+                const emotions = ['emotion-shocked', 'emotion-bored', 'emotion-love', 'emotion-angry', 'emotion-wink', 'emotion-happy'];
+                const emotion = emotions[Math.floor(Math.random() * emotions.length)];
+
+                aiChatButton.classList.add(emotion);
+                this.state = 'IDLE';
+
+                // Voice Result
+                if (emotion === 'emotion-shocked') SoundEngine.play('shocked');
+                else if (emotion === 'emotion-love') { SoundEngine.play('happy'); spawnEmoji('💖'); }
+                else if (emotion === 'emotion-angry') SoundEngine.play('angry');
+                else if (emotion === 'emotion-wink') SoundEngine.play('cute');
+                else if (emotion === 'emotion-happy') SoundEngine.play('happy');
+
+                setTimeout(() => {
+                    if (this.state === 'IDLE') aiChatButton.classList.remove(emotion);
+                }, 2000);
+            },
+
+            // --- BRAIN+ & VOICE ENGINE ---
+            isThinking: false,
+            voiceEnabled: false,
+
+            toggleVoice() {
+                this.voiceEnabled = !this.voiceEnabled;
+                const btn = document.getElementById('ai-chat-speaker');
+                if (btn) {
+                    btn.className = this.voiceEnabled ? 'active' : '';
+                    btn.innerHTML = this.voiceEnabled ? '🔊' : '🔇';
+                }
+                const status = this.voiceEnabled ? "Voice activated." : "Voice muted.";
+                if (this.voiceEnabled) this.speak(status);
+            },
+
+            speak(text) {
+                if (!this.voiceEnabled || !window.speechSynthesis) return;
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.1;
+                utterance.pitch = 1.4; // Kid Robot Pitch
+                const voices = window.speechSynthesis.getVoices();
+                const preferred = voices.find(v => v.name.includes("Google US English") || v.name.includes("Samantha"));
+                if (preferred) utterance.voice = preferred;
+
+                window.speechSynthesis.speak(utterance);
+
+                aiChatButton.classList.add('robot-talking');
+                utterance.onend = () => aiChatButton.classList.remove('robot-talking');
+            },
+
+            // --- RESUME AGENT ---
+            sendResume() {
+                const aiChatMessages = document.getElementById('ai-chat-messages');
+
+                // Simulate typing
+                this.think();
+                setTimeout(() => {
+                    this.stopThinking();
+                    // Add message
+                    const msg = document.createElement('div');
+                    msg.className = 'ai-msg';
+                    msg.innerHTML = "Submitting Resume for review... 📄<br>Here is the file.";
+                    aiChatMessages.appendChild(msg);
+
+                    // Card
+                    const card = document.createElement('div');
+                    card.className = 'resume-card';
+                    card.innerHTML = `
+                        <div class="resume-icon">📄</div>
+                        <div class="resume-info">
+                            <span class="resume-title">Avinash_Resume_2025.pdf</span>
+                            <span class="resume-subtitle">PDF • 2.4 MB</span>
+                        </div>
+                        <div style="margin-left:auto">⬇️</div>
+                     `;
+                    card.onclick = () => {
+                        window.open('https://github.com/AvinashAnalytics/AvinashAnalytics.github.io/raw/main/resume.pdf', '_blank');
+                    };
+                    aiChatMessages.appendChild(card);
+                    aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+                    this.speak("Here is Avinash's resume. You can download it.");
+                }, 1500);
             },
 
             // --- DIAGNOSTIC SUITE ---
