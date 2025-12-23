@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <title>Chat with Avinash AI 🤖</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
@@ -337,20 +337,61 @@
         /* ==================== MOBILE ==================== */
         @media (max-width: 480px) {
             body {
-                padding: 10px;
+                padding: 0;
+                align-items: flex-end;
+                /* Stick to bottom */
             }
 
             .chat-container {
-                border-radius: 16px;
+                border-radius: 0;
+                height: 100dvh;
+                max-width: 100%;
+                display: flex;
+                flex-direction: column;
             }
 
             .messages {
-                height: 320px;
+                flex: 1;
+                /* Take remaining space */
+                height: auto;
+                padding-bottom: 20px;
+            }
+
+            .quick-buttons {
+                padding: 10px;
+                gap: 6px;
+                overflow-x: auto;
+                /* Scroll horizontally if needed */
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
             }
 
             .quick-btn {
-                font-size: 0.75rem;
-                padding: 6px 12px;
+                font-size: 0.8rem;
+                /* readable */
+                padding: 8px 16px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .input-area {
+                padding: 12px;
+                background: rgba(13, 18, 36, 1);
+                /* Solid bg for keyboard */
+                position: sticky;
+                bottom: 0;
+            }
+
+            #userInput {
+                font-size: 16px;
+                /* Prevent iOS Zoom */
+                padding: 12px;
+            }
+
+            #sendBtn {
+                width: 44px;
+                /* Touch target */
+                height: 44px;
             }
         }
     </style>
