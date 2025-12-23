@@ -25,6 +25,7 @@
             win.innerHTML = `
                 <div id="ai-chat-header">
                     <span>Avinash Rai • AI Twin</span>
+                    <button id="ai-chat-speaker" title="Text-to-Speech">🔊</button>
                     <button id="ai-chat-close">×</button>
                 </div>
                 <div id="ai-chat-messages"></div>
@@ -316,6 +317,15 @@
         aiChatButton.addEventListener('mousedown', handleDragStart);
         aiChatButton.addEventListener('touchstart', handleDragStart, { passive: false });
 
+        // Speaker Toggle
+        const speakerBtn = document.getElementById('ai-chat-speaker');
+        if (speakerBtn) {
+            speakerBtn.onclick = (e) => {
+                e.stopPropagation();
+                RobotBrain.toggleVoice();
+            }
+        }
+
         // =============== CLOSE ===============
         if (aiChatClose) {
             aiChatClose.addEventListener('click', function (e) {
@@ -347,11 +357,22 @@
             if (aiChatInput) aiChatInput.value = '';
             addMessage(text, 'user-msg');
 
+            // --- RESUME INTERCEPT ---
+            const lower = text.toLowerCase();
+            if (lower.includes('resume') || lower.includes('cv') || (lower.includes('hire') && lower.includes('you'))) {
+                // Trigger Resume Agent
+                RobotBrain.sendResume();
+                return;
+            }
+
             conversationHistory.push({ role: 'user', content: text });
             saveConversationHistory(); // SAVE
 
             isLoading = true;
             showTyping();
+
+            // Brain+ Thinking
+            RobotBrain.think();
 
             try {
                 // Get dynamic user ID
@@ -377,6 +398,10 @@
 
                 const reply = (data && (data.response || data.reply || data.output || data.text)) || "Sorry, I couldn't process that.";
                 addMessage(reply, 'ai-msg');
+
+                // Brain+ Stop Thinking & Speak
+                RobotBrain.stopThinking();
+                setTimeout(() => RobotBrain.speak(reply), 200);
 
                 conversationHistory.push({ role: 'assistant', content: reply });
                 saveConversationHistory(); // SAVE
@@ -1479,6 +1504,91 @@
                     bubble.classList.remove('visible');
                     setTimeout(() => bubble.remove(), 400);
                 }, 5000);
+            },
+
+            // --- BRAIN+ & VOICE ENGINE ---
+            isThinking: false,
+            voiceEnabled: false,
+
+            toggleVoice() {
+                this.voiceEnabled = !this.voiceEnabled;
+                const btn = document.getElementById('ai-chat-speaker');
+                if (btn) {
+                    btn.className = this.voiceEnabled ? 'active' : '';
+                    btn.innerHTML = this.voiceEnabled ? '🔊' : '🔇';
+                }
+                const status = this.voiceEnabled ? "Voice activated." : "Voice muted.";
+                if (this.voiceEnabled) this.speak(status);
+            },
+
+            speak(text) {
+                if (!this.voiceEnabled || !window.speechSynthesis) return;
+                window.speechSynthesis.cancel(); // Stop overlap
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.1;
+                utterance.pitch = 1.4; // Kid Robot Pitch
+                // Try to find a good voice
+                const voices = window.speechSynthesis.getVoices();
+                const preferred = voices.find(v => v.name.includes("Google US English") || v.name.includes("Samantha"));
+                if (preferred) utterance.voice = preferred;
+
+                window.speechSynthesis.speak(utterance);
+
+                // Animate mouth
+                aiChatButton.classList.add('robot-talking');
+                utterance.onend = () => aiChatButton.classList.remove('robot-talking');
+            },
+
+            think() {
+                this.isThinking = true;
+                aiChatButton.classList.add('robot-thinking');
+            },
+
+            stopThinking() {
+                this.isThinking = false;
+                aiChatButton.classList.remove('robot-thinking');
+            },
+
+            doFunnyAct() {
+                const acts = ['robot-backflip', 'robot-spin', 'robot-shake'];
+                const act = acts[Math.floor(Math.random() * acts.length)];
+                aiChatButton.classList.add('robot-backflip');
+                setTimeout(() => aiChatButton.classList.remove('robot-backflip'), 1000);
+            },
+
+            // --- RESUME AGENT ---
+            sendResume() {
+                const aiChatMessages = document.getElementById('ai-chat-messages');
+
+                // Simulate typing
+                this.think();
+                setTimeout(() => {
+                    this.stopThinking();
+                    // Add message
+                    const msg = document.createElement('div');
+                    msg.className = 'ai-msg';
+                    msg.innerHTML = "Submitting Resume for review... 📄<br>Here is the file.";
+                    aiChatMessages.appendChild(msg);
+
+                    // Card
+                    const card = document.createElement('div');
+                    card.className = 'resume-card';
+                    card.innerHTML = `
+                        <div class="resume-icon">📄</div>
+                        <div class="resume-info">
+                            <span class="resume-title">Avinash_Resume_2025.pdf</span>
+                            <span class="resume-subtitle">PDF • 2.4 MB</span>
+                        </div>
+                        <div style="margin-left:auto">⬇️</div>
+                     `;
+                    card.onclick = () => {
+                        window.open('https://github.com/AvinashAnalytics/AvinashAnalytics.github.io/raw/main/resume.pdf', '_blank');
+                    };
+                    aiChatMessages.appendChild(card);
+                    aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+                    this.speak("Here is Avinash's resume. You can download it.");
+                }, 1500);
             }
         };
 
