@@ -825,7 +825,9 @@
   right: 24px;
   bottom: 96px;
   width: 400px;
-  max-height: 700px;
+  /* Responsive Height Fix */
+  height: auto;
+  max-height: min(700px, calc(100dvh - 140px));
   display: none;
   flex-direction: column;
   z-index: 10050;
