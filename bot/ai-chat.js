@@ -129,6 +129,9 @@
         function stopRecording() { if (mediaRecorder) mediaRecorder.stop(); }
 
         async function playTTS(text) {
+            // Check RobotBrain voice setting
+            if (!RobotBrain.voiceEnabled) return;
+
             try {
                 const res = await fetch('https://AvinashAnalytics-avinash-chatbot.hf.space/api/tts', {
                     method: 'POST',
@@ -660,8 +663,8 @@
                             // v3.18: Add message to DOM FIRST
                             addMessage(content, 'ai-msg');
 
-                            // v3.26: Voice TTS Hook
-                            if (isVoiceActive) playTTS(content);
+                            // v3.26: Voice TTS Hook checks RobotBrain internally now
+                            playTTS(content);
 
                             // v3.18: Save to conversation history with msg_id
                             conversationHistory.push({ role: 'assistant', content: content, timestamp: msg.timestamp, msg_id: msg.id });
@@ -1567,22 +1570,14 @@
             },
 
             speak(text) {
-                if (!this.voiceEnabled || !window.speechSynthesis) return;
-                window.speechSynthesis.cancel(); // Stop overlap
+                // Redirect to backend TTS
+                playTTS(text);
 
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 1.1;
-                utterance.pitch = 1.4; // Kid Robot Pitch
-                // Try to find a good voice
-                const voices = window.speechSynthesis.getVoices();
-                const preferred = voices.find(v => v.name.includes("Google US English") || v.name.includes("Samantha"));
-                if (preferred) utterance.voice = preferred;
-
-                window.speechSynthesis.speak(utterance);
-
-                // Animate mouth
-                aiChatButton.classList.add('robot-talking');
-                utterance.onend = () => aiChatButton.classList.remove('robot-talking');
+                // Animate mouth (fallback if playTTS fails or latency)
+                if (this.voiceEnabled) {
+                    aiChatButton.classList.add('robot-talking');
+                    setTimeout(() => aiChatButton.classList.remove('robot-talking'), 3000);
+                }
             },
 
             think() {
