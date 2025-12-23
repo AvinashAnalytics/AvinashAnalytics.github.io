@@ -1502,8 +1502,19 @@
 
                 // Position follows robot (but above)
                 const btnRect = aiChatButton.getBoundingClientRect();
-                bubble.style.left = (btnRect.left - 180) + 'px'; // Left of robot
-                bubble.style.top = (btnRect.top - 60) + 'px';
+                const bubbleRect = bubble.getBoundingClientRect();
+
+                // Center Helper
+                let leftPos = btnRect.left + (btnRect.width / 2) - (bubbleRect.width / 2);
+
+                // Safety: Don't go off screen left/right
+                if (leftPos < 10) leftPos = 10;
+                if (leftPos + bubbleRect.width > window.innerWidth - 10) {
+                    leftPos = window.innerWidth - bubbleRect.width - 10;
+                }
+
+                bubble.style.left = leftPos + 'px';
+                bubble.style.top = (btnRect.top - bubbleRect.height - 15) + 'px'; // 15px above
 
                 // Animate In
                 requestAnimationFrame(() => bubble.classList.add('visible'));
