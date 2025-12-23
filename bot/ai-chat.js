@@ -961,7 +961,7 @@
                 });
 
                 document.addEventListener('mousemove', (e) => {
-                    robotBrain.lastActionTime = Date.now();
+                    RobotBrain.lastActionTime = Date.now();
 
                     const eyes = document.querySelectorAll('.eye'); // Target the socket
                     if (eyes.length === 0 || aiChatButton.classList.contains('emotion-sleep')) return;
@@ -1020,316 +1020,11 @@
         });
 
         // =============== ROBOT BRAIN (Autonomous Behavior) ===============
-        const robotBrain = {
-            state: 'IDLE',
-            lastActionTime: Date.now(),
 
-            init() {
-                if (window.innerWidth < 768) return;
-                setInterval(() => this.think(), 2500); // Think faster for sleep check
-                console.log('🤖 Robot Brain: Online (Personality V2)');
-            },
-
-            think() {
-                this.isThinking = true;
-                aiChatButton.classList.add('robot-thinking');
-
-                // Existing logic for idle state checks
-                if (isDragging || aiChatWindow.style.display === 'flex') {
-                    this.lastActionTime = Date.now();
-                    return;
-                }
-                const timeSinceAction = Date.now() - this.lastActionTime;
-                if (timeSinceAction > 60000 && this.state !== 'SLEEP') {
-                    this.startSleep();
-                    return;
-                }
-                // Don't interrupt these states
-                if (['SLEEP', 'PETTING', 'DIZZY', 'TESTING'].includes(this.state)) return;
-
-                const roll = Math.random();
-                // Clear old emotions
-                aiChatButton.classList.remove('emotion-shocked', 'emotion-bored', 'emotion-love', 'emotion-angry', 'emotion-wink', 'emotion-happy');
-
-                // 40% Chance to Change Expression/Sound
-                if (roll < 0.4) {
-                    this.doFunnyAct();
-                }
-                // 10% Chance to actually Move
-                else if (roll < 0.5) {
-                    this.roamToText();
-                }
-            },
-
-            stopThinking() {
-                this.isThinking = false;
-                aiChatButton.classList.remove('robot-thinking');
-            },
-
-            doFunnyAct() {
-                const emotions = ['emotion-shocked', 'emotion-bored', 'emotion-love', 'emotion-angry', 'emotion-wink', 'emotion-happy'];
-                const emotion = emotions[Math.floor(Math.random() * emotions.length)];
-
-                aiChatButton.classList.add(emotion);
-                this.state = 'IDLE';
-
-                // Voice Result
-                if (emotion === 'emotion-shocked') SoundEngine.play('shocked');
-                else if (emotion === 'emotion-love') { SoundEngine.play('happy'); spawnEmoji('💖'); }
-                else if (emotion === 'emotion-angry') SoundEngine.play('angry');
-                else if (emotion === 'emotion-wink') SoundEngine.play('cute');
-                else if (emotion === 'emotion-happy') SoundEngine.play('happy');
-
-                setTimeout(() => {
-                    if (this.state === 'IDLE') aiChatButton.classList.remove(emotion);
-                }, 2000);
-            },
-
-            // --- BRAIN+ & VOICE ENGINE ---
-            isThinking: false,
-            voiceEnabled: false,
-
-            toggleVoice() {
-                this.voiceEnabled = !this.voiceEnabled;
-                const btn = document.getElementById('ai-chat-speaker');
-                if (btn) {
-                    btn.className = this.voiceEnabled ? 'active' : '';
-                    btn.innerHTML = this.voiceEnabled ? '🔊' : '🔇';
-                }
-                const status = this.voiceEnabled ? "Voice activated." : "Voice muted.";
-                if (this.voiceEnabled) this.speak(status);
-            },
-
-            speak(text) {
-                if (!this.voiceEnabled || !window.speechSynthesis) return;
-                window.speechSynthesis.cancel();
-
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 1.1;
-                utterance.pitch = 1.4; // Kid Robot Pitch
-                const voices = window.speechSynthesis.getVoices();
-                const preferred = voices.find(v => v.name.includes("Google US English") || v.name.includes("Samantha"));
-                if (preferred) utterance.voice = preferred;
-
-                window.speechSynthesis.speak(utterance);
-
-                aiChatButton.classList.add('robot-talking');
-                utterance.onend = () => aiChatButton.classList.remove('robot-talking');
-            },
-
-            // --- RESUME AGENT ---
-            sendResume() {
-                const aiChatMessages = document.getElementById('ai-chat-messages');
-
-                // Simulate typing
-                this.think();
-                setTimeout(() => {
-                    this.stopThinking();
-                    // Add message
-                    const msg = document.createElement('div');
-                    msg.className = 'ai-msg';
-                    msg.innerHTML = "Submitting Resume for review... 📄<br>Here is the file.";
-                    aiChatMessages.appendChild(msg);
-
-                    // Card
-                    const card = document.createElement('div');
-                    card.className = 'resume-card';
-                    card.innerHTML = `
-                        <div class="resume-icon">📄</div>
-                        <div class="resume-info">
-                            <span class="resume-title">Avinash_Resume_2025.pdf</span>
-                            <span class="resume-subtitle">PDF • 2.4 MB</span>
-                        </div>
-                        <div style="margin-left:auto">⬇️</div>
-                     `;
-                    card.onclick = () => {
-                        window.open('https://github.com/AvinashAnalytics/AvinashAnalytics.github.io/raw/main/resume.pdf', '_blank');
-                    };
-                    aiChatMessages.appendChild(card);
-                    aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
-                    this.speak("Here is Avinash's resume. You can download it.");
-                }, 1500);
-            },
-
-            // --- DIAGNOSTIC SUITE ---
-            runDiagnostics() {
-                if (this.state === 'TESTING') return;
-                console.log('🤖 STARTING SELF-DIAGNOSIS...');
-                this.state = 'TESTING';
-
-                const sequence = [
-                    { action: () => { console.log('1. Sound Check'); SoundEngine.play('chirp'); }, delay: 500 },
-                    { action: () => { console.log('2. Happy State'); aiChatButton.classList.add('emotion-happy'); SoundEngine.play('purr'); }, delay: 1500 },
-                    { action: () => { console.log('3. Suspicious'); aiChatButton.className = ''; aiChatButton.classList.add('emotion-suspicious'); SoundEngine.play('boop'); }, delay: 3000 },
-                    { action: () => { console.log('4. Petting'); aiChatButton.className = ''; this.startPetting(); }, delay: 4500 },
-                    { action: () => { console.log('5. Sleep'); this.startSleep(); }, delay: 7000 },
-                    { action: () => { console.log('6. Wake Up'); this.wakeUp(); }, delay: 10000 },
-                    { action: () => { console.log('✅ DIAGNOSIS COMPLETE'); this.state = 'IDLE'; aiChatButton.className = ''; SoundEngine.play('chirp'); }, delay: 11000 }
-                ];
-
-                sequence.forEach(step => setTimeout(step.action, step.delay));
-            },
-
-            startSleep() {
-                if (this.state === 'PETTING') return; // Don't sleep if being petted
-                this.state = 'SLEEP';
-                aiChatButton.classList.add('emotion-sleep');
-                aiChatButton.style.animation = 'robotFloat 4s ease-in-out infinite'; // Slow float
-                SoundEngine.play('snore');
-
-                if (this.sleepInterval) clearInterval(this.sleepInterval);
-                this.sleepInterval = setInterval(() => {
-                    spawnEmoji('Zzz');
-                }, 2000);
-            },
-
-            wakeUp() {
-                if (this.state === 'SLEEP') {
-                    clearInterval(this.sleepInterval);
-                    aiChatButton.classList.remove('emotion-sleep');
-                    this.state = 'IDLE';
-
-                    // WAKE UP SHAKE
-                    aiChatButton.style.animation = 'robotRun 0.4s ease-in-out';
-                    setTimeout(() => aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite', 400);
-
-                    SoundEngine.play('boop'); // Startled noise
-                }
-                this.lastActionTime = Date.now();
-            },
-
-            startPetting() {
-                if (this.state === 'PETTING' || this.state === 'SLEEP') return;
-                this.state = 'PETTING';
-                aiChatButton.classList.add('emotion-petting');
-                SoundEngine.play('purr');
-
-                // Hearts
-                let hearts = 0;
-                const heartInt = setInterval(() => {
-                    spawnEmoji('💖');
-                    hearts++;
-                    if (hearts > 5) {
-                        clearInterval(heartInt);
-                        aiChatButton.classList.remove('emotion-petting');
-                        this.state = 'IDLE';
-                        this.lastActionTime = Date.now();
-                    }
-                }, 300);
-            },
-
-            // ... (keep ensure roamToText, returnHome, teleportTo, moveTo, doTrick match existing) ...
-
-            roamToText() {
-                // ... existing roaming logic ...
-                const elements = Array.from(document.querySelectorAll('h1, h2, h3, p, button, .nav-link'));
-                const visible = elements.filter(el => {
-                    const rect = el.getBoundingClientRect();
-                    return (
-                        rect.top > 100 &&
-                        rect.bottom < window.innerHeight - 100 &&
-                        rect.left > 50 &&
-                        rect.right < window.innerWidth - 50
-                    );
-                });
-                if (visible.length === 0) return;
-                const target = visible[Math.floor(Math.random() * visible.length)];
-                const rect = target.getBoundingClientRect();
-                const targetX = rect.left - 20;
-                const targetY = rect.top - 85;
-                this.teleportTo(targetX, targetY, 'SITTING', target);
-            },
-
-            returnHome() {
-                const homeX = window.innerWidth - 134;
-                const homeY = window.innerHeight - 134;
-                this.teleportTo(homeX, homeY, 'IDLE');
-            },
-
-            teleportTo(x, y, nextState, targetElement = null) {
-                // Prevent teleport if Sleeping/Petting
-                if (this.state === 'SLEEP' || this.state === 'PETTING') return;
-
-                SoundEngine.play('boop');
-                aiChatButton.classList.add('magic-dust');
-                aiChatButton.style.animation = 'none';
-                aiChatButton.style.opacity = '0';
-                aiChatButton.style.transition = 'opacity 0.5s';
-                this.state = 'MOVING';
-
-                setTimeout(() => {
-                    aiChatButton.style.right = 'auto';
-                    aiChatButton.style.bottom = 'auto';
-                    aiChatButton.style.left = `${x}px`;
-                    aiChatButton.style.top = `${y}px`;
-                    aiChatButton.className = '';
-                    aiChatButton.id = 'ai-chat-button';
-
-                    if (nextState === 'SITTING') {
-                        aiChatButton.classList.add('robot-sitting');
-                        aiChatButton.classList.add('emotion-happy');
-                        SoundEngine.play('chirp');
-                    } else {
-                        aiChatButton.classList.add('robot-flying');
-                        SoundEngine.play('cheep');
-                    }
-                    aiChatButton.style.opacity = '1';
-                    aiChatButton.classList.remove('magic-dust');
-                    aiChatButton.style.animation = 'magicalForm 0.8s ease-out';
-
-                    setTimeout(() => {
-                        if (nextState === 'SITTING') {
-                            aiChatButton.style.animation = 'robotWobble 4s ease-in-out infinite';
-                            this.state = 'SITTING';
-                            /* Text Bubble Logic */
-                            if (targetElement && targetElement.tagName.match(/H[1-6]/)) {
-                                aiChatButton.setAttribute('data-bubble', "Ooh! " + targetElement.innerText.substring(0, 15) + "...");
-                                aiChatButton.classList.add('bubble-visible');
-                                setTimeout(() => aiChatButton.classList.remove('bubble-visible'), 4000);
-                            }
-                        } else {
-                            aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
-                            this.state = 'IDLE';
-                            this.lastActionTime = Date.now();
-                            aiChatButton.style.transform = 'scaleX(1)';
-                        }
-                    }, 800);
-                }, 600);
-            },
-
-            moveTo(x, y) { this.teleportTo(x, y, 'ROAMING'); },
-
-            doTrick() {
-                aiChatButton.style.animation = 'robotJump 0.5s ease-in-out';
-                setTimeout(() => {
-                    if (this.state === 'IDLE') aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
-                }, 500);
-            }
-        };
-
-        // Initialize Brain
-        robotBrain.init();
-
-        // Listen for Test Command
-        const chatInput = document.getElementById('ai-chat-input');
-        if (chatInput) {
-            chatInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && chatInput.value.trim() === '/test') {
-                    e.preventDefault();
-                    robotBrain.runDiagnostics();
-                    chatInput.value = '';
-                    // Append system message
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = 'ai-message-wrapper received';
-                    msgDiv.innerHTML = `<div class="ai-message">🤖 Running Diagnostics... Watch me!</div>`;
-                    document.getElementById('ai-chat-messages').appendChild(msgDiv);
-                }
-            });
-        }
 
         // Wake up listener
-        document.addEventListener('mousedown', () => robotBrain.wakeUp()); // Wake on click
-        document.addEventListener('keydown', () => robotBrain.wakeUp()); // Wake on type
+        document.addEventListener('mousedown', () => RobotBrain.wakeUp()); // Wake on click
+        document.addEventListener('keydown', () => RobotBrain.wakeUp()); // Wake on type
 
         // =============== ROBOT BRAIN (Autonomous Behavior) ===============
         let mouseX = window.innerWidth / 2;
@@ -1449,27 +1144,128 @@
 
             startExpressionEngine() {
                 setInterval(() => {
-                    if (this.state === 'SLEEP' || isDragging) return;
+                    if (this.state === 'SLEEP' || isDragging || this.isThinking) return;
 
                     // Check for sleep
                     if (Date.now() - this.lastActionTime > 60000) {
-                        this.state = 'SLEEP';
-                        aiChatButton.classList.add('emotion-sleep');
-                        SoundEngine.play('snore');
-                        document.title = "Zzz... Robot Sleeping";
+                        this.startSleep();
                         return;
                     }
 
-                    // Random Expressions
-                    if (Math.random() < 0.2) {
+                    // Random Expressions & Roaming
+                    const roll = Math.random();
+                    if (roll < 0.2) {
+                        // Expression
                         const emotions = ['suspicious', 'confused', 'love', 'shocked', 'bored'];
                         const pick = emotions[Math.floor(Math.random() * emotions.length)];
                         aiChatButton.classList.add(`emotion-${pick}`);
-                        SoundEngine.play('chirp'); // Subtle
+                        SoundEngine.play('chirp');
 
                         setTimeout(() => aiChatButton.classList.remove(`emotion-${pick}`), 3000);
+                    } else if (roll < 0.25) {
+                        // Roam (5% Chance per tick)
+                        this.roamToText();
                     }
                 }, 5000);
+            },
+
+            // --- MOVEMENT ENGINE ---
+            roamToText() {
+                // Find readable elements
+                const elements = Array.from(document.querySelectorAll('h1, h2, h3, p, button, .nav-link'));
+                const visible = elements.filter(el => {
+                    const rect = el.getBoundingClientRect();
+                    return (
+                        rect.top > 100 &&
+                        rect.bottom < window.innerHeight - 100 &&
+                        rect.left > 50 &&
+                        rect.right < window.innerWidth - 50
+                    );
+                });
+
+                if (visible.length === 0) return;
+                const target = visible[Math.floor(Math.random() * visible.length)];
+
+                const rect = target.getBoundingClientRect();
+                const targetX = rect.left - 20;
+                const targetY = rect.top - 85;
+
+                this.teleportTo(targetX, targetY, 'SITTING', target);
+            },
+
+            returnHome() {
+                const homeX = window.innerWidth - 134;
+                const homeY = window.innerHeight - 134;
+                this.teleportTo(homeX, homeY, 'IDLE');
+            },
+
+            teleportTo(x, y, nextState, targetElement = null) {
+                if (this.state === 'SLEEP' || this.state === 'PETTING') return;
+
+                SoundEngine.play('boop');
+                aiChatButton.classList.add('magic-dust');
+                aiChatButton.style.animation = 'none';
+                aiChatButton.style.opacity = '0';
+                aiChatButton.style.transition = 'opacity 0.5s';
+                this.isStalking = false; // Disable stalking while teleporting
+                this.state = 'MOVING';
+
+                setTimeout(() => {
+                    aiChatButton.style.right = 'auto';
+                    aiChatButton.style.bottom = 'auto';
+                    aiChatButton.style.left = `${x}px`;
+                    aiChatButton.style.top = `${y}px`;
+                    aiChatButton.className = '';
+                    aiChatButton.id = 'ai-chat-button';
+
+                    if (nextState === 'SITTING') {
+                        aiChatButton.classList.add('robot-sitting');
+                        aiChatButton.classList.add('emotion-happy');
+                        SoundEngine.play('chirp');
+                    } else {
+                        aiChatButton.classList.add('robot-flying');
+                        SoundEngine.play('cheep');
+                    }
+                    aiChatButton.style.opacity = '1';
+                    aiChatButton.classList.remove('magic-dust');
+                    aiChatButton.style.animation = 'magicalForm 0.8s ease-out';
+
+                    setTimeout(() => {
+                        if (nextState === 'SITTING') {
+                            aiChatButton.style.animation = 'robotWobble 4s ease-in-out infinite';
+                            this.state = 'SITTING'; // Sitting Mode
+
+                            // Bubble
+                            if (targetElement && targetElement.tagName.match(/H[1-6]/)) {
+                                aiChatButton.setAttribute('data-bubble', "Ooh! " + targetElement.innerText.substring(0, 15) + "...");
+                                aiChatButton.classList.add('bubble-visible');
+                                setTimeout(() => aiChatButton.classList.remove('bubble-visible'), 4000);
+                            }
+
+                            // Return home after 10s
+                            setTimeout(() => {
+                                this.returnHome();
+                                this.isStalking = true; // Resume stalking
+                            }, 10000);
+
+                        } else {
+                            aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
+                            this.state = 'IDLE';
+                            this.isStalking = true;
+                            this.lastActionTime = Date.now();
+                            aiChatButton.style.transform = 'scaleX(1)';
+                        }
+                    }, 800);
+                }, 600);
+            },
+
+            moveTo(x, y) { this.teleportTo(x, y, 'ROAMING'); },
+
+            doTrick() {
+                aiChatButton.style.animation = 'robotJump 0.5s ease-in-out';
+                setTimeout(() => {
+                    if (this.state === 'IDLE') aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
+                }, 500);
             },
 
             // --- CONTEXT AWARENESS ENGINE ---
