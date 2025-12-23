@@ -642,6 +642,30 @@
 
 /* --- NEW EXPERIMENTAL EXPRESSIONS --- */
 
+/* EVIL: Red Alert */
+.emotion-evil .eye {
+  background: #ef4444 !important;
+  /* Red */
+  box-shadow: 0 0 10px #ef4444, 0 0 20px #7f1d1d !important;
+  height: 6px !important;
+  border-radius: 2px !important;
+  transition: all 0.3s ease;
+}
+
+.emotion-evil .eye.left {
+  transform: rotate(20deg);
+}
+
+.emotion-evil .eye.right {
+  transform: rotate(-20deg);
+}
+
+.emotion-evil .pupil {
+  display: none;
+}
+
+/* No pupils, just glow */
+
 /* LOVE: Heart Eyes */
 .emotion-love .eye {
   background: none !important;

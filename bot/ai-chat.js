@@ -1340,6 +1340,35 @@
                 console.log('👁️ Robot Eye: Scanning for keywords...');
             },
 
+            // Dictionary of Contexts
+            contextMap: {
+                // Skills from Index.html
+                'snowflake': "I'm a Snowflake Data Warehouse expert! ❄️",
+                'dbt': "I build modular transformation pipelines with dbt! 🧱",
+                'matillion': "I orchestrate ETL workflows using Matillion! ⚙️",
+                'azure': "I architect solutions on Azure Data Factory! ☁️",
+                'python': "I write Python for Data Engineering & AI! 🐍",
+                'sql': "I speak fluent SQL! (Select * From Awesome) 🗄️",
+                'power bi': "I visualize insights in Power BI! 📊",
+                'alteryx': "I automate data prep with Alteryx! 🔄",
+                'aws': "I deploy on AWS S3, Lambda & Glue! ☁️",
+
+                // Projects
+                'neural': "That's my Neural Transliteration project! (LSTM + LLMs) 🧠",
+                'transliteration': "Converting Roman to Devanagari using Deep Learning! 🇮🇳",
+                'schema': "My Schema Evolution Framework! It heals pipelines automatically. 🛡️",
+                'shopverse': "An E-commerce pipeline with dbt & Snowflake! 🛍️",
+                'credit': "Analyzing financial data with dimensional modeling! 💳",
+                'cortex': "Snowflake Cortex AI for intelligent ETL! 🤖",
+
+                // Personal
+                'avinash': "That's my boss! He's a Data Engineering Wizard. 🧙‍♂️",
+                'contact': "Want to hire him? Click here! 📩",
+                'resume': "I can send you his resume! Just ask. 📄",
+                'github': "Check out our open source code! 🐙",
+                'linkedin': "Let's connect professionally! 🤝"
+            },
+
             checkHover(target) {
                 if (!target || this.state === 'SLEEP' || aiChatWindow.style.display === 'flex') return;
 
@@ -1472,10 +1501,35 @@
             },
 
             doFunnyAct() {
+                if (this.state !== 'IDLE') return;
+
+                const roll = Math.random();
+
+                // MISCHIEF ENGINE (5% Chance)
+                if (roll < 0.05) {
+                    aiChatButton.classList.add('emotion-evil');
+                    SoundEngine.play('laugh'); // Evil Laugh
+                    this.speak("I am plotting something...");
+
+                    setTimeout(() => {
+                        aiChatButton.classList.remove('emotion-evil');
+                    }, 4000);
+                    return;
+                }
+
+                // Normal Acts
                 const acts = ['robot-backflip', 'robot-spin', 'robot-shake'];
                 const act = acts[Math.floor(Math.random() * acts.length)];
-                aiChatButton.classList.add('robot-backflip');
-                setTimeout(() => aiChatButton.classList.remove('robot-backflip'), 1000);
+                aiChatButton.classList.add(act); // Uses class animation now
+                // Also trigger inline style for old animations if needed
+                if (act.includes('robotJump')) aiChatButton.style.animation = 'robotJump 0.5s ease';
+
+                SoundEngine.play('chirp');
+
+                setTimeout(() => {
+                    aiChatButton.classList.remove(act);
+                    aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
+                }, 1000);
             },
 
             // --- RESUME AGENT ---
