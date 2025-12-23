@@ -1387,14 +1387,41 @@
                 'resume': "I can summarize his resume for you. 📄"
             },
 
+            // --- SUGGESTION ENGINE ---
+            idleSeconds: 0,
+            suggestionList: [
+                "Ask me about Avinash's Resume! 📄",
+                "I can detail his Work Experience! 💼",
+                "Ask about his Real-World Projects! 🚀",
+                "Curious about the Tech Stack? Ask me! 🛠️",
+                "I can verify his skills for you! ✅",
+                "Ask: 'Why should we hire him?' 🤝"
+            ],
+
             observeCursor() {
                 console.log('👁️ Robot Eye: Scanning for keywords...');
 
-                // Active Scan Interval
+                // Active Scan Interval (Heartbeat)
                 setInterval(() => {
-                    if (this.state === 'IDLE' && !this.isThinking) {
+                    // Only active if idle and not chatting
+                    if (this.state === 'IDLE' && aiChatWindow.style.display !== 'flex') {
+
                         const el = document.elementFromPoint(mouseX, mouseY);
-                        if (el) this.checkHover(el);
+                        const foundContext = el ? this.checkHover(el) : false;
+
+                        if (!foundContext) {
+                            this.idleSeconds++;
+
+                            // Every 12 seconds (~20 ticks * 0.6s) show a proactive suggestion
+                            if (this.idleSeconds > 20) {
+                                this.idleSeconds = 0;
+                                // Random Suggestion
+                                const text = this.suggestionList[Math.floor(Math.random() * this.suggestionList.length)];
+                                this.showThinking(text);
+                            }
+                        } else {
+                            this.idleSeconds = 0; // Reset if found something
+                        }
                     }
                 }, 600);
             },
@@ -1429,10 +1456,10 @@
             },
 
             checkHover(target) {
-                if (!target || this.state === 'SLEEP' || aiChatWindow.style.display === 'flex') return;
+                if (!target) return false;
 
                 // Stop if hovering robot itself
-                if (target.closest('#ai-chat-button') || target.closest('#ai-chat-window')) return;
+                if (target.closest('#ai-chat-button') || target.closest('#ai-chat-window')) return false;
 
                 // Simple keyword check in text content or class
                 const text = (target.innerText || "").toLowerCase();
@@ -1450,18 +1477,16 @@
 
                 // If found interesting thing
                 if (foundKey) {
-                    if (this.lastHovered === foundKey) return; // Already thinking about it
+                    if (this.lastHovered === foundKey) return true; // Already thinking about it
 
                     this.lastHovered = foundKey;
-                    clearTimeout(this.hoverTimer);
 
-                    // Wait 0.6s before "Thinking" (Debounce)
-                    this.hoverTimer = setTimeout(() => {
-                        this.showThinking(this.contextMap[foundKey]);
-                    }, 600);
+                    // Show Specific Context Bubble
+                    this.showThinking(this.contextMap[foundKey]);
+                    return true;
                 } else {
                     this.lastHovered = null;
-                    clearTimeout(this.hoverTimer);
+                    return false;
                 }
             },
 
