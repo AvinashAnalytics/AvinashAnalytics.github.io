@@ -1656,7 +1656,8 @@
                         <div style="margin-left:auto">⬇️</div>
                      `;
                     card.onclick = () => {
-                        window.open('https://github.com/AvinashAnalytics/AvinashAnalytics.github.io/raw/main/resume.pdf', '_blank');
+                        // Use Secure Backend Endpoint
+                        window.open('https://avinashanalytics-avinash-chatbot.hf.space/api/resume', '_blank');
                     };
                     aiChatMessages.appendChild(card);
                     aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
