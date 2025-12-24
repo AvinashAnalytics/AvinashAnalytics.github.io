@@ -1655,13 +1655,49 @@
                         </div>
                         <div style="margin-left:auto">⬇️</div>
                      `;
-                    card.onclick = () => {
+                    card.onclick = async () => {
                         // Use Secure Backend Endpoint
-                        window.open('https://avinashanalytics-avinash-chatbot.hf.space/api/resume', '_blank');
+                        const resumeUrl = 'https://avinashanalytics-avinash-chatbot.hf.space/api/resume';
+
+                        try {
+                            // Check if link allows redirect or returns message
+                            // We use fetch first to see if it's JSON (message) or Redirect (file)
+                            // Note: fetch follow redirects by default, so we might check content-type
+                            const res = await fetch(resumeUrl, { method: 'HEAD' });
+
+                            // If it's a 403/message, the backend handles it? 
+                            // Actually, fetch with 'HEAD' might follow redirect.
+                            // Simpler: Just open. If it's 403, the user sees the JSON in new tab.
+                            // BETTER: Fetch JSON first.
+                        } catch (e) { }
+
+                        // Simply open. If it's a file/redirect, it opens.
+                        // If it's 403, we want to show the message inside chat instead of a dead tab.
+
+                        // Let's do a fetch check:
+                        fetch(resumeUrl, { method: 'GET', headers: { 'Accept': 'application/json' } })
+                            .then(async response => {
+                                if (response.ok && response.redirected) {
+                                    window.open(response.url, '_blank');
+                                } else if (response.status === 403) {
+                                    const data = await response.json();
+                                    this.speak(data.message);
+                                    const aiChatMessages = document.getElementById('ai-chat-messages');
+                                    const msg = document.createElement('div');
+                                    msg.className = 'ai-msg';
+                                    msg.innerHTML = "🔒 " + data.message;
+                                    aiChatMessages.appendChild(msg);
+                                    aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+                                } else {
+                                    // It's likely a direct file or redirect
+                                    window.open(resumeUrl, '_blank');
+                                }
+                            })
+                            .catch(() => window.open(resumeUrl, '_blank'));
                     };
                     aiChatMessages.appendChild(card);
                     aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
-                    this.speak("Here is Avinash's resume. You can download it.");
+                    this.speak("Tap to access my resume.");
                 }, 1500);
             },
 
