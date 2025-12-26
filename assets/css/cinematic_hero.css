@@ -1,0 +1,90 @@
+/* ==================== CINEMATIC HERO CSS ==================== */
+/* Premium Three.js particle animation styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body.hero-body {
+    overflow: hidden;
+    background: #000;
+    font-family: 'Courier New', monospace;
+}
+
+/* Matrix Rain Background Canvas */
+#matrix-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+}
+
+/* Three.js Canvas Container */
+#hero-canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2;
+}
+
+/* UI Overlay Layer */
+.hero-ui-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+/* Loading Text */
+#hero-loading-text {
+    color: #00f3ff;
+    font-size: 14px;
+    letter-spacing: 4px;
+    opacity: 1;
+    transition: opacity 1s ease-out;
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.8);
+    font-weight: bold;
+}
+
+/* CRT Scanlines Effect */
+.hero-scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom,
+            rgba(18, 16, 16, 0) 50%,
+            rgba(0, 0, 0, 0.1) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.3;
+}
+
+/* Vignette Effect */
+.hero-vignette {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center,
+            transparent 0%,
+            transparent 60%,
+            rgba(0, 0, 0, 0.4) 100%);
+    pointer-events: none;
+    z-index: 6;
+}
