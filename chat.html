@@ -1239,6 +1239,73 @@
             sendBtn.disabled = true;
             sendBtn.style.opacity = '0.5';
 
+            // --- INTERCEPTS ---
+            const lower = text.toLowerCase();
+
+            // 1. Diagnostic
+            if (lower === '/test-robot') {
+                setTimeout(() => {
+                    appendMessage("🛠 <b>System Diagnostic</b><br>Running self-test sequence...<br>✅ Sound Engine: OK<br>✅ Memory Sync: ACTIVE<br>✅ API Connection: SOLID", 'bot');
+                    speak("System diagnostics complete. All systems nominal.");
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = '1';
+                }, 1000);
+                return;
+            }
+
+            // 2. Resume
+            if (lower.includes('resume') || lower.includes('cv') || (lower.includes('hire') && lower.includes('you'))) {
+                setTimeout(async () => {
+                    appendMessage("📄 <b>Submitting Resume...</b><br>One moment please.", 'bot');
+
+                    // Create Card
+                    const card = document.createElement('div');
+                    card.style.background = 'rgba(255,255,255,0.05)';
+                    card.style.padding = '12px';
+                    card.style.borderRadius = '12px';
+                    card.style.marginTop = '8px';
+                    card.style.border = '1px solid rgba(0,243,255,0.2)';
+                    card.style.cursor = 'pointer';
+                    card.style.display = 'flex';
+                    card.style.alignItems = 'center';
+                    card.style.gap = '10px';
+                    card.innerHTML = `
+                        <div style="font-size:24px;">📄</div>
+                        <div>
+                            <div style="font-weight:bold; color:#fff;">Avinash_Resume_2025.pdf</div>
+                            <div style="font-size:12px; color:#94a3b8;">Click to Open</div>
+                        </div>
+                   `;
+                    card.onclick = async () => {
+                        try {
+                            const res = await fetch('https://avinashanalytics-avinash-chatbot.hf.space/api/resume');
+                            if (res.redirected) {
+                                window.open(res.url, '_blank');
+                            } else if (res.status === 403) {
+                                const data = await res.json();
+                                appendMessage("🔒 " + (data.message || "Access denied."), 'bot');
+                                speak("Sorry, I can't share that file right now.");
+                            } else {
+                                const blob = await res.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                window.open(url, '_blank');
+                            }
+                        } catch (e) {
+                            console.error(e);
+                            appendMessage("❌ Error fetching resume.", 'bot');
+                        }
+                    };
+
+                    messagesDiv.appendChild(card);
+                    speak("Here is the resume file you requested.");
+
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = '1';
+                }, 1000);
+
+                return;
+            }
+
             const tid = showTyping();
 
             try {

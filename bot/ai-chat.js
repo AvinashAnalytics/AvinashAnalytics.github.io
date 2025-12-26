@@ -13,9 +13,8 @@
             // Critical CSS fallback
             btn.style.cssText = "position:Fixed; bottom:20px; right:20px; width:100px; height:100px; z-index:10060; cursor:pointer;";
             // Force Click Listener
-            btn.onclick = function (e) {
-                if (!window.isDragging) window.openChatAndNotify();
-            };
+            // Click handled by handleDragEnd to distinguish drag vs click
+            // btn.onclick removed to prevent double toggle and unwanted contact requests
             document.body.appendChild(btn);
         }
         if (!document.getElementById('ai-chat-window')) {
@@ -157,8 +156,8 @@
         }
 
         // =============== API URL ===============
-        // ✅ Correct HuggingFace Space URL with /ask endpoint
-        const API_URL = 'https://AvinashAnalytics-avinash-chatbot.hf.space/ask';
+        // ✅ Correct HuggingFace Space URL with /ask endpoint (lowercase standardized)
+        const API_URL = 'https://avinashanalytics-avinash-chatbot.hf.space/ask';
 
         // v3.10.1: Load conversation history from localStorage for sync
         let conversationHistory = [];
@@ -370,6 +369,15 @@
 
             // --- RESUME INTERCEPT ---
             const lower = text.toLowerCase();
+
+            // --- DIAGNOSTIC COMMAND ---
+            if (lower === '/test-robot') {
+                addMessage("🛠 Starting Diagnostics...", 'ai-msg');
+                RobotBrain.runDiagnostics();
+                return;
+            }
+
+            // --- RESUME INTERCEPT ---
             if (lower.includes('resume') || lower.includes('cv') || (lower.includes('hire') && lower.includes('you'))) {
                 // Trigger Resume Agent
                 RobotBrain.sendResume();
@@ -452,18 +460,29 @@
         }
 
         // =============== HELPERS ===============
-        function addMessage(text, className) {
+        function getUserId() {
+            let userId = localStorage.getItem('chat_uid');
+            if (!userId) {
+                userId = 'web-' + Math.random().toString(36).substring(7) + Date.now().toString(36);
+                localStorage.setItem('chat_uid', userId);
+            }
+            return userId;
+        }
+
+        function addMessage(text, className, id = null) {
             if (!aiChatMessages) return;
             const bubble = document.createElement('div');
             bubble.className = className;
+            if (id) bubble.id = id;  // Support optional ID for temp messages
 
             // v3.19: Properly render AI responses with HTML/markdown, escape user messages
             if (className === 'ai-msg') {
-                // AI messages: Allow HTML rendering for formatting
-                bubble.innerHTML = text.replace(/\n/g, '<br>');
+                // AI messages: Sanitize first, then allow line breaks
+                // This prevents XSS while preserving formatting
+                bubble.innerHTML = escapeHtml(text).replace(/\\n/g, '<br>');
             } else {
                 // User messages: Escape HTML for security
-                bubble.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+                bubble.innerHTML = escapeHtml(text).replace(/\\n/g, '<br>');
             }
 
             aiChatMessages.appendChild(bubble);
@@ -510,71 +529,68 @@
                 const res = await fetch(checkUrl);
                 if (res.ok) {
                     const data = await res.json();
+
+                    // Handle Mode Indicator
                     if (data.mode === 'admin') {
-                        const headerTitle = document.querySelector('#ai-chat-header span');
-                        if (headerTitle) headerTitle.innerText = "🔴 Chatting with Avinash (Live)";
+                        if (aiChatButton) aiChatButton.classList.add('live-chat-active');
+                        const header = document.getElementById('ai-chat-header');
+                        if (header) {
+                            header.style.background = 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)';
+                            header.querySelector('span').innerText = "🔴 Live Chat with Avinash";
+                        }
                     } else {
-                        const headerTitle = document.querySelector('#ai-chat-header span');
-                        // Restore default only if it was changed
-                        if (headerTitle && headerTitle.innerText.includes("Live")) {
-                            headerTitle.innerText = "Avinash Rai • AI Twin";
+                        if (aiChatButton) aiChatButton.classList.remove('live-chat-active');
+                        const header = document.getElementById('ai-chat-header');
+                        if (header) {
+                            header.style.background = ''; // Reset to default
+                            header.querySelector('span').innerHTML = "Avinash Rai • AI Twin";
                         }
                     }
 
                     if (data.replies && data.replies.length > 0) {
-                        const receivedIds = [];
+                        const newIds = [];
 
-                        // Process messages
-                        for (const msg of data.replies) {
-                            // Dedup: Check if recently received (in current session history)
-                            // We use a loose check on content to prevent message storms on connect
-                            const isDuplicate = conversationHistory.some(m => m.content.includes(msg.text));
+                        data.replies.forEach(msg => {
+                            // v3.17: Use message ID for duplicate detection instead of text
+                            const exists = conversationHistory.some(h => h.msg_id === msg.id);
+                            if (!exists) {
+                                const content = msg.text || (msg.media ? "[Media]" : "...");
 
-                            // If it's a duplicate, we still ACK it to clear it from queue, but don't render
-                            if (isDuplicate) {
-                                receivedIds.push(msg.id);
-                                continue;
-                            }
+                                // v3.18: Add message to DOM FIRST
+                                addMessage(content, 'ai-msg');
 
-                            receivedIds.push(msg.id);
+                                // v3.26: Voice TTS Hook checks RobotBrain internally now
+                                if (typeof playTTS === 'function') playTTS(content);
+                                else if (RobotBrain && RobotBrain.speak) RobotBrain.speak(content);
 
-                            let adminHtml = `👨‍💻 <b>${msg.from || 'Avinash'}:</b><br>`;
+                                // v3.18: Save to conversation history with msg_id
+                                conversationHistory.push({ role: 'assistant', content: content, timestamp: msg.timestamp, msg_id: msg.id });
+                                saveConversationHistory();
 
-                            // Handle rich media
-                            if (msg.media && msg.media.media_type) {
-                                const m = msg.media;
-                                if (m.media_type === 'photo') {
-                                    adminHtml += `<img src="${m.media_url || '#'}" style="max-width:200px; border-radius:8px; margin:5px 0;"><br>`;
-                                } else if (m.media_type === 'video') {
-                                    adminHtml += `<video src="${m.media_url || '#'}" controls style="max-width:250px; border-radius:8px; margin:5px 0;"></video><br>`;
-                                } else if (m.media_type === 'voice') {
-                                    adminHtml += `<audio src="${m.media_url || '#'}" controls style="margin:5px 0;"></audio><br>`;
-                                } else if (m.media_type === 'sticker') {
-                                    adminHtml += `<img src="${m.media_url || '#'}" style="max-width:120px; margin:5px 0;"><br>`;
+                                if (msg.media && msg.media.media_url) {
+                                    const mediaHtml = `<div class="media-preview"><a href="${msg.media.media_url}" target="_blank">📄 View Attachment</a></div>`;
+                                    addMessage(mediaHtml, 'ai-msg');
                                 }
+
+                                // v3.18: Only add to ACK list AFTER successful display
+                                newIds.push(msg.id);
                             }
+                        });
 
-                            adminHtml += msg.text;
-
-                            conversationHistory.push({ role: 'assistant', content: `[Admin Reply]: ${msg.text}` });
-                            saveConversationHistory(); // SAVE
-
-                            // Create message element
-                            if (!aiChatMessages) continue;
-                            const bubble = document.createElement('div');
-                            bubble.className = 'ai-msg';
-                            bubble.innerHTML = adminHtml;
-                            aiChatMessages.appendChild(bubble);
-                            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
-                        }
-
-                        // Send ACK
-                        if (receivedIds.length > 0) {
-                            await fetch(API_URL.replace(/\/ask|\/chat/, '/api/ack_replies'), {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ ids: receivedIds })
-                            });
+                        // v3.18: Send ACK only after ALL messages are displayed and saved
+                        if (newIds.length > 0) {
+                            // Small delay to ensure DOM updates complete
+                            setTimeout(async () => {
+                                try {
+                                    await fetch('https://avinashanalytics-avinash-chatbot.hf.space/api/ack_replies', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ ids: newIds })
+                                    });
+                                } catch (e) {
+                                    console.error('[ACK] Failed:', e);
+                                }
+                            }, 100);
                         }
                     }
                 }
@@ -585,129 +601,6 @@
 
         // Start polling every 3 seconds
         setInterval(pollReplies, 3000);
-
-        console.log('✅ Chatbot ready!');
-
-        // v3.10.2: File upload handler
-        const attachButton = document.getElementById('ai-chat-attach');
-        const fileInput = document.getElementById('ai-chat-file');
-
-        if (attachButton && fileInput) {
-            attachButton.addEventListener('click', () => {
-                fileInput.click();
-            });
-
-            fileInput.addEventListener('change', async () => {
-                const file = fileInput.files[0];
-                if (!file) return;
-
-                // Show uploading message
-                addMessage(`📎 Uploading ${file.name}...`, 'user-msg');
-
-                try {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('user_id', getUserId());
-
-                    const response = await fetch('https://AvinashAnalytics-avinash-chatbot.hf.space/upload', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        addMessage(`✅ File sent to Avinash! ${data.message || ''}`, 'ai-msg');
-                    } else {
-                        addMessage('❌ Upload failed. Please try again.', 'ai-msg');
-                    }
-                } catch (error) {
-                    console.error('Upload error:', error);
-                    addMessage('❌ Upload failed. Please try again.', 'ai-msg');
-                }
-
-                // Reset file input
-                fileInput.value = '';
-            });
-        }
-        // v3.15: Polling for Admin Replies
-        setInterval(async () => {
-            const userId = localStorage.getItem('chat_uid');
-            if (!userId) return;
-
-            console.log('[POLLING] Checking replies for user_id:', userId);
-
-            try {
-                const res = await fetch(`https://AvinashAnalytics-avinash-chatbot.hf.space/api/check_replies?user_id=${userId}&peek=true`);
-                if (!res.ok) return;
-                const data = await res.json();
-
-                // Handle Mode Indicator
-                if (data.mode === 'admin') {
-                    if (aiChatButton) aiChatButton.classList.add('live-chat-active');
-                    const header = document.getElementById('ai-chat-header');
-                    if (header) {
-                        header.style.background = 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)';
-                        header.querySelector('span').innerText = "🔴 Live Chat with Avinash";
-                    }
-                } else {
-                    if (aiChatButton) aiChatButton.classList.remove('live-chat-active');
-                    const header = document.getElementById('ai-chat-header');
-                    if (header) {
-                        header.style.background = ''; // Reset to default
-                        header.querySelector('span').innerHTML = "Avinash Rai • AI Twin";
-                    }
-                }
-
-                // Handle Replies
-                if (data.replies && data.replies.length > 0) {
-                    const newIds = [];
-
-                    data.replies.forEach(msg => {
-                        // v3.17: Use message ID for duplicate detection instead of text
-                        const exists = conversationHistory.some(h => h.msg_id === msg.id);
-                        if (!exists) {
-                            const content = msg.text || (msg.media ? "[Media]" : "...");
-
-                            // v3.18: Add message to DOM FIRST
-                            addMessage(content, 'ai-msg');
-
-                            // v3.26: Voice TTS Hook checks RobotBrain internally now
-                            playTTS(content);
-
-                            // v3.18: Save to conversation history with msg_id
-                            conversationHistory.push({ role: 'assistant', content: content, timestamp: msg.timestamp, msg_id: msg.id });
-                            saveConversationHistory();
-
-                            if (msg.media && msg.media.media_url) {
-                                const mediaHtml = `<div class="media-preview"><a href="${msg.media.media_url}" target="_blank">📄 View Attachment</a></div>`;
-                                addMessage(mediaHtml, 'ai-msg');
-                            }
-
-                            // v3.18: Only add to ACK list AFTER successful display
-                            newIds.push(msg.id);
-                        }
-                    });
-
-                    // v3.18: Send ACK only after ALL messages are displayed and saved
-                    if (newIds.length > 0) {
-                        // Small delay to ensure DOM updates complete
-                        setTimeout(async () => {
-                            try {
-                                await fetch('https://AvinashAnalytics-avinash-chatbot.hf.space/api/ack_replies', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ ids: newIds })
-                                });
-                            } catch (e) {
-                                console.error('[ACK] Failed:', e);
-                            }
-                        }, 100);
-                    }
-                }
-            } catch (e) {
-                // Silent fail
-            }
-        }, 2000); // v3.17: Reduced from 5s to 2s for faster message delivery
 
         // =============== ROBOT INTERACTIONS ===============
         const suggestions = [
@@ -753,6 +646,8 @@
         }
 
         // =============== SOUND ENGINE (Organic Tech) ===============
+        let lastOut = 0; // For Pink Noise (must be before SoundEngine)
+
         const SoundEngine = {
             ctx: null,
             masterGain: null,
@@ -849,22 +744,37 @@
                 if (!this.ctx) this.init();
                 if (this.ctx.state === 'suspended') this.ctx.resume(); // Fix browser policy
 
-                if (type === 'chirp') {
-                    this.playTone(523.25, 0.3, 'sine');
-                    setTimeout(() => this.playTone(659, 0.3, 'sine'), 80);
-                } else if (type === 'laugh') {
-                    // Laugh: Rapid burst of modulations
-                    for (let i = 0; i < 5; i++) {
-                        setTimeout(() => this.playTone(400 + (Math.random() * 200), 0.15, 'triangle'), i * 120);
-                    }
-                } else if (type === 'angry') {
-                    this.playTone(100, 0.5, 'sawtooth');
-                } else {
-                    this.playTone(880, 0.1, 'sine');
+                switch (type) {
+                    case 'chirp':
+                        this.playTone(523.25, 0.3, 'sine');
+                        setTimeout(() => this.playTone(659, 0.3, 'sine'), 80);
+                        break;
+                    case 'laugh':
+                        for (let i = 0; i < 5; i++) {
+                            setTimeout(() => this.playTone(400 + (Math.random() * 200), 0.15, 'triangle'), i * 120);
+                        }
+                        break;
+                    case 'angry':
+                        this.playTone(100, 0.5, 'sawtooth');
+                        break;
+                    case 'purr':   // Pet sound
+                        this.playTone(200, 0.8, 'sine');
+                        setTimeout(() => this.playTone(220, 0.8, 'sine'), 200);
+                        break;
+                    case 'boop':   // Teleport/Wake sound
+                        this.playTone(440, 0.15, 'sine');
+                        break;
+                    case 'snore':  // Sleep sound
+                        this.playTone(80, 1.0, 'sine');
+                        break;
+                    case 'cheep':  // Flying/Movement sound
+                        this.playTone(880, 0.2, 'triangle');
+                        break;
+                    default:
+                        this.playTone(880, 0.1, 'sine');
                 }
             }
         };
-        let lastOut = 0; // For Pink Noise
 
         // Helper: Spawn Emojis (Hearts, Zzz)
         function spawnEmoji(char) {
@@ -887,81 +797,9 @@
         let petStrokeCount = 0;
         let lastPetTime = 0;
 
-        // =============== SPEECH RECOGNITION (Auto-Send) ===============
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition = null;
-        let isListening = false;
-        let silenceTimer = null;
+        // NOTE: Voice input is handled by MediaRecorder (lines 91-128) using Hugging Face STT API.
+        // The duplicate SpeechRecognition handler has been removed to prevent conflicting audio systems.
 
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = true;
-
-            recognition.onstart = () => {
-                isListening = true;
-                aiChatMic.classList.add('listening');
-                addMessage('Listening...', 'ai-msg', 'temp-listening');
-                SoundEngine.play('chirp');
-            };
-
-            recognition.onend = () => {
-                isListening = false;
-                aiChatMic.classList.remove('listening');
-                document.getElementById('temp-listening')?.remove();
-            };
-
-            recognition.onresult = (event) => {
-                const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
-                let liveMsg = document.getElementById('ai-chat-live-text');
-
-                if (!liveMsg) {
-                    liveMsg = document.createElement('div');
-                    liveMsg.id = 'ai-chat-live-text';
-                    liveMsg.className = 'user-msg live-text';
-                    aiChatMessages.appendChild(liveMsg);
-                }
-                liveMsg.textContent = transcript + '...';
-                aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
-
-                // AUTO-SEND LOGIC (Silence Detection)
-                clearTimeout(silenceTimer);
-                if (!event.results[0].isFinal) {
-                    silenceTimer = setTimeout(() => {
-                        recognition.stop(); // Stops listening, triggering 'final' ideally or just taking what we have
-                        // Actually, stopping might not trigger final on all browsers for interim.
-                        // Force send:
-                        if (liveMsg.textContent.trim().length > 3) {
-                            liveMsg.removeAttribute('id');
-                            liveMsg.classList.remove('live-text');
-                            liveMsg.textContent = transcript;
-                            aiChatInput.value = transcript;
-                            processUserMessage();
-                        }
-                    }, 1500); // 1.5s Silence
-                }
-
-                if (event.results[0].isFinal) {
-                    clearTimeout(silenceTimer);
-                    liveMsg.removeAttribute('id');
-                    liveMsg.classList.remove('live-text');
-                    liveMsg.textContent = transcript;
-                    aiChatInput.value = transcript;
-                    processUserMessage();
-                }
-            };
-        }
-
-        if (aiChatMic) {
-            aiChatMic.addEventListener('click', () => {
-                if (!recognition) {
-                    alert("Voice not supported in this browser.");
-                    return;
-                }
-                if (isListening) recognition.stop();
-                else recognition.start();
-            });
-        }
 
         // =============== EYE TRACKING (Vector Math) ===============
         const EyeController = {
@@ -1216,28 +1054,7 @@
                 }
             },
 
-            wakeUp() {
-                if (this.state === 'SLEEP') {
-                    this.state = 'IDLE';
-                    aiChatButton.classList.remove('emotion-sleep');
-                    SoundEngine.play('chirp');
-                    document.title = "Avinash's Portfolio";
-                }
-                this.lastActionTime = Date.now();
-            },
 
-            startPetting() {
-                if (this.state === 'PURRING') return;
-                this.state = 'PURRING';
-                aiChatButton.classList.add('emotion-petting');
-                SoundEngine.play('purr');
-                spawnEmoji('💖'); spawnEmoji('💖');
-
-                setTimeout(() => {
-                    this.state = 'IDLE';
-                    aiChatButton.classList.remove('emotion-petting');
-                }, 4000);
-            },
 
             laugh() {
                 aiChatButton.classList.add('emotion-happy');
@@ -1254,149 +1071,13 @@
                 }, 2000);
             },
 
-            startExpressionEngine() {
-                setInterval(() => {
-                    if (this.state === 'SLEEP' || isDragging || this.isThinking) return;
 
-                    // Check for sleep
-                    if (Date.now() - this.lastActionTime > 60000) {
-                        this.startSleep();
-                        return;
-                    }
-
-                    // Random Expressions & Roaming
-                    const roll = Math.random();
-                    if (roll < 0.2) {
-                        // Expression
-                        const emotions = ['suspicious', 'confused', 'love', 'shocked', 'bored'];
-                        const pick = emotions[Math.floor(Math.random() * emotions.length)];
-                        aiChatButton.classList.add(`emotion-${pick}`);
-                        SoundEngine.play('chirp');
-
-                        setTimeout(() => aiChatButton.classList.remove(`emotion-${pick}`), 3000);
-                    } else if (roll < 0.25) {
-                        // Roam (5% Chance per tick)
-                        this.roamToText();
-                    }
-                }, 5000);
-            },
-
-            // --- MOVEMENT ENGINE ---
-            roamToText() {
-                // Find readable elements
-                const elements = Array.from(document.querySelectorAll('h1, h2, h3, p, button, .nav-link'));
-                const visible = elements.filter(el => {
-                    const rect = el.getBoundingClientRect();
-                    return (
-                        rect.top > 100 &&
-                        rect.bottom < window.innerHeight - 100 &&
-                        rect.left > 50 &&
-                        rect.right < window.innerWidth - 50
-                    );
-                });
-
-                if (visible.length === 0) return;
-                const target = visible[Math.floor(Math.random() * visible.length)];
-
-                const rect = target.getBoundingClientRect();
-                const targetX = rect.left - 20;
-                const targetY = rect.top - 85;
-
-                this.teleportTo(targetX, targetY, 'SITTING', target);
-            },
-
-            returnHome() {
-                const homeX = window.innerWidth - 134;
-                const homeY = window.innerHeight - 134;
-                this.teleportTo(homeX, homeY, 'IDLE');
-            },
-
-            teleportTo(x, y, nextState, targetElement = null) {
-                if (this.state === 'SLEEP' || this.state === 'PETTING') return;
-
-                SoundEngine.play('boop');
-                aiChatButton.classList.add('magic-dust');
-                aiChatButton.style.animation = 'none';
-                aiChatButton.style.opacity = '0';
-                aiChatButton.style.transition = 'opacity 0.5s';
-                this.isStalking = false; // Disable stalking while teleporting
-                this.state = 'MOVING';
-
-                setTimeout(() => {
-                    aiChatButton.style.right = 'auto';
-                    aiChatButton.style.bottom = 'auto';
-                    aiChatButton.style.left = `${x}px`;
-                    aiChatButton.style.top = `${y}px`;
-                    aiChatButton.className = '';
-                    aiChatButton.id = 'ai-chat-button';
-
-                    if (nextState === 'SITTING') {
-                        aiChatButton.classList.add('robot-sitting');
-                        aiChatButton.classList.add('emotion-happy');
-                        SoundEngine.play('chirp');
-                    } else {
-                        aiChatButton.classList.add('robot-flying');
-                        SoundEngine.play('cheep');
-                    }
-                    aiChatButton.style.opacity = '1';
-                    aiChatButton.classList.remove('magic-dust');
-                    aiChatButton.style.animation = 'magicalForm 0.8s ease-out';
-
-                    setTimeout(() => {
-                        if (nextState === 'SITTING') {
-                            aiChatButton.style.animation = 'robotWobble 4s ease-in-out infinite';
-                            this.state = 'SITTING'; // Sitting Mode
-
-                            // Bubble
-                            if (targetElement && targetElement.tagName.match(/H[1-6]/)) {
-                                aiChatButton.setAttribute('data-bubble', "Ooh! " + targetElement.innerText.substring(0, 15) + "...");
-                                aiChatButton.classList.add('bubble-visible');
-                                setTimeout(() => aiChatButton.classList.remove('bubble-visible'), 4000);
-                            }
-
-                            // Return home after 10s
-                            setTimeout(() => {
-                                this.returnHome();
-                                this.isStalking = true; // Resume stalking
-                            }, 10000);
-
-                        } else {
-                            aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
-                            this.state = 'IDLE';
-                            this.isStalking = true;
-                            this.lastActionTime = Date.now();
-                            aiChatButton.style.transform = 'scaleX(1)';
-                        }
-                    }, 800);
-                }, 600);
-            },
-
-            moveTo(x, y) { this.teleportTo(x, y, 'ROAMING'); },
-
-            doTrick() {
-                aiChatButton.style.animation = 'robotJump 0.5s ease-in-out';
-                setTimeout(() => {
-                    if (this.state === 'IDLE') aiChatButton.style.animation = 'robotFloat 3s ease-in-out infinite';
-                }, 500);
-            },
 
             // --- CONTEXT AWARENESS ENGINE ---
             hoverTimer: null,
             lastHovered: null,
 
-            contextMap: {
-                'snowflake': "I'm a Snowflake Expert! Ask about Snowpipe. ❄️",
-                'dbt': "Transformation time! Ask about dbt models. 🧱",
-                'python': "I love Python! Need a script? 🐍",
-                'matillion': "ETL Wizardry! Ask about orchestration. ⚙️",
-                'azure': "Cloud Native! Ask about ADF pipeline. ☁️",
-                'sql': "Select * From Expertise! Ask for a query. 💾",
-                'ai': "That's me! Ask how I was built. 🤖",
-                'ml': "Machine Learning? I can explain models. 🧠",
-                'avinash': "That's the boss! (Avinash Rai) 😎",
-                'contact': "Want to hire him? Click here!",
-                'resume': "I can summarize his resume for you. 📄"
-            },
+
 
             // --- SUGGESTION ENGINE ---
             idleSeconds: 0,
@@ -1865,6 +1546,7 @@
 
                             setTimeout(() => {
                                 this.returnHome();
+                                this.isStalking = true;  // Resume stalking after returning home
                             }, 10000);
 
                         } else {
@@ -1910,7 +1592,7 @@
                 chip.textContent = tip;
                 chip.onclick = () => {
                     aiChatInput.value = tip;
-                    processUserMessage();
+                    sendMessage();
                     container.remove();
                 };
                 container.appendChild(chip);
@@ -1920,73 +1602,36 @@
 
         // =============== INITIALIZATION ===============
         // Initializing Components
-        createChatbotWidget();
-
-        // Initial Suggestions
-        setTimeout(() => {
-            if (aiChatMessages) {
-                const welcome = document.createElement('div');
-                welcome.className = 'ai-msg';
-                welcome.innerHTML = "Hi! I'm Avinash's AI Twin. Ask me anything! 🤖";
-                aiChatMessages.appendChild(welcome);
-                aiChatMessages.appendChild(renderSuggestions());
-            }
-        }, 1000);
-
         EyeController.init();
         SoundEngine.init();
         RobotBrain.init(); // Start Brain
 
-
         // Expose for debugging
         window.robotBrain = RobotBrain;
+        window.toggleAiChat = toggleChat; // Expose global toggle
         window.toggleAngryMode = () => {
             aiChatButton.classList.toggle('emotion-angry');
             SoundEngine.play('angry');
         };
 
-        function toggleChat(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
-
-            // GENIE EFFECT (Glass Opening)
-            if (aiChatWindow.style.display === 'flex' && !aiChatWindow.classList.contains('closing')) {
-                aiChatWindow.classList.add('closing');
-                aiChatWindow.style.opacity = '0';
-                aiChatWindow.style.transform = 'scale(0) translateY(100px)';
-                // Reset origin to button
-                const btnRect = aiChatButton.getBoundingClientRect();
-                // We can't easily change transform-origin dynamically effectively without glitching, 
-                // but default CSS origin (bottom right) works well for "returning into button".
-
-                setTimeout(() => {
-                    aiChatWindow.style.display = 'none';
-                    aiChatWindow.classList.remove('closing');
-                }, 300);
-            } else {
-                aiChatWindow.style.display = 'flex';
-                aiChatWindow.style.opacity = '0';
-                aiChatWindow.style.transform = 'scale(0) translateY(100px)';
-
-                // Force reflow
-                aiChatWindow.offsetHeight;
-
-                aiChatWindow.style.transition = 'all 0.4s cubic-bezier(0.19, 1, 0.22, 1)'; // Genie Curve
-                aiChatWindow.style.opacity = '1';
-                aiChatWindow.style.transform = 'scale(1) translateY(0)';
-
-                if (aiChatInput) setTimeout(() => aiChatInput.focus(), 150);
-            }
-        }
         // v3.9.5: Global function for "Send Me a Message" button
         window.openChatAndNotify = function () {
-            // Open the chat window
-            const aiChatWindow = document.getElementById('ai-chat-window');
-            const aiChatInput = document.getElementById('ai-chat-input');
-
-            if (aiChatWindow) {
-                aiChatWindow.style.display = 'flex';
-                if (aiChatInput) setTimeout(() => aiChatInput.focus(), 120);
+            // Open the chat window using animation
+            if (window.toggleAiChat) {
+                // Only open if closed
+                const aiChatWindow = document.getElementById('ai-chat-window');
+                if (aiChatWindow && aiChatWindow.style.display !== 'flex') {
+                    window.toggleAiChat();
+                }
+            } else {
+                // Fallback
+                const aiChatWindow = document.getElementById('ai-chat-window');
+                if (aiChatWindow) aiChatWindow.style.display = 'flex';
             }
+
+            // Focus input
+            const aiChatInput = document.getElementById('ai-chat-input');
+            if (aiChatInput) setTimeout(() => aiChatInput.focus(), 150);
 
             // Trigger contact
             sendContactRequest();
