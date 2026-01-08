@@ -1,0 +1,27 @@
+{
+    "branding": {
+        "logo": "images/logo.png",
+        "profile_image": "images/profile.jpg",
+        "favicon": "images/logo.png",
+        "site_name": "Avinash Analytics",
+        "tagline": "Data Engineer | Snowflake, dbt, Matillion Expert"
+    },
+    "contact": {
+        "email": "masteravinashrai@gmail.com",
+        "phone": "+91 9795695095",
+        "linkedin": "https://www.linkedin.com/in/avinashanalytics/",
+        "github": "https://github.com/AvinashAnalytics",
+        "twitter": "https://x.com/AvinashAnalytiX"
+    },
+    "features": {
+        "show_chatbot": true,
+        "show_projects": true,
+        "show_blog": true,
+        "enable_analytics": true
+    },
+    "theme": {
+        "primary_color": "#0ea5e9",
+        "secondary_color": "#3b82f6",
+        "accent_color": "#8b5cf6"
+    }
+}
