@@ -1413,6 +1413,73 @@
             }
         });
 
+        // =============== POLLING FOR ADMIN REPLIES ===============
+        async function pollReplies() {
+            try {
+                let userId = localStorage.getItem('chat_uid');
+                if (!userId) return;
+
+                // Check endpoint with peek=true (Non-destructive)
+                const checkUrl = API_URL.replace(/\/ask|\/chat/, '/api/check_replies') + `?user_id=${userId}&peek=true`;
+                const res = await fetch(checkUrl);
+
+                if (res.ok) {
+                    const data = await res.json();
+
+                    // Admin Mode Indicator
+                    if (data.mode === 'admin') {
+                        // Optional: Add visual indicator for live chat
+                    }
+
+                    if (data.replies && data.replies.length > 0) {
+                        const newIds = [];
+
+                        // Load latest history to avoid duplicates
+                        const saved = localStorage.getItem(STORAGE_KEY);
+                        if (saved) conversationHistory = JSON.parse(saved);
+
+                        data.replies.forEach(msg => {
+                            // Deduplicate
+                            const exists = conversationHistory.some(h => h.msg_id === msg.id);
+
+                            if (!exists) {
+                                const content = msg.text || (msg.media ? "[Media]" : "...");
+                                appendMessage(content, 'bot');
+                                speak(content);
+
+                                // Save with ID
+                                conversationHistory.push({
+                                    role: 'assistant',
+                                    content: content,
+                                    timestamp: msg.timestamp,
+                                    msg_id: msg.id
+                                });
+                                newIds.push(msg.id);
+                            }
+                        });
+
+                        if (newIds.length > 0) {
+                            saveHistory(); // Save to localStorage
+
+                            // Send ACK
+                            setTimeout(async () => {
+                                await fetch('https://avinashanalytics-avinash-chatbot.hf.space/api/ack_replies', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ ids: newIds })
+                                });
+                            }, 100);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Poll Error:", e);
+            }
+        }
+
+        // Start Polling (3s interval)
+        setInterval(pollReplies, 3000);
+
         function sendSuggestion(text) {
             userInput.value = text;
             sendMessage();

@@ -161,25 +161,45 @@
 
         // v3.10.1: Load conversation history from localStorage for sync
         let conversationHistory = [];
-        try {
-            const savedHistory = localStorage.getItem('chat_conversation_history');
-            if (savedHistory) {
-                const parsed = JSON.parse(savedHistory);
-                conversationHistory = Array.isArray(parsed) ? parsed : [];
-                console.log(`[Chat] Restored ${conversationHistory.length} messages from history`);
 
-                // Restore messages to UI
-                conversationHistory.forEach(msg => {
-                    if (msg.role === 'user') {
-                        addMessage(msg.content, 'user-msg');
-                    } else {
-                        addMessage(msg.content, 'ai-msg');
+        function loadHistory() {
+            try {
+                const savedHistory = localStorage.getItem('chat_conversation_history');
+                if (savedHistory) {
+                    const parsed = JSON.parse(savedHistory);
+                    conversationHistory = Array.isArray(parsed) ? parsed : [];
+
+                    // Clear current UI to prevent duplicates on reload
+                    if (aiChatMessages) aiChatMessages.innerHTML = '';
+
+                    // Restore messages to UI
+                    conversationHistory.forEach(msg => {
+                        if (msg.role === 'user') {
+                            addMessage(msg.content, 'user-msg');
+                        } else {
+                            addMessage(msg.content, 'ai-msg');
+                        }
+                    });
+                    // Welcome messages
+                    if (conversationHistory.length === 0) {
+                        addMessage("👋 Hi — I'm Avinash's AI assistant. I can help with Snowflake, dbt, Matillion, and AI/ML questions. Try: 'Explain dbt incremental models'", 'ai-msg');
+                        addMessage("Tip: Ask about projects, tech stack, or request sample code.", 'ai-msg');
                     }
-                });
+                }
+            } catch (e) {
+                console.error('[Chat] Failed to restore history:', e);
             }
-        } catch (e) {
-            console.error('[Chat] Failed to restore history:', e);
         }
+
+        // Initial Load
+        loadHistory();
+
+        // Listen for storage changes (Sync tabs)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'chat_conversation_history') {
+                loadHistory();
+            }
+        });
 
         // Helper to save history
         function saveConversationHistory() {
