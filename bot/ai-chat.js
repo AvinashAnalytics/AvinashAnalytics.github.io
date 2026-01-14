@@ -470,6 +470,74 @@
             });
         }
 
+        // =============== FILE UPLOAD LOGIC ===============
+        const aiChatAttach = document.getElementById('ai-chat-attach');
+        const aiChatFile = document.getElementById('ai-chat-file');
+
+        if (aiChatAttach && aiChatFile) {
+            // Trigger file input
+            aiChatAttach.addEventListener('click', () => {
+                aiChatFile.click();
+            });
+
+            // Handle selection
+            aiChatFile.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadFile(file);
+                }
+                // Reset input so same file can be selected again
+                aiChatFile.value = '';
+            });
+        }
+
+        async function uploadFile(file) {
+            if (isLoading) return;
+
+            // Optimistic UI
+            addMessage(`📎 Uploading: ${file.name}...`, 'user-msg');
+            isLoading = true;
+            showTyping();
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('user_id', getUserId());
+
+                const res = await fetch('https://avinashanalytics-avinash-chatbot.hf.space/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                removeTyping();
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.status === 'success' || data.status === 'warning') {
+                        addMessage("✅ File sent! I'll notify Avinash.", 'ai-msg');
+
+                        // Play small success sound
+                        if (typeof SoundEngine !== 'undefined') SoundEngine.play('boop');
+
+                        // Notify via Text as well (Optional, keeps context)
+                        // conversationHistory.push({ role: 'user', content: `[Uploaded File: ${file.name}]` });
+                    } else {
+                        addMessage("❌ Upload failed.", 'ai-msg');
+                    }
+                } else {
+                    addMessage("❌ Server error during upload.", 'ai-msg');
+                    console.error("Upload failed", res.status);
+                }
+
+            } catch (e) {
+                console.error("Network upload error", e);
+                removeTyping();
+                addMessage("⚠ Connection failed.", 'ai-msg');
+            } finally {
+                isLoading = false;
+            }
+        }
+
         if (aiChatInput) {
             aiChatInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
