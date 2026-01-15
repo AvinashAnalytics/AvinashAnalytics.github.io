@@ -606,6 +606,32 @@ h3 {
     font-size: 1.1rem;
 }
 
+/* Phase 30: Recruiter Button */
+.btn-recruiter {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    border: none;
+    animation: recruiter-pulse 3s ease-in-out infinite;
+}
+
+.btn-recruiter:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+}
+
+@keyframes recruiter-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 4px 25px rgba(16, 185, 129, 0.6);
+    }
+}
+
 /* =====================
    SECTION HEADERS
 ===================== */
