@@ -1197,10 +1197,11 @@
             const div = document.createElement('div');
             div.className = `message ${type}`;
 
-            // Format Text: Newlines -> <br>, Bold -> <b>, Links -> <a>
             // First, convert plain URLs to markdown links (if not already in markdown format)
             let formattedText = text
-                .replace(/(^|[^[(])(https?:\/\/[^\s<>)]+)/g, '$1[$2]($2)')  // Convert plain URLs to markdown
+                .replace(/(\]\()?(https?:\/\/[^\s<>)]+)/g, (match, prefix, url) => {
+                    return (prefix === '](') ? match : (prefix || '') + '[' + url + '](' + url + ')';
+                })
                 .replace(/\n/g, '<br>')
                 .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
                 .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--neon-blue); text-decoration:none; border-bottom:1px dashed var(--neon-blue);">$1</a>');

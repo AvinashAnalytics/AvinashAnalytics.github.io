@@ -475,7 +475,24 @@
             if (!aiChatMessages) return;
             const bubble = document.createElement('div');
             bubble.className = className;
-            bubble.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+
+            // 1. Escape HTML first for safety
+            let safeText = escapeHtml(text);
+
+            // 2. Linkify URLs (plain and markdown)
+            // Convert plain URLs first (robust method)
+            safeText = safeText.replace(/(\]\()?(https?:\/\/[^\s<>)]+)/g, (match, prefix, url) => {
+                return (prefix === '](') ? match : (prefix || '') + '[' + url + '](' + url + ')';
+            });
+
+            // Convert Markdown links to <a>
+            safeText = safeText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--neon-blue); text-decoration:underline;">$1</a>');
+
+            // 3. Formatting
+            safeText = safeText.replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+            bubble.innerHTML = safeText;
             aiChatMessages.appendChild(bubble);
             aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
         }
